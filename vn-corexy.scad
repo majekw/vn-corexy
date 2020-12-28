@@ -1,10 +1,10 @@
 /* Very Narrow CoreXY Printer (vn-corexy)
-   Created with goal: use as small space in width dimension as possible
+   Created with goal: use as small space in width dimension as possible.
    (C) 2020 Marek Wodzinski <majek@w7i.pl> https://majek.sh
    
-    vn-corexy is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
-    You should have received a copy of the license along with this work.
-    If not, see <http://creativecommons.org/licenses/by-sa/4.0/>
+   vn-corexy is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
+   You should have received a copy of the license along with this work.
+   If not, see <http://creativecommons.org/licenses/by-sa/4.0/>
 */
 
 /* [print position] */
@@ -36,16 +36,17 @@ include <NopSCADlib/lib.scad>
 $fn=90;
 
 // calculated
-base_w=2*ext+max(build_x+hotend_w,build_plate_w+x_margin);
-base_h=ext*2+400+5;
-base_d=build_plate_d+hotend_d+2*ext+50;
-top_d=base_d+50;
-rail_l=base_d-2*ext;
-z_pulley_support=170;
+base_w=2*ext+max(build_x+hotend_w,build_plate_w+x_margin); //width
+base_h=ext*2+400+5; //height
+base_d=build_plate_d+hotend_d+2*ext+50; //depth
+top_d=base_d+50; //top left/right profiles length
+rail_l=base_d-2*ext; //MGN rails length
+z_pulley_support=170; //distance from front to Z pulley support
 z_belt_space=26;
 pr20=pulley_pr(GT2x20ob_pulley); //radius of puller for belt calculations
 //belt_separation=pulley_od(GT2_10x20_toothed_idler);
 belt_separation=6;
+elec_support=120; //distance for electronic supports from edge of frame
 // extrusion joiner
 joiner_screw_len=12; // M5x12
 joiner_screw_d=5;
@@ -147,7 +148,7 @@ module joiner_hole(jl){
 }
 module joiner1x1(){
   j1x1_len=20;
-  difference(){
+  color(grey(30)) difference(){
     union(){
       // main shape
       linear_extrude(ext) polygon([[0,0], [j1x1_len,0], [j1x1_len,joiner_screw_len-joiner_extr_depth], [joiner_screw_len-joiner_extr_depth,j1x1_len], [0,j1x1_len]]);
@@ -164,7 +165,7 @@ module joiner1x1(){
 }
 module joiner2x2(){
   j2x2_len=40;
-  difference(){
+  color(grey(30)) difference(){
     union(){
       // main shape
       linear_extrude(ext) polygon([[0,0], [j2x2_len,0], [j2x2_len,joiner_screw_len-joiner_extr_depth], [joiner_screw_len-joiner_extr_depth,j2x2_len], [0,j2x2_len]]);
@@ -213,8 +214,8 @@ module frame(){
   // back right (profile B)
   translate([base_w,base_d-2*ext,ext]) ext2040(length_b);
   // back support for electronics (profile B)
-  translate([120,base_d-ext,ext]) ext2020(length_b);
-  translate([base_w+ext-120,base_d-ext,ext]) ext2020(length_b);
+  translate([elec_support,base_d-ext,ext]) ext2020(length_b);
+  translate([base_w+ext-elec_support,base_d-ext,ext]) ext2020(length_b);
   // left support for filament spool
   translate([ext,base_d/2,ext]) ext2020(length_b);
 
@@ -231,6 +232,50 @@ module frame(){
   translate([ext,0,base_h]) rotate([-90,0,0]) ext2020(length_e);
   // top right (profile E)
   translate([base_w,0,base_h]) rotate([-90,0,0]) ext2020(length_e);
+  
+  // joiners
+  // bottom - main frame
+  translate([ext,ext,0]) rotate([0,0,0]) joiner2x2();
+  translate([base_w-ext,ext,0]) rotate([0,0,90]) joiner2x2();
+  translate([ext,base_d-2*ext,0]) rotate([0,0,-90]) joiner2x2();
+  translate([base_w-ext,base_d-2*ext,0]) rotate([0,0,180]) joiner2x2();
+  // bottom - Z pulley support
+  translate([ext,z_pulley_support+0.5*ext,0]) rotate([0,0,0]) joiner1x1();
+  translate([base_w-ext,z_pulley_support+0.5*ext,0]) rotate([0,0,90]) joiner1x1();
+  translate([ext,z_pulley_support-0.5*ext,0]) rotate([0,0,-90]) joiner1x1();
+  translate([base_w-ext,z_pulley_support-0.5*ext,0]) rotate([0,0,180]) joiner1x1();
+  // front
+  translate([ext,ext,2*ext]) rotate([90,0,0]) joiner2x2();
+  translate([base_w-ext,ext,2*ext]) rotate([90,-90,0]) joiner2x2();
+  translate([base_w-ext,ext,base_h-2*ext]) rotate([90,180,0]) joiner2x2();
+  translate([ext,ext,base_h-2*ext]) rotate([90,90,0]) joiner2x2();
+  // left
+  translate([ext,base_d-2*ext,ext]) rotate([90,0,-90]) joiner2x2();
+  translate([ext,base_d-2*ext,base_h-ext]) rotate([0,90,180]) joiner2x2();
+  translate([0,base_d,base_h-ext]) rotate([0,90,0]) joiner2x2();
+  // left - filament support
+  translate([ext,base_d/2,ext]) rotate([90,0,-90]) joiner1x1();
+  translate([ext,base_d/2,base_h-ext]) rotate([0,90,180]) joiner1x1();
+  translate([ext,base_d/2+ext,ext]) rotate([0,-90,0]) joiner1x1();
+  translate([0,base_d/2+ext,base_h-ext]) rotate([0,90,0]) joiner1x1();
+  // right
+  translate([base_w,base_d-2*ext,ext]) rotate([90,0,-90]) joiner2x2();
+  translate([base_w,base_d-2*ext,base_h-ext]) rotate([0,90,180]) joiner2x2();
+  translate([base_w-ext,base_d,base_h-ext]) rotate([0,90,0]) joiner2x2();
+  // back
+  translate([ext,base_d,ext]) rotate([90,0,0]) joiner2x2();
+  translate([ext,base_d-ext,base_h-ext]) rotate([-90,0,0]) joiner2x2();
+  translate([base_w-ext,base_d,base_h-ext]) rotate([90,180,0]) joiner2x2();
+  translate([base_w-ext,base_d,ext]) rotate([90,-90,0]) joiner2x2();
+  // back - electronics support
+  translate([elec_support,base_d,ext]) rotate([90,0,0]) joiner1x1();
+  translate([base_w+ext-elec_support,base_d,ext]) rotate([90,0,0]) joiner1x1();
+  translate([elec_support,base_d-ext,base_h-ext]) rotate([-90,0,0]) joiner1x1();
+  translate([base_w+ext-elec_support,base_d-ext,base_h-ext]) rotate([-90,0,0]) joiner1x1();
+  translate([elec_support-ext,base_d,base_h-ext]) rotate([90,180,0]) joiner1x1();
+  translate([base_w-elec_support,base_d,base_h-ext]) rotate([90,180,0]) joiner1x1();
+  translate([elec_support-ext,base_d,ext]) rotate([90,-90,0]) joiner1x1();
+  translate([base_w-elec_support,base_d,ext]) rotate([90,-90,0]) joiner1x1();
 }
 
 module bmg_extruder(){
@@ -541,7 +586,7 @@ module z_axis(){
   
 }
 module electronics(){
-  translate([psu_width(S_300_12)/2,base_d,-psu_length(S_300_12)/2+base_h-ext]) rotate([0,-90,-90]) psu(S_300_12);
+  translate([psu_width(S_300_12)/2,base_d,-psu_length(S_300_12)/2+base_h-3*ext]) rotate([0,-90,-90]) psu(S_300_12);
 }
 
 
@@ -551,7 +596,6 @@ if ($preview) {
   gantry();
   z_axis();
   electronics();
-  #translate([ext,2*ext,ext]) rotate([0,-90,0]) joiner2x2();
 } else {
   //joiner1x1();
   tnut_m5();
