@@ -30,6 +30,9 @@ ext_type=1; // [0:T-SLOT, 1:V-SLOT]
 /* [minumum margin between build plate and frame] */
 x_margin=10;
 
+/* [render printable parts] */
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2]
+
 // internal stuff starts here
 /* [Hidden] */
 include <NopSCADlib/lib.scad>
@@ -79,12 +82,13 @@ module vtriangle(){
     polygon([[-vtr/2,0],[vtr/2,0],[0,vtr/2]]);
 }
 
-module vslot_groove(length, depth=0.9){
+module vslot_groove(length, depth=1.2){
   scale([0.98,1,1]) linear_extrude(length) intersection(){
     vtriangle();
     translate([-vtr/2,0,0]) square([vtr,depth]);
   }
 }
+
 module vslot2020(type, length, center = true, cornerHole = false) {
   //! Draw the specified extrusion
   color(grey(20))
@@ -131,9 +135,9 @@ module ext2040(length){
 }
 module tnut_m5(){
   t_len=11;
-  t_groove=0.8;
+  t_tongue=0;
   difference(){
-translate([-t_len/2,-5,0]) rotate([90,0,90]) linear_extrude(t_len) polygon([ [0,0], [2,0], [2,-t_groove], [8,-t_groove], [8,0], [10,0], [10,1.9], [8,3.8], [1.9,3.8], [0,1.9] ]);
+translate([-t_len/2,-5,0]) rotate([90,0,90]) linear_extrude(t_len) polygon([ [0,0], [2,0], [2,-t_tongue], [8,-t_tongue], [8,0], [10,0], [10,1.9], [8,3.8], [1.9,3.8], [0,1.9] ]);
     
     scale([1.03,1.03,1]) translate([0,0,0.7]) nut(M5_nut);
     translate([0,0,-1]) cylinder(h=5,d=5.2);
@@ -591,13 +595,21 @@ module electronics(){
 
 
 
-if ($preview) {
+module draw_whole_printer(){
   frame();
   gantry();
   z_axis();
   electronics();
+}
+module draw_printable_parts(){
+  if (render_parts==0 || render_parts==1) translate([0,0,0]) tnut_m5();
+  if (render_parts==0 || render_parts==2) translate([10,0,0]) joiner1x1();
+  if (render_parts==0 || render_parts==3) translate([40,0,0]) joiner2x2();
+}
+
+
+if ($preview) {
+  draw_whole_printer();
 } else {
-  //joiner1x1();
-  tnut_m5();
-  //joiner2x2();
+  draw_printable_parts();
 }
