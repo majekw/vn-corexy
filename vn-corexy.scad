@@ -29,6 +29,9 @@ ext=20;
 ext_type=1; // [0:T-SLOT, 1:V-SLOT]
 /* [minumum margin between build plate and frame] */
 x_margin=10;
+/* [printed corners] */
+printed_corners=true; // [false:no, true:yes]
+printed_corners_nut=2; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 
 /* [render printable parts] */
 render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2]
@@ -36,7 +39,6 @@ render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2]
 // internal stuff starts here
 /* [Hidden] */
 include <NopSCADlib/lib.scad>
-$fn=90;
 
 // calculated
 base_w=2*ext+max(build_x+hotend_w,build_plate_w+x_margin); //width
@@ -82,7 +84,7 @@ module vtriangle(){
     polygon([[-vtr/2,0],[vtr/2,0],[0,vtr/2]]);
 }
 
-module vslot_groove(length, depth=1.2){
+module vslot_groove(length, depth=1.5){
   scale([0.98,1,1]) linear_extrude(length) intersection(){
     vtriangle();
     translate([-vtr/2,0,0]) square([vtr,depth]);
@@ -148,6 +150,12 @@ module joiner_hole(jl){
   union(){
     rotate([0,0,0]) cylinder(h=joiner_screw_len,d=joiner_screw_d);
     rotate([180,0,0]) cylinder(h=jl,d=joiner_screw_washer);
+    // cut tongue for rotating t-nut
+    if (printed_corners_nut==1)
+      translate([0,0,joiner_in_material+1]) cylinder(d=8, h=2, center=true);
+    // cut tongue for long sliding t-nut
+    if (printed_corners_nut==2)
+      translate([0,0,joiner_in_material+1]) cube([7,12,2], center=true); // 12 - slide length
   }
 }
 module joiner1x1(){
@@ -193,50 +201,7 @@ module leadnut_cut(){
     translate([-6,-15,-20]) cube([12,30,30]);
   }
 }
-module frame(){
-  length_a=base_w-2*ext;
-  echo(length_a=length_a);
-  // front bottom (profile A)
-  translate([ext,ext,0]) rotate([0,90,0]) rotate([0,0,90]) ext2040(length_a);
-  // rear bottom (profile A)
-  translate([ext,base_d-2*ext,0]) rotate([0,90,0]) ext2040(length_a);
-  // rear top (profile A)
-  translate([ext,base_d-ext,base_h-ext]) rotate([0,90,0]) ext2040(length_a);
-  // front top (profile A)
-  translate([ext,0,base_h]) rotate([0,90,0]) rotate([0,0,-90]) ext2040(length_a);
-  // Z pulley support (profile A)
-  translate([ext,z_pulley_support-ext/2,0]) rotate([0,90,0]) ext2020(length_a);
-
-  length_b=base_h-2*ext;
-  echo(length_b=length_b);
-  // front left (profile B)
-  translate([ext,0,ext]) ext2040(length_b);
-  // front right (profile B)
-  translate([base_w,0,ext]) ext2040(length_b);
-  // back left (profile B)
-  translate([ext,base_d-2*ext,ext]) ext2040(length_b);
-  // back right (profile B)
-  translate([base_w,base_d-2*ext,ext]) ext2040(length_b);
-  // back support for electronics (profile B)
-  translate([elec_support,base_d-ext,ext]) ext2020(length_b);
-  translate([base_w+ext-elec_support,base_d-ext,ext]) ext2020(length_b);
-  // left support for filament spool
-  translate([ext,base_d/2,ext]) ext2020(length_b);
-
-  length_d=base_d;
-  echo(length_d=length_d);
-  // bottom left (profile D)
-  translate([ext,0,ext]) rotate([-90,0,0]) ext2020(length_d);
-  // bottom right (profile D)
-  translate([base_w,0,ext]) rotate([-90,0,0]) ext2020(length_d);
-  
-  length_e=top_d;
-  echo(length_e=length_e);
-  // top left (profile E)
-  translate([ext,0,base_h]) rotate([-90,0,0]) ext2020(length_e);
-  // top right (profile E)
-  translate([base_w,0,base_h]) rotate([-90,0,0]) ext2020(length_e);
-  
+module printed_joiners(){
   // joiners
   // bottom - main frame
   translate([ext,ext,0]) rotate([0,0,0]) joiner2x2();
@@ -280,6 +245,53 @@ module frame(){
   translate([base_w-elec_support,base_d,base_h-ext]) rotate([90,180,0]) joiner1x1();
   translate([elec_support-ext,base_d,ext]) rotate([90,-90,0]) joiner1x1();
   translate([base_w-elec_support,base_d,ext]) rotate([90,-90,0]) joiner1x1();
+}
+module frame(){
+  length_a=base_w-2*ext;
+  echo(length_a=length_a);
+  // front bottom (profile A)
+  translate([ext,ext,0]) rotate([0,90,0]) rotate([0,0,90]) ext2040(length_a);
+  // rear bottom (profile A)
+  translate([ext,base_d-2*ext,0]) rotate([0,90,0]) ext2040(length_a);
+  // rear top (profile A)
+  translate([ext,base_d-ext,base_h-ext]) rotate([0,90,0]) ext2040(length_a);
+  // front top (profile A)
+  translate([ext,0,base_h]) rotate([0,90,0]) rotate([0,0,-90]) ext2040(length_a);
+  // Z pulley support (profile A)
+  translate([ext,z_pulley_support-ext/2,0]) rotate([0,90,0]) ext2020(length_a);
+
+  length_b=base_h-2*ext;
+  echo(length_b=length_b);
+  // front left (profile B)
+  translate([ext,0,ext]) ext2040(length_b);
+  // front right (profile B)
+  translate([base_w,0,ext]) ext2040(length_b);
+  // back left (profile B)
+  translate([ext,base_d-2*ext,ext]) ext2040(length_b);
+  // back right (profile B)
+  translate([base_w,base_d-2*ext,ext]) ext2040(length_b);
+  // back support for electronics (profile B)
+  translate([elec_support,base_d-ext,ext]) ext2020(length_b);
+  translate([base_w+ext-elec_support,base_d-ext,ext]) ext2020(length_b);
+  // left support for filament spool
+  translate([ext,base_d/2,ext]) ext2020(length_b);
+
+  length_d=base_d;
+  echo(length_d=length_d);
+  // bottom left (profile D)
+  translate([ext,0,ext]) rotate([-90,0,0]) ext2020(length_d);
+  // bottom right (profile D)
+  translate([base_w,0,ext]) rotate([-90,0,0]) ext2020(length_d);
+
+  length_e=top_d;
+  echo(length_e=length_e);
+  // top left (profile E)
+  translate([ext,0,base_h]) rotate([-90,0,0]) ext2020(length_e);
+  // top right (profile E)
+  translate([base_w,0,base_h]) rotate([-90,0,0]) ext2020(length_e);
+
+  // printed joiners
+  if (printed_corners) printed_joiners();
 }
 
 module bmg_extruder(){
@@ -609,7 +621,9 @@ module draw_printable_parts(){
 
 
 if ($preview) {
+  $fn=30;
   draw_whole_printer();
 } else {
+  $fn=90;
   draw_printable_parts();
 }
