@@ -41,26 +41,26 @@ render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2]
 include <NopSCADlib/lib.scad>
 
 // calculated
-base_w=2*ext+max(build_x+hotend_w,build_plate_w+x_margin); //width
-base_h=ext*2+400+5; //height
-base_d=build_plate_d+hotend_d+2*ext+50; //depth
-top_d=base_d+50; //top left/right profiles length
-rail_l=base_d-2*ext; //MGN rails length
+base_w=2*ext+max(build_x+hotend_w,build_plate_w+x_margin); // frame width
+base_h=ext*2+400+5; //height of frame base
+base_d=build_plate_d+hotend_d+2*ext+50; // frame depth
+top_d=base_d+50; // top left/right profiles length, 50 is just wild guess to allow some space between X carriage and rear of frame
+rail_l=base_d-2*ext; // MGN rails length
 z_pulley_support=170; //distance from front to Z pulley support
-z_belt_space=26;
-pr20=pulley_pr(GT2x20ob_pulley); //radius of puller for belt calculations
+z_belt_space=26; // space from bottom of frame to Z belt
+pr20=pulley_pr(GT2x20ob_pulley); // radius of puller for belt calculations
 //belt_separation=pulley_od(GT2_10x20_toothed_idler);
-belt_separation=6;
-elec_support=120; //distance for electronic supports from edge of frame
-// extrusion joiner
-joiner_screw_len=12; // M5x12
-joiner_screw_d=5;
-joiner_screw_head_d=8.5;
-joiner_screw_washer=10;
-joiner_screw_head_h=5;
-joiner_extr_depth=6;
-joiner_in_material=joiner_screw_len-joiner_extr_depth;
-joiner_space=joiner_screw_len-joiner_extr_depth+joiner_screw_head_h+joiner_screw_head_d/2; // minimum space from corner to allow put two screws
+belt_separation=6; // distance between side belts
+elec_support=120; // distance for electronic supports from edge of frame (just guess, should be adjusted for real hardware)
+// extrusion joiner/corner, set for M5x12
+joiner_screw_len=12; // length of screw
+joiner_screw_d=5; // screw diameter
+joiner_screw_head_d=8.5; // head diameter
+joiner_screw_washer=10; // washer diameter
+joiner_screw_head_h=5; // head height
+joiner_extr_depth=6; // depth of screw in extrusion profile, 6 is fine for 2020
+joiner_in_material=joiner_screw_len-joiner_extr_depth; // amount of thread in joiner
+joiner_space=joiner_screw_len-joiner_extr_depth+joiner_screw_head_h+joiner_screw_head_d/2; // minimum space from corner to allow put two perpendicular screws
 
 // Extra stuff not in NopSCADlib
 // 688RS ball bearings (8x16x5)
@@ -77,7 +77,7 @@ NEMA17S23 = ["NEMA17S", 42.3, 23, 53.6/2, 25, 11, 2, 5, 24, 31, [8, 8]];
 // V-SLOT
 V2020  = [ "V2020", 20, 20,  4.2, 3, 7.8, 6.25, 11.0, 1.8, 1.5, 1 ];
 V2040  = [ "V2040", 20, 40,  4.2, 3, 7.8, 6.25, 11.0, 1.8, 1.5, 1 ];
-vtr=9.16; // v-slot tiangle width
+vtr=9.16; // v-slot top tiangle width
 
 
 module vtriangle(){
@@ -152,7 +152,7 @@ module joiner_hole(jl){
     rotate([180,0,0]) cylinder(h=jl,d=joiner_screw_washer);
     // cut tongue for rotating t-nut
     if (printed_corners_nut==1)
-      translate([0,0,joiner_in_material+1]) cylinder(d=8, h=2, center=true);
+      translate([0,0,joiner_in_material+1]) cylinder(d=9, h=2, center=true);
     // cut tongue for long sliding t-nut
     if (printed_corners_nut==2)
       translate([0,0,joiner_in_material+1]) cube([7,12,2], center=true); // 12 - slide length
