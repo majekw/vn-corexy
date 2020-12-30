@@ -36,6 +36,15 @@ printed_corners_nut=2; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 /* [render printable parts] */
 render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2]
 
+/* [tweaks/hacks for printing tolerance] */
+
+// vslot_groove_scale: increase up to 1 if your printer is perfect :-), decrease when joiner doesn't fit into v-slot groove
+vslot_groove_scale=0.98;
+
+// tnut_nut_scale: 1 for perfect printer, little larger if nut doesn't fit into hole
+tnut_nut_scale=1.03;
+
+
 // internal stuff starts here
 /* [Hidden] */
 include <NopSCADlib/lib.scad>
@@ -85,7 +94,7 @@ module vtriangle(){
 }
 
 module vslot_groove(length, depth=1.5){
-  scale([0.98,1,1]) linear_extrude(length) intersection(){
+  scale([vslot_groove_scale,1,1]) linear_extrude(length) intersection(){
     vtriangle();
     translate([-vtr/2,0,0]) square([vtr,depth]);
   }
@@ -141,7 +150,7 @@ module tnut_m5(){
   difference(){
 translate([-t_len/2,-5,0]) rotate([90,0,90]) linear_extrude(t_len) polygon([ [0,0], [2,0], [2,-t_tongue], [8,-t_tongue], [8,0], [10,0], [10,1.9], [8,3.8], [1.9,3.8], [0,1.9] ]);
     
-    scale([1.03,1.03,1]) translate([0,0,0.7]) nut(M5_nut);
+    scale([tnut_nut_scale,tnut_nut_scale,1]) translate([0,0,0.7]) nut(M5_nut);
     translate([0,0,-1]) cylinder(h=5,d=5.2);
     
   }
