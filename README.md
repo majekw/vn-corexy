@@ -3,6 +3,8 @@ Very Narrow CoreXY 3D Printer
 
 This is OpenScad source code to generate hardware parts for vn-corexy.
 
+**WARNING: WORK IN PROGRESS**
+
 # Requirements
 - OpenScad https://www.openscad.org/
 - NopSCADlib library https://github.com/nophead/NopSCADlib
