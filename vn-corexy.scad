@@ -304,10 +304,11 @@ module frame(){
 }
 
 module bmg_extruder(){
+  bmg_color=[0.2, 0.2, 0.2];
   bmg_points=[[0,0],[42,0],[42,53],[19,53],[0,38]];
-  translate([-21,-17,-21]) rotate([90,0,0]) color([0.1,0.1,0.1]) linear_extrude(height=34, center=true) polygon(bmg_points);
+  translate([-21,-17,-21]) rotate([90,0,0]) color(bmg_color) linear_extrude(height=34, center=true) polygon(bmg_points);
   bmg_side_points=[[0,0],[20,0],[20,26],[16,54],[4,54],[0,26]];
-  translate([20,-29,-3]) rotate([95,0,90]) color([0.1,0.1,0.1]) linear_extrude(height=5, center=true) polygon(bmg_side_points);
+  translate([20,-29,-3]) rotate([95,0,90]) color(bmg_color) linear_extrude(height=5, center=true) polygon(bmg_side_points);
 }
 module extruder(){
   translate([0,-36,-4]) rotate([0,0,90]) hot_end(E3Dv6, 1.75, bowden = false,resistor_wire_rotate = [0,0,0], naked = false);
