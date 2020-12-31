@@ -1,6 +1,8 @@
 # vn-corexy
 Very Narrow CoreXY 3D Printer
 
+![vn-corexy rendering](img/vn-corexy.png)
+
 This is OpenScad source code to generate hardware parts for vn-corexy.
 
 **WARNING: WORK IN PROGRESS**
