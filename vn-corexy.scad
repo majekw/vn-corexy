@@ -44,6 +44,9 @@ vslot_groove_scale=0.98;
 // tnut_nut_scale: 1 for perfect printer, little larger if nut doesn't fit into hole
 tnut_nut_scale=1.03;
 
+// how to scale up holes for M5 to fit
+m5_hole_scale=1.04;
+
 
 // internal stuff starts here
 /* [Hidden] */
@@ -60,7 +63,7 @@ z_belt_space=26; // space from bottom of frame to Z belt
 pr20=pulley_pr(GT2x20ob_pulley); // radius of puller for belt calculations
 //belt_separation=pulley_od(GT2_10x20_toothed_idler);
 belt_separation=6; // distance between side belts
-elec_support=120; // distance for electronic supports from edge of frame (just guess, should be adjusted for real hardware)
+elec_support=135; // distance for electronic supports from edge of frame (just guess, should be adjusted for real hardware)
 // extrusion joiner/corner, set for M5x12
 joiner_screw_len=12; // length of screw
 joiner_screw_d=5; // screw diameter
@@ -151,13 +154,15 @@ module tnut_m5(){
 translate([-t_len/2,-5,0]) rotate([90,0,90]) linear_extrude(t_len) polygon([ [0,0], [2,0], [2,-t_tongue], [8,-t_tongue], [8,0], [10,0], [10,1.9], [8,3.8], [1.9,3.8], [0,1.9] ]);
     
     scale([tnut_nut_scale,tnut_nut_scale,1]) translate([0,0,0.7]) nut(M5_nut);
-    translate([0,0,-1]) cylinder(h=5,d=5.2);
+    translate([0,0,-1]) cylinder(h=5,d=5*m5_hole_scale);
     
   }
 }
 module joiner_hole(jl){
   union(){
-    rotate([0,0,0]) cylinder(h=joiner_screw_len,d=joiner_screw_d);
+    // hole for thread
+    rotate([0,0,0]) cylinder(h=joiner_screw_len,d=joiner_screw_d*m5_hole_scale);
+    // hole for head
     rotate([180,0,0]) cylinder(h=jl,d=joiner_screw_washer);
     // cut tongue for rotating t-nut
     if (printed_corners_nut==1)
@@ -256,6 +261,7 @@ module printed_joiners(){
   translate([base_w-elec_support,base_d,ext]) rotate([90,-90,0]) joiner1x1();
 }
 module frame(){
+  // horizontal
   length_a=base_w-2*ext;
   echo(length_a=length_a);
   // front bottom (profile A)
@@ -263,12 +269,13 @@ module frame(){
   // rear bottom (profile A)
   translate([ext,base_d-2*ext,0]) rotate([0,90,0]) ext2040(length_a);
   // rear top (profile A)
-  translate([ext,base_d-ext,base_h-ext]) rotate([0,90,0]) ext2040(length_a);
+  translate([ext,base_d-2*ext,base_h-ext]) rotate([0,90,0]) ext2040(length_a);
   // front top (profile A)
   translate([ext,0,base_h]) rotate([0,90,0]) rotate([0,0,-90]) ext2040(length_a);
   // Z pulley support (profile A)
   translate([ext,z_pulley_support-ext/2,0]) rotate([0,90,0]) ext2020(length_a);
 
+  // vertical
   length_b=base_h-2*ext;
   echo(length_b=length_b);
   // front left (profile B)
@@ -383,11 +390,11 @@ module gantry_joint_l(){
 module gantry_joint_r(){
   // pulley support //TODO
   m5_screw1=40;
-  translate([ext/2,6+ext,m5_screw1-5+7+ext]) screw(M5_cap_screw,m5_screw1);
+  translate([ext/2,6+ext,m5_screw1-15+ext]) screw(M5_cap_screw,m5_screw1);
   m5_screw2=40;
-  translate([ext/2-belt_separation,18.5+ext,m5_screw2+3+20]) screw(M5_cap_screw,m5_screw2);
+  translate([ext/2-belt_separation,18.5+ext,m5_screw2+10]) screw(M5_cap_screw,m5_screw2);
   m5_screw3=16;
-  translate([ext/2,carriage_length(MGN12H_carriage),17]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
+  translate([ext/2,carriage_length(MGN12H_carriage),10]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
   m3_screw1=12;
   translate([0,13,m3_screw1-8]) screw(M3_cap_screw,m3_screw1);
   translate([0,33,m3_screw1-8]) screw(M3_cap_screw,m3_screw1);
@@ -413,24 +420,22 @@ module gantry(){
   translate([base_w-ext/2,rail_l/2+ext,base_h]) rotate([0,0,90]) rail_assembly(MGN12H,rail_l,carriage_pos_y);
 
   // X gantry support
-  translate([0,carriage_y_real-ext/2+3,base_h+13+7]) union(){
+  translate([0,carriage_y_real-ext,base_h+13]) union(){
     echo(base_w=base_w);
     translate([ext/4,0,0]) rotate([0,90,0]) ext2020(base_w-ext/2);
-    translate([base_w/2,0,ext/2]) rotate([90,0,0]) rail_assembly(MGN12H,base_w-ext,carriage_pos_x);
+    translate([base_w/2,ext*0.5,ext]) rotate([0,0,0]) rail_assembly(MGN12H,base_w-1.5*ext,carriage_pos_x);
     // gantry joints
-    translate([0,ext/2-3-carriage_length(MGN12H_carriage)/2,-7]) {
+    translate([0,-3,0]) {
       #gantry_joint_l();
       #translate([base_w-ext,0,0]) gantry_joint_r();
     }
-    
-  }
-  
   // Extruder and mount
-  translate([base_w/2-build_x/2+pos_x,real_y+10,base_h+30]) extruder();
+  translate([base_w/2-build_x/2+pos_x,-18,10]) extruder();
+  }
   
   // pulleys
   // X axis
-  shift_x=43;
+  shift_x=34;
   // X start anchor point
   bx1=[base_w/2-build_x/2+pos_x,carriage_y_real+3+pr20,base_h+shift_x];
   translate(bx1) cube([0.1,12,12]);
@@ -463,7 +468,7 @@ module gantry(){
   echo("X belt length",belt_length(belt_x_path));
 
   // Y axis
-  shift_y=43+15;
+  shift_y=shift_x+15;
   // Y start anchor point
   by1=[base_w/2-build_x/2+pos_x,carriage_y_real+3+pr20,base_h+shift_y];
   translate(by1) cube([0.1,12,12]);
@@ -489,7 +494,7 @@ module gantry(){
   translate(by7) pulley(GT2_10x20_toothed_idler);
   // Y idler - gantry left
   by8=[ext/2,carriage_y_real+3,base_h+shift_y];
-  translate(by8) pulley(GT2_10x20_plain_idler);
+  translate(by8) pulley(GT2_10x20_toothed_idler);
 
   // Y belt
   belt_y_path=[[by1.x,by1.y,0], [by2.x,by2.y,-pr20], [by3.x,by3.y,-pr20], [by4.x,by4.y,pr20], [by5.x,by5.y,pr20], [by6.x,by6.y,pr20], [by7.x,by7.y,pr20], [by8.x,by8.y,pr20]];
@@ -612,7 +617,8 @@ module z_axis(){
   
 }
 module electronics(){
-  translate([psu_width(S_300_12)/2,base_d,-psu_length(S_300_12)/2+base_h-3*ext]) rotate([0,-90,-90]) psu(S_300_12);
+  // PSU
+  translate([psu_width(S_300_12)/2+ext/2,base_d+psu_height(S_300_12),psu_length(S_300_12)/2+4*ext]) rotate([180,-90,-90]) psu(S_300_12);
 }
 
 
