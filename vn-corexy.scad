@@ -34,7 +34,7 @@ printed_corners=true; // [false:no, true:yes]
 printed_corners_nut=2; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount]
 
 /* [tweaks/hacks for printing tolerance] */
 
@@ -90,6 +90,8 @@ NEMA17S23 = ["NEMA17S", 42.3, 23, 53.6/2, 25, 11, 2, 5, 24, 31, [8, 8]];
 V2020  = [ "V2020", 20, 20,  4.2, 3, 7.8, 6.25, 11.0, 1.8, 1.5, 1 ];
 V2040  = [ "V2040", 20, 40,  4.2, 3, 7.8, 6.25, 11.0, 1.8, 1.5, 1 ];
 vtr=9.16; // v-slot top tiangle width
+// Large rocker
+large_rocker   = ["large_rocker", "Some large rocker found in drawer", 22, 28, 25, 30.5, 2.10, 21.3, 26, 15.8, 3,  -1, 2.5, small_spades];
 
 
 module vtriangle(){
@@ -164,6 +166,8 @@ module joiner_hole(jl){
     rotate([0,0,0]) cylinder(h=joiner_screw_len,d=joiner_screw_d*m5_hole_scale);
     // hole for head
     rotate([180,0,0]) cylinder(h=jl,d=joiner_screw_washer);
+    // hole for hex tool
+    translate([0,0,-jl]) rotate([180,0,0]) cylinder(h=40,d=5);
     // cut tongue for rotating t-nut
     if (printed_corners_nut==1)
       translate([0,0,joiner_in_material+1]) cylinder(d=9, h=2, center=true);
@@ -616,10 +620,11 @@ module z_axis(){
   }
   
 }
-module btt_skr_13(){
+module btt_skr_13(mot=0){
+  // mot=1 - draw BTT-EXP-MOT module
   color([0.4,0,0]) {
     cube([109.67,84.30,25]);
-    translate([115,0,0]) cube([46.00,84.30,25]);
+    if (mot==1) translate([115,0,0]) cube([46.00,84.30,25]);
   }
 }
 module psu_mount(h_len, h_h, mirr){
@@ -631,25 +636,59 @@ module psu_mount(h_len, h_h, mirr){
       // screw mount
       cube([ext,1.5*ext,joiner_in_material]);
       // psu mount
-      translate([ext/4+mirr*ext/4,ext/2,0]) rotate([90,0,90]) linear_extrude(ext/4) polygon([[0,0],[h_len+m_h/2+ext/2,0],[h_len+m_h/2+ext/2,m_h],[ext,m_h]]);
+      translate([ext/4+mirr*ext/4,ext/2,0]) rotate([90,0,90]) linear_extrude(ext/4) polygon([[0,0],[h_len+m_h/2+ext,0],[h_len+m_h/2+ext,m_h],[ext,m_h]]);
     }
     // frame screw hole
     translate([ext/2,ext/2,joiner_in_material])rotate([0,180,0]) joiner_hole(joiner_in_material);
     // psu screw hole
-    translate([ext/4+mirr*ext/4,ext+h_len,h_h]) rotate([0,90,0]) cylinder(d=3.5,h=ext/4);
+    translate([ext/4+mirr*ext/4,1.5*ext+h_len,h_h]) rotate([0,90,0]) cylinder(d=4.5,h=ext/4);
+  }
+}
+module power_socket_mount(){
+  color(grey(30)) difference(){
+    union(){
+      // bottom part
+      linear_extrude(ext/4) polygon([[ext/4,0],[ext/4,50],[2*ext,50],[3*ext,0]]);
+      // top mount
+       //cube([0.75*ext,joiner_in_material,ext]);
+      translate([ext/4,0,3*ext]) linear_extrude(ext) polygon([[0,0],[ext,0],[ext,joiner_in_material],[0,ext]]);
+      // bottom mount
+      translate([ext/4,joiner_in_material,0]) rotate([90,0,0]) linear_extrude(joiner_in_material) polygon([[0,0],[2.75*ext,0],[2.75*ext,ext],[1.5*ext,ext],[0,ext/4]]);
+      // mount plate
+      translate([ext/4,0,0]) cube([ext/4,50,7*ext]);
+    }
+    // bottom mount hole
+    translate([2.2*ext,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(25);
+    // top mount hole
+    translate([ext/2,joiner_in_material,3.5*ext]) rotate([90,0,0]) joiner_hole(20);
+    // PSU mount hole
+    translate([ext/4,12.5,4*ext+45]) rotate([0,90,0]) cylinder(d=4.5,h=ext/4);
+    // power socket hole
+    translate([5+ext/8,25,11+10]) rotate([90,0,-90]) iec_holes(IEC_inlet_atx,h=ext/4);
+    // Power switch
+    translate([5+ext/8,24,38+10]) rotate([0,-90,0]) rocker_hole(large_rocker,h=ext/4);
   }
 }
 module electronics(){
-  // PSU
-  psu_mount_h=4*ext;
-  translate([psu_width(S_300_12)/2+ext/2,base_d+psu_height(S_300_12),psu_length(S_300_12)/2+psu_mount_h]) rotate([180,-90,-90]) psu(S_300_12);
-  // PSU mounts
-  translate([ext,base_d,psu_mount_h-ext*1.5]) rotate([-90,180,0]) psu_mount(45,12.5,1);
-  translate([elec_support,base_d,psu_mount_h-ext*1.5]) rotate([-90,180,0]) psu_mount(45,12.5,0);
-  translate([elec_support-ext,base_d,psu_mount_h+psu_length(S_300_12)+1.5*ext]) rotate([-90,0,0]) psu_mount(35,12.5,1);
-  translate([0,base_d,psu_mount_h+psu_length(S_300_12)+1.5*ext]) rotate([-90,0,0]) psu_mount(35,12.5,0);
-  // Control board
-  translate([base_w-elec_support/2-55+ext/2,base_d,80]) rotate([-90,-90,0]) btt_skr_13();
+  translate([0,base_d,0]){
+    // PSU
+    psu_mount_h=4*ext;
+    translate([psu_width(S_300_12)/2+ext/2,psu_height(S_300_12),psu_length(S_300_12)/2+psu_mount_h]) rotate([180,-90,-90]) psu(S_300_12);
+    // PSU mounts
+    //translate([ext,0,psu_mount_h-ext*1.5]) rotate([-90,180,0]) psu_mount(45,12.5,1);
+    translate([elec_support,0,psu_mount_h-ext*1.5]) rotate([-90,180,0]) psu_mount(45,12.5,0);
+    translate([elec_support-ext,0,psu_mount_h+psu_length(S_300_12)+1.5*ext]) rotate([-90,0,0]) psu_mount(35,12.5,1);
+    translate([0,0,psu_mount_h+psu_length(S_300_12)+1.5*ext]) rotate([-90,0,0]) psu_mount(35,12.5,0);
+    // Power socket
+    translate([5,25,11+10]) rotate([90,0,-90]) iec(IEC_inlet_atx);
+    // Power switch
+    translate([5,24,38+10]) rotate([0,-90,0]) rocker(large_rocker);
+    // power socket mount
+    translate([0,0,0]) rotate([0,0,0]) power_socket_mount();
+    
+    // Control board
+    translate([base_w-elec_support/2-55+ext/2,0,80]) rotate([-90,-90,0]) btt_skr_13(1);
+  }
 }
 
 
@@ -665,11 +704,12 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==2) translate([10,0,0]) joiner1x1();
   if (render_parts==0 || render_parts==3) translate([40,0,0]) joiner2x2();
   if (render_parts==0 || render_parts==4) {
-    translate([-30,0,0]) psu_mount(45,12.5,1);
+    //translate([-30,0,0]) psu_mount(45,12.5,1);
     translate([-55,0,0]) psu_mount(45,12.5,0);
     translate([-80,0,0]) psu_mount(35,12.5,1);
     translate([-105,0,0]) psu_mount(35,12.5,0);
   }
+  if (render_parts==0 || render_parts==5) translate([-30,30,0]) power_socket_mount();
 }
 
 
