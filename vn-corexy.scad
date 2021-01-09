@@ -34,7 +34,7 @@ printed_corners=true; // [false:no, true:yes]
 printed_corners_nut=2; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts]
 
 /* [tweaks/hacks for printing tolerance] */
 
@@ -616,9 +616,40 @@ module z_axis(){
   }
   
 }
+module btt_skr_13(){
+  color([0.4,0,0]) {
+    cube([109.67,84.30,25]);
+    translate([115,0,0]) cube([46.00,84.30,25]);
+  }
+}
+module psu_mount(h_len, h_h, mirr){
+  // h_len - position of hole from front/back
+  // h_h - position of hole from bottom
+  m_h=h_h*2; // mount height
+  color(grey(30)) difference(){
+    union(){
+      // screw mount
+      cube([ext,1.5*ext,joiner_in_material]);
+      // psu mount
+      translate([ext/4+mirr*ext/4,ext/2,0]) rotate([90,0,90]) linear_extrude(ext/4) polygon([[0,0],[h_len+m_h/2+ext/2,0],[h_len+m_h/2+ext/2,m_h],[ext,m_h]]);
+    }
+    // frame screw hole
+    translate([ext/2,ext/2,joiner_in_material])rotate([0,180,0]) joiner_hole(joiner_in_material);
+    // psu screw hole
+    translate([ext/4+mirr*ext/4,ext+h_len,h_h]) rotate([0,90,0]) cylinder(d=3.5,h=ext/4);
+  }
+}
 module electronics(){
   // PSU
-  translate([psu_width(S_300_12)/2+ext/2,base_d+psu_height(S_300_12),psu_length(S_300_12)/2+4*ext]) rotate([180,-90,-90]) psu(S_300_12);
+  psu_mount_h=4*ext;
+  translate([psu_width(S_300_12)/2+ext/2,base_d+psu_height(S_300_12),psu_length(S_300_12)/2+psu_mount_h]) rotate([180,-90,-90]) psu(S_300_12);
+  // PSU mounts
+  translate([ext,base_d,psu_mount_h-ext*1.5]) rotate([-90,180,0]) psu_mount(45,12.5,1);
+  translate([elec_support,base_d,psu_mount_h-ext*1.5]) rotate([-90,180,0]) psu_mount(45,12.5,0);
+  translate([elec_support-ext,base_d,psu_mount_h+psu_length(S_300_12)+1.5*ext]) rotate([-90,0,0]) psu_mount(35,12.5,1);
+  translate([0,base_d,psu_mount_h+psu_length(S_300_12)+1.5*ext]) rotate([-90,0,0]) psu_mount(35,12.5,0);
+  // Control board
+  translate([base_w-elec_support/2-55+ext/2,base_d,80]) rotate([-90,-90,0]) btt_skr_13();
 }
 
 
@@ -633,6 +664,12 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==1) translate([0,0,0]) tnut_m5();
   if (render_parts==0 || render_parts==2) translate([10,0,0]) joiner1x1();
   if (render_parts==0 || render_parts==3) translate([40,0,0]) joiner2x2();
+  if (render_parts==0 || render_parts==4) {
+    translate([-30,0,0]) psu_mount(45,12.5,1);
+    translate([-55,0,0]) psu_mount(45,12.5,0);
+    translate([-80,0,0]) psu_mount(35,12.5,1);
+    translate([-105,0,0]) psu_mount(35,12.5,0);
+  }
 }
 
 
