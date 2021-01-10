@@ -31,10 +31,10 @@ ext_type=1; // [0:T-SLOT, 1:V-SLOT]
 x_margin=10;
 /* [printed corners] */
 printed_corners=true; // [false:no, true:yes]
-printed_corners_nut=2; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
+printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts]
 
 /* [tweaks/hacks for printing tolerance] */
 
@@ -627,6 +627,12 @@ module btt_skr_13(mot=0){
     if (mot==1) translate([115,0,0]) cube([46.00,84.30,25]);
   }
 }
+module m4_hole(l){
+  union(){
+    cylinder(d=4.2,h=l);
+    cylinder(d2=4.2,d1=7.4,h=2.5);
+  }
+}
 module psu_mount(h_len, h_h, mirr){
   // h_len - position of hole from front/back
   // h_h - position of hole from bottom
@@ -641,7 +647,9 @@ module psu_mount(h_len, h_h, mirr){
     // frame screw hole
     translate([ext/2,ext/2,joiner_in_material])rotate([0,180,0]) joiner_hole(joiner_in_material);
     // psu screw hole
-    translate([ext/4+mirr*ext/4,1.5*ext+h_len,h_h]) rotate([0,90,0]) cylinder(d=4.5,h=ext/4);
+    translate([ext/4+mirr*ext/2,1.5*ext+h_len,h_h]) rotate([0,90,0]) mirror([0,0,mirr]) m4_hole(ext/4);
+    // zip-tie hole
+    translate([ext/4+mirr*ext/4,1.0*ext,9]) rotate([-40,0,0]) cube([ext/4,2,4]);
   }
 }
 module power_socket_mount(){
@@ -650,23 +658,72 @@ module power_socket_mount(){
       // bottom part
       linear_extrude(ext/4) polygon([[ext/4,0],[ext/4,50],[2*ext,50],[3*ext,0]]);
       // top mount
-       //cube([0.75*ext,joiner_in_material,ext]);
-      translate([ext/4,0,3*ext]) linear_extrude(ext) polygon([[0,0],[ext,0],[ext,joiner_in_material],[0,ext]]);
+      translate([ext/4,0,3*ext]) linear_extrude(ext) polygon([[0,0],[0.75*ext,0],[0.75*ext,joiner_in_material],[0,ext]]);
+      // mount for zip-tie
+      translate([ext/2,6,4*ext-2]) intersection(){
+        difference(){
+          cylinder(h=2,d=ext);
+          cylinder(h=2,d=ext-3);
+        }
+        cube([ext/2,ext/2,2]);
+      }
       // bottom mount
-      translate([ext/4,joiner_in_material,0]) rotate([90,0,0]) linear_extrude(joiner_in_material) polygon([[0,0],[2.75*ext,0],[2.75*ext,ext],[1.5*ext,ext],[0,ext/4]]);
+      translate([ext/4,joiner_in_material,0]) rotate([90,0,0]) linear_extrude(joiner_in_material) polygon([[0,0],[2.75*ext,0],[2.75*ext,ext],[0,2*ext],[0,1.5*ext],[1.5*ext,ext],[0,ext/2]]);
       // mount plate
       translate([ext/4,0,0]) cube([ext/4,50,7*ext]);
     }
     // bottom mount hole
     translate([2.2*ext,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(25);
     // top mount hole
-    translate([ext/2,joiner_in_material,3.5*ext]) rotate([90,0,0]) joiner_hole(20);
-    // PSU mount hole
-    translate([ext/4,12.5,4*ext+45]) rotate([0,90,0]) cylinder(d=4.5,h=ext/4);
+    translate([ext/2+0.1,joiner_in_material,3.5*ext]) rotate([90,0,0]) joiner_hole(20);
+    // PSU mount holes
+    translate([ext/4,12.5,4*ext+45]) rotate([0,90,0]) m4_hole(ext/4);
+    translate([ext/4,12.5+25,4*ext+45]) rotate([0,90,0]) m4_hole(ext/4);
     // power socket hole
     translate([5+ext/8,25,11+10]) rotate([90,0,-90]) iec_holes(IEC_inlet_atx,h=ext/4);
     // Power switch
     translate([5+ext/8,24,38+10]) rotate([0,-90,0]) rocker_hole(large_rocker,h=ext/4);
+    // ventilation holes for Delta PSU
+    translate([ext/4,13+17,4*ext+45+5]) cube([ext/4,7,3]);
+    translate([ext/4,13+17,4*ext+45-8]) cube([ext/4,7,3]);
+    translate([ext/4,13,4*ext+45-8-6]) cube([ext/4,24,3]);
+    translate([ext/4,13,4*ext+45-8-12]) cube([ext/4,24,3]);
+    translate([ext/4,13,4*ext+45-8-18]) cube([ext/4,24,3]);
+  }
+}
+module slot(d,h,l){
+  hull(){
+    cylinder(d=d,h=h);
+    translate([l,0,0]) cylinder(d=d,h=h);
+  }
+}
+module control_board_mount(orient=0){
+  sup_d=8; // diameter of pcb support
+  btt_screw_dist=76.2; // distance between screws in BTT SKR 1.3
+  d_dist=(elec_support-btt_screw_dist)/2;
+  pcb_d=4; // hole dia for mounting pcb
+  color(grey(30)) difference(){
+    union(){
+      hull(){
+        // frame mount
+        cube([ext,joiner_in_material,ext]);
+        // pcb mounts
+        translate([d_dist,0,sup_d/2]) rotate([-90,0,0]) cylinder(h=joiner_in_material,d=sup_d);
+        translate([d_dist,0,ext-sup_d/2]) rotate([-90,0,0]) cylinder(h=joiner_in_material,d=sup_d);
+      }
+      // v-slot
+      translate([ext/2,0,0]) rotate([0,0,180]) vslot_groove(ext);
+    }
+    // hole for mount screw
+    translate([ext/2,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(0);
+    // pcb mount hole
+    if (orient==0) {
+      // 2 horizontal
+      translate([d_dist-4,0,sup_d/2]) rotate([-90,0,0]) slot(pcb_d,joiner_in_material,5);
+      translate([d_dist-4,0,ext-sup_d/2]) rotate([-90,0,0]) slot(pcb_d,joiner_in_material,5);
+    } else {
+      translate([d_dist,0,sup_d/2]) rotate([-90,-90,0]) slot(pcb_d,joiner_in_material,ext-sup_d);
+    }
   }
 }
 module electronics(){
@@ -687,7 +744,15 @@ module electronics(){
     translate([0,0,0]) rotate([0,0,0]) power_socket_mount();
     
     // Control board
-    translate([base_w-elec_support/2-55+ext/2,0,80]) rotate([-90,-90,0]) btt_skr_13(1);
+    cb_h=80;
+    translate([base_w-elec_support/2-55+ext/2,joiner_in_material,cb_h]) rotate([-90,-90,0]) btt_skr_13(1);
+    // mounts for control board
+    translate([base_w-elec_support,0,cb_h-12]) control_board_mount(1);
+    translate([base_w,0,cb_h-12+ext]) rotate([0,180,0]) control_board_mount(0);
+    translate([base_w-elec_support,0,cb_h+110-8]) control_board_mount(1);
+    translate([base_w,0,cb_h+110-8+ext]) rotate([0,180,0]) control_board_mount(0);
+    translate([base_w-elec_support,0,cb_h+161-8]) control_board_mount(1);
+    translate([base_w,0,cb_h+161-8+ext]) rotate([0,180,0]) control_board_mount(0);
   }
 }
 
@@ -710,6 +775,10 @@ module draw_printable_parts(){
     translate([-105,0,0]) psu_mount(35,12.5,0);
   }
   if (render_parts==0 || render_parts==5) translate([-30,30,0]) power_socket_mount();
+  if (render_parts==0 || render_parts==6) {
+    translate([30,50,0]) rotate([-90,0,0]) control_board_mount(0);
+    translate([30,75,0]) rotate([-90,0,0]) control_board_mount(1);
+  }
 }
 
 
