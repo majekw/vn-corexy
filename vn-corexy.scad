@@ -59,7 +59,7 @@ base_d=build_plate_d+hotend_d+2*ext+50; // frame depth
 top_d=base_d+50; // top left/right profiles length, 50 is just wild guess to allow some space between X carriage and rear of frame
 rail_l=base_d-2*ext; // MGN rails length
 z_pulley_support=170; //distance from front to Z pulley support
-z_belt_space=26; // space from bottom of frame to Z belt
+z_belt_space=ext+26; // space from bottom of frame to Z belt
 pr20=pulley_pr(GT2x20ob_pulley); // radius of puller for belt calculations
 //belt_separation=pulley_od(GT2_10x20_toothed_idler);
 belt_separation=6; // distance between side belts
@@ -541,13 +541,13 @@ module build_plate(){
 module z_rod(){
   union(){
     // lower ball bearing
-    translate([0,0,2.5]) ball_bearing(BB688);
-    translate([0,0,5.5+15]) rotate([0,180,0]) pulley(GT2x20ob_pulley);
+    translate([0,0,5]) ball_bearing(BB688);
+    translate([0,0,z_belt_space-ext-6]) rotate([0,0,0]) pulley(GT2x20ob_pulley);
     // screw
-    translate([0,0,base_h/2-ext]) leadscrew(8, base_h-2*ext, 8, 4);
-    echo("Leadscrew length",base_h-2*ext);
+    translate([0,0,base_h/2-ext]) leadscrew(8, base_h-2*ext-5, 8, 4);
+    echo("Leadscrew length",base_h-2*ext-5);
     // upper ball bearing
-    translate([0,0,2.5+base_h-2*ext-5]) ball_bearing(["608", 8, 16, 5, "silver", 1.4, 2.0]);
+    translate([0,0,base_h-2*ext-5]) ball_bearing(BB688);
   }
 }
 module pulley_support_z(){
@@ -573,13 +573,13 @@ module z_axis(){
   translate(p3) z_rod();
   
   // Z motor
-  p4=[22, z_pulley_support-22-ext/2, z_belt_space+12];
-  translate(p4) rotate([0,180,0]) union(){
+  p4=[ext+22, z_pulley_support-22-ext/2, z_belt_space+35-40];
+  translate(p4) rotate([0,0,0]) union(){
     NEMA(NEMA17M);
-    translate([0,0,18]) rotate([0,180,0]) pulley(GT2x20ob_pulley);
+    translate([0,0,19]) rotate([0,180,0]) pulley(GT2x20ob_pulley);
   }
   // tension pulley
-  p5=[ext/2+75,z_pulley_support,z_belt_space];
+  p5=[ext/2+92,z_pulley_support,z_belt_space];
   translate(p5) pulley(GT2x20_plain_idler);
   translate([p5.x,p5.y,ext]) pulley_support_z();
 
