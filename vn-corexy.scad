@@ -34,7 +34,7 @@ printed_corners=true; // [false:no, true:yes]
 printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount ]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner ]
 
 /* [tweaks/hacks for printing tolerance] */
 
@@ -216,6 +216,25 @@ module joiner2x2(){
   
   echo("J2x2");
 }
+module joiner_front(){
+  jf_h=1*ext;
+  jf_l=1.49*ext;
+  color(grey(30)) difference(){
+    union(){
+      // main shape
+      linear_extrude(ext) polygon([[0,0], [jf_h,0], [jf_h,joiner_in_material], [joiner_in_material,jf_l], [joiner_in_material/2,jf_l], [joiner_in_material/2,jf_l-ext], [0,ext/2]]);
+      // positioning groove
+      translate([0,0,ext/2]) rotate([180,-90,0]) vslot_groove(jf_h);
+      translate([0,0,ext/2]) rotate([0,90,90]) vslot_groove(ext/2);
+    }
+    // screw holes
+    translate([joiner_space,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(jf_l);
+    //translate([joiner_space+20,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(jf_l);
+    translate([joiner_in_material,1*ext,ext/2]) rotate([0,-90,0]) joiner_hole(jf_h);
+  }
+  
+  echo("J2x2");
+}
 module leadnut_cut(){
   intersection(){
     leadnut(LSN8x2);
@@ -266,6 +285,11 @@ module printed_joiners(){
   translate([base_w-elec_support,base_d,base_h-ext]) rotate([90,180,0]) joiner1x1();
   translate([elec_support-ext,base_d,ext]) rotate([90,-90,0]) joiner1x1();
   translate([base_w-elec_support,base_d,ext]) rotate([90,-90,0]) joiner1x1();
+  // front joiners near T8 screws
+  translate([ext,2*ext,ext]) rotate([0,-90,0]) joiner_front();
+  translate([base_w,2*ext,ext]) rotate([0,-90,0]) joiner_front();
+  translate([0,2*ext,base_h-ext]) rotate([0,90,0]) joiner_front();
+  translate([base_w-ext,2*ext,base_h-ext]) rotate([0,90,0]) joiner_front();
 }
 module frame(){
   // horizontal
@@ -592,26 +616,33 @@ module bb_support(rear){
   }
 }
 module z_rod(rear){
-  union(){
-    // ball bearing support
-    translate([0,0,0]) bb_support(rear);
-    // lower ball bearing
-    translate([0,0,5]) ball_bearing(BB688);
-    // lower spacer
-    translate([0,0,2.5+5]) T8_spacer();
-    // lower clamp
-    translate([0,0,2.5+5+2]) T8_clamp();
-    // pulley
-    translate([0,0,z_belt_space-ext-6]) rotate([0,0,0]) pulley(GT2x20ob_pulley);
-    // screw
-    translate([0,0,base_h/2-ext]) leadscrew(8, base_h-2*ext-5, 8, 4);
-    echo("Leadscrew length",base_h-2*ext-5);
-    // upper clamp
-    translate([0,0,base_h-2*ext-20]) T8_clamp();
-    // upper spacer
-    translate([0,0,base_h-2*ext-8.5]) T8_spacer();
-    // upper ball bearing
-    translate([0,0,base_h-2*ext-5]) ball_bearing(BB688);
+  // ball bearing support
+  translate([0,0,0]) if (printed_corners) {
+    bb_support(rear);
+  } else {
+    bb_support(1);
+  }
+  // lower ball bearing
+  translate([0,0,5]) ball_bearing(BB688);
+  // lower spacer
+  translate([0,0,2.5+5]) T8_spacer();
+  // lower clamp
+  translate([0,0,2.5+5+2]) T8_clamp();
+  // pulley
+  translate([0,0,z_belt_space-ext-6]) rotate([0,0,0]) pulley(GT2x20ob_pulley);
+  // screw
+  translate([0,0,base_h/2-ext]) leadscrew(8, base_h-2*ext-5, 8, 4);
+  echo("Leadscrew length",base_h-2*ext-5);
+  // upper clamp
+  translate([0,0,base_h-2*ext-21]) T8_clamp();
+  // upper spacer
+  translate([0,0,base_h-2*ext-7.5-2]) T8_spacer();
+  // upper ball bearing
+  translate([0,0,base_h-2*ext-5]) ball_bearing(BB688);
+  translate([0,0,base_h-2*ext]) rotate([0,180,0]) if (printed_corners) {
+    bb_support(rear);
+  } else {
+    bb_support(1);
   }
 }
 module pulley_support_z(){
@@ -678,9 +709,9 @@ module z_axis(){
     
 
     // Z drive nuts
-    translate([p1.x,p1.y,0]) leadnut_cut();
-    translate([p2.x,p2.y,0]) leadnut_cut();
-    translate([p3.x,p3.y,0]) rotate([0,0,90]) leadnut_cut();
+    translate([p1.x,p1.y,-5]) leadnut_cut();
+    translate([p2.x,p2.y,-5]) leadnut_cut();
+    translate([p3.x,p3.y,-5]) rotate([0,0,90]) leadnut_cut();
   }
   
 }
@@ -847,6 +878,7 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==8) translate([120,0,0]) T8_spacer();
   if (render_parts==0 || render_parts==9) translate([100,50,0]) bb_support(0);
   if (render_parts==0 || render_parts==10) translate([125,50,0]) bb_support(1);
+  if (render_parts==0 || render_parts==11) translate([140,0,0]) joiner_front();
 }
 
 
