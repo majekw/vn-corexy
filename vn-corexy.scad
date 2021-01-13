@@ -34,7 +34,7 @@ printed_corners=true; // [false:no, true:yes]
 printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount ]
 
 /* [tweaks/hacks for printing tolerance] */
 
@@ -48,6 +48,7 @@ tnut_nut_scale=1.03;
 m5_hole_scale=1.04;
 
 clamp_scale=1.02;
+bb_sup_scale=1.02;
 
 
 // internal stuff starts here
@@ -566,8 +567,34 @@ module T8_clamp(){
     translate([c_d/2-2,-c_d/2,0]) cube([2,c_d,c_h]);
   }
 }
-module z_rod(){
+module bb_support(rear){
+  difference(){
+    union(){
+      // support
+      translate([0,0,joiner_in_material/2]) cube([ext,2.8*ext,joiner_in_material], center=true);
+      // around bb
+      cylinder(h=7.5,d=ext);
+    }
+    
+    //hole for bearing
+    translate([0,0,2.5]) cylinder(h=5,d=16*bb_sup_scale);
+    // hole under bearing
+    translate([0,0,0]) cylinder(h=2.5,d=16-2);
+    
+    // holes for screws
+    translate([0,ext,joiner_in_material]) rotate([180,0,0]) joiner_hole(0);
+    translate([0,-ext,joiner_in_material]) rotate([180,0,0]) joiner_hole(0);
+    
+    // hole for joiner
+    if (rear==0) {
+      translate([-ext/2,-1.5*ext,joiner_in_material/2]) cube([ext,ext,joiner_in_material/2]);
+    }
+  }
+}
+module z_rod(rear){
   union(){
+    // ball bearing support
+    translate([0,0,0]) bb_support(rear);
     // lower ball bearing
     translate([0,0,5]) ball_bearing(BB688);
     // lower spacer
@@ -601,13 +628,13 @@ module z_axis(){
   // rods and pulleys
   // left rod
   p1=[ext/2, 4*ext, ext];
-  translate(p1) z_rod();
+  translate(p1) z_rod(0);
   // right rod
   p2=[base_w-ext/2, 4*ext, ext];
-  translate(p2) z_rod();
+  translate(p2) z_rod(0);
   // back rod
   p3=[base_w/2, base_d-ext/2, ext];
-  translate(p3) z_rod();
+  translate(p3) rotate([0,0,90]) z_rod(1);
   
   // Z motor
   p4=[ext+22, z_pulley_support-22-ext/2, z_belt_space+35-40];
@@ -816,8 +843,10 @@ module draw_printable_parts(){
     translate([30,50,0]) rotate([-90,0,0]) control_board_mount(0);
     translate([30,75,0]) rotate([-90,0,0]) control_board_mount(1);
   }
-    if (render_parts==0 || render_parts==7) translate([100,0,0]) T8_clamp();
-    if (render_parts==0 || render_parts==8) translate([120,0,0]) T8_spacer();
+  if (render_parts==0 || render_parts==7) translate([100,0,0]) T8_clamp();
+  if (render_parts==0 || render_parts==8) translate([120,0,0]) T8_spacer();
+  if (render_parts==0 || render_parts==9) translate([100,50,0]) bb_support(0);
+  if (render_parts==0 || render_parts==10) translate([125,50,0]) bb_support(1);
 }
 
 
