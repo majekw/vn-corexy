@@ -34,7 +34,7 @@ printed_corners=true; // [false:no, true:yes]
 printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer]
 
 /* [tweaks/hacks for printing tolerance] */
 
@@ -46,6 +46,8 @@ tnut_nut_scale=1.03;
 
 // how to scale up holes for M5 to fit
 m5_hole_scale=1.04;
+
+clamp_scale=1.02;
 
 
 // internal stuff starts here
@@ -59,7 +61,7 @@ base_d=build_plate_d+hotend_d+2*ext+50; // frame depth
 top_d=base_d+50; // top left/right profiles length, 50 is just wild guess to allow some space between X carriage and rear of frame
 rail_l=base_d-2*ext; // MGN rails length
 z_pulley_support=170; //distance from front to Z pulley support
-z_belt_space=ext+26; // space from bottom of frame to Z belt
+z_belt_space=ext+27; // space from bottom of frame to Z belt
 pr20=pulley_pr(GT2x20ob_pulley); // radius of puller for belt calculations
 //belt_separation=pulley_od(GT2_10x20_toothed_idler);
 belt_separation=6; // distance between side belts
@@ -538,14 +540,49 @@ module build_plate(){
   // cork isolation
   translate([0,0,-7]) color([0.6,0.43,0.24]) cube([build_plate_w,build_plate_d,7]);
 }
+module T8_spacer(){
+  difference(){
+    cylinder(h=2,d=10);
+    cylinder(h=2,d=8*clamp_scale);
+  }
+}
+module T8_clamp(){
+  c_h=11.5; // clamp height
+  c_d=19; // clamp outer diameter
+  difference(){
+    // clamp cylinder
+    cylinder(h=c_h,d=c_d);
+    
+    // inner hole
+    cylinder(h=c_h,d=8*clamp_scale);
+    // space for clamping
+    translate([-c_d/2,-0.5,0]) cube([c_d/2,1,c_h]);
+    // hole for screw
+    translate([-5.9,-4,c_h/2]) rotate([90,0,0]) cylinder(h=8,d=5.8);
+    translate([-5.9,-4,c_h/2]) rotate([-90,0,0]) cylinder(h=12,d=3.1);
+    // slot for M3 nut
+    translate([-c_d/2,4,(c_h-6.0)/2]) cube([6.7,2.8,6.0]);
+    // cut for printing on side
+    translate([c_d/2-2,-c_d/2,0]) cube([2,c_d,c_h]);
+  }
+}
 module z_rod(){
   union(){
     // lower ball bearing
     translate([0,0,5]) ball_bearing(BB688);
+    // lower spacer
+    translate([0,0,2.5+5]) T8_spacer();
+    // lower clamp
+    translate([0,0,2.5+5+2]) T8_clamp();
+    // pulley
     translate([0,0,z_belt_space-ext-6]) rotate([0,0,0]) pulley(GT2x20ob_pulley);
     // screw
     translate([0,0,base_h/2-ext]) leadscrew(8, base_h-2*ext-5, 8, 4);
     echo("Leadscrew length",base_h-2*ext-5);
+    // upper clamp
+    translate([0,0,base_h-2*ext-20]) T8_clamp();
+    // upper spacer
+    translate([0,0,base_h-2*ext-8.5]) T8_spacer();
     // upper ball bearing
     translate([0,0,base_h-2*ext-5]) ball_bearing(BB688);
   }
@@ -779,6 +816,8 @@ module draw_printable_parts(){
     translate([30,50,0]) rotate([-90,0,0]) control_board_mount(0);
     translate([30,75,0]) rotate([-90,0,0]) control_board_mount(1);
   }
+    if (render_parts==0 || render_parts==7) translate([100,0,0]) T8_clamp();
+    if (render_parts==0 || render_parts==8) translate([120,0,0]) T8_spacer();
 }
 
 
