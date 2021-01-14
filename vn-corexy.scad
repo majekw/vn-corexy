@@ -29,9 +29,10 @@ ext=20;
 ext_type=1; // [0:T-SLOT, 1:V-SLOT]
 /* [minumum margin between build plate and frame] */
 x_margin=10;
-/* [printed corners] */
+/* [printed parts] */
 printed_corners=true; // [false:no, true:yes]
 printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
+pp_color=[0.3,0.3,0.3]; // printed parts color
 
 /* [render printable parts] */
 render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner ]
@@ -181,7 +182,7 @@ module joiner_hole(jl){
 }
 module joiner1x1(){
   j1x1_len=20;
-  color(grey(30)) difference(){
+  color(pp_color) difference(){
     union(){
       // main shape
       linear_extrude(ext) polygon([[0,0], [j1x1_len,0], [j1x1_len,joiner_screw_len-joiner_extr_depth], [joiner_screw_len-joiner_extr_depth,j1x1_len], [0,j1x1_len]]);
@@ -198,7 +199,7 @@ module joiner1x1(){
 }
 module joiner2x2(){
   j2x2_len=40;
-  color(grey(30)) difference(){
+  color(pp_color) difference(){
     union(){
       // main shape
       linear_extrude(ext) polygon([[0,0], [j2x2_len,0], [j2x2_len,joiner_screw_len-joiner_extr_depth], [joiner_screw_len-joiner_extr_depth,j2x2_len], [0,j2x2_len]]);
@@ -219,7 +220,7 @@ module joiner2x2(){
 module joiner_front(){
   jf_h=1*ext;
   jf_l=1.49*ext;
-  color(grey(30)) difference(){
+  color(pp_color) difference(){
     union(){
       // main shape
       linear_extrude(ext) polygon([[0,0], [jf_h,0], [jf_h,joiner_in_material], [joiner_in_material,jf_l], [joiner_in_material/2,jf_l], [joiner_in_material/2,jf_l-ext], [0,ext/2]]);
@@ -566,7 +567,7 @@ module build_plate(){
   translate([0,0,-7]) color([0.6,0.43,0.24]) cube([build_plate_w,build_plate_d,7]);
 }
 module T8_spacer(){
-  difference(){
+  color(pp_color) difference(){
     cylinder(h=2,d=10);
     cylinder(h=2,d=8*clamp_scale);
   }
@@ -574,7 +575,7 @@ module T8_spacer(){
 module T8_clamp(){
   c_h=11.5; // clamp height
   c_d=19; // clamp outer diameter
-  difference(){
+  color(pp_color) difference(){
     // clamp cylinder
     cylinder(h=c_h,d=c_d);
     
@@ -592,7 +593,7 @@ module T8_clamp(){
   }
 }
 module bb_support(rear){
-  difference(){
+  color(pp_color) difference(){
     union(){
       // support
       translate([0,0,joiner_in_material/2]) cube([ext,2.8*ext,joiner_in_material], center=true);
@@ -732,7 +733,7 @@ module psu_mount(h_len, h_h, mirr){
   // h_len - position of hole from front/back
   // h_h - position of hole from bottom
   m_h=h_h*2; // mount height
-  color(grey(30)) difference(){
+  color(pp_color) difference(){
     union(){
       // screw mount
       cube([ext,1.5*ext,joiner_in_material]);
@@ -748,7 +749,7 @@ module psu_mount(h_len, h_h, mirr){
   }
 }
 module power_socket_mount(){
-  color(grey(30)) difference(){
+  color(pp_color)  difference(){
     union(){
       // bottom part
       linear_extrude(ext/4) polygon([[ext/4,0],[ext/4,50],[2*ext,50],[3*ext,0]]);
@@ -797,7 +798,7 @@ module control_board_mount(orient=0){
   btt_screw_dist=76.2; // distance between screws in BTT SKR 1.3
   d_dist=(elec_support-btt_screw_dist)/2;
   pcb_d=4; // hole dia for mounting pcb
-  color(grey(30)) difference(){
+  color(pp_color) difference(){
     union(){
       hull(){
         // frame mount
