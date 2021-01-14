@@ -32,10 +32,10 @@ x_margin=10;
 /* [printed parts] */
 printed_corners=true; // [false:no, true:yes]
 printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
-pp_color=[0.3,0.3,0.3]; // printed parts color
+pp_color=[0.3,0.3,0.3]; // [0:0.1:1]
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner ]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support ]
 
 /* [tweaks/hacks for printing tolerance] */
 
@@ -63,7 +63,7 @@ base_d=build_plate_d+hotend_d+2*ext+50; // frame depth
 top_d=base_d+50; // top left/right profiles length, 50 is just wild guess to allow some space between X carriage and rear of frame
 rail_l=base_d-2*ext; // MGN rails length
 z_pulley_support=170; //distance from front to Z pulley support
-z_belt_space=ext+27; // space from bottom of frame to Z belt
+z_belt_h=48; // space from bottom of frame to Z belt
 pr20=pulley_pr(GT2x20ob_pulley); // radius of puller for belt calculations
 //belt_separation=pulley_od(GT2_10x20_toothed_idler);
 belt_separation=6; // distance between side belts
@@ -164,20 +164,20 @@ translate([-t_len/2,-5,0]) rotate([90,0,90]) linear_extrude(t_len) polygon([ [0,
     
   }
 }
-module joiner_hole(jl){
+module joiner_hole(jl,screw_l=joiner_screw_len){
   union(){
     // hole for thread
-    rotate([0,0,0]) cylinder(h=joiner_screw_len,d=joiner_screw_d*m5_hole_scale);
+    rotate([0,0,0]) cylinder(h=screw_l,d=joiner_screw_d*m5_hole_scale);
     // hole for head
     rotate([180,0,0]) cylinder(h=jl,d=joiner_screw_washer);
     // hole for hex tool
     translate([0,0,-jl]) rotate([180,0,0]) cylinder(h=40,d=5);
     // cut tongue for rotating t-nut
     if (printed_corners_nut==1)
-      translate([0,0,joiner_in_material+1]) cylinder(d=9, h=2, center=true);
+      translate([0,0,screw_l-joiner_extr_depth+1]) cylinder(d=9, h=2, center=true);
     // cut tongue for long sliding t-nut
     if (printed_corners_nut==2)
-      translate([0,0,joiner_in_material+1]) cube([7,12,2], center=true); // 12 - slide length
+      translate([0,0,screw_l-joiner_extr_depth+1]) cube([7,12,2], center=true); // 12 - slide length
   }
 }
 module joiner1x1(){
@@ -252,7 +252,7 @@ module printed_joiners(){
   // bottom - Z pulley support
   translate([ext,z_pulley_support+0.5*ext,0]) rotate([0,0,0]) joiner1x1();
   translate([base_w-ext,z_pulley_support+0.5*ext,0]) rotate([0,0,90]) joiner1x1();
-  translate([ext,z_pulley_support-0.5*ext,0]) rotate([0,0,-90]) joiner1x1();
+  //translate([ext,z_pulley_support-0.5*ext,0]) rotate([0,0,-90]) joiner1x1();
   translate([base_w-ext,z_pulley_support-0.5*ext,0]) rotate([0,0,180]) joiner1x1();
   // front
   translate([ext,ext,2*ext]) rotate([90,0,0]) joiner2x2();
@@ -630,7 +630,7 @@ module z_rod(rear){
   // lower clamp
   translate([0,0,2.5+5+2]) T8_clamp();
   // pulley
-  translate([0,0,z_belt_space-ext-6]) rotate([0,0,0]) pulley(GT2x20ob_pulley);
+  translate([0,0,z_belt_h-7]) rotate([180,0,0]) pulley(GT2x20ob_pulley);
   // screw
   translate([0,0,base_h/2-ext]) leadscrew(8, base_h-2*ext-5, 8, 4);
   echo("Leadscrew length",base_h-2*ext-5);
@@ -647,13 +647,29 @@ module z_rod(rear){
   }
 }
 module pulley_support_z(){
-  // pulley support
-  m5_screw1=20;
-  translate([0,0,m5_screw1-5]) screw(M5_cap_screw,m5_screw1);
-  m5_screw2=12;
-  translate([ext,0,m5_screw2-5]) screw(M5_cap_screw,m5_screw2);
-  translate([-ext/2,-ext/2,0]) union(){
-    cube([2*ext,ext,z_belt_space-ext]);
+  block_h=z_belt_h-ext-1.5-1;
+  
+  // screws
+  if ($preview) {
+    m5_screw1=40;
+    translate([0,0,m5_screw1-5]) screw(M5_cap_screw,m5_screw1);
+    m5_screw2=12;
+    translate([ext,0,m5_screw2-5]) screw(M5_cap_screw,m5_screw2);
+  }
+  // body
+  color(pp_color) difference(){
+    union(){
+      // main block
+      translate([-ext/2,ext/2,0]) rotate([90,0,0]) linear_extrude(ext) polygon([[0,0], [2*ext,0], [2*ext,joiner_in_material], [ext/2+4,block_h], [0,block_h]]);
+      // spacer
+      translate([0,0,block_h]) cylinder(h=1,d=7);
+      // v-slot insert
+      //translate([-ext/2,0,0])rotate([-90,0,-90]) vslot_groove(2*ext);
+    }
+    // hole for longer screw
+    translate([0,0,block_h+1+joiner_in_material])rotate([180,0,0]) joiner_hole(0,40);
+    // hole for normal screw
+    translate([ext,0,joiner_in_material])rotate([180,0,0]) joiner_hole(20);
   }
 }
 module z_axis(){
@@ -669,24 +685,24 @@ module z_axis(){
   translate(p3) rotate([0,0,90]) z_rod(1);
   
   // Z motor
-  p4=[ext+22, z_pulley_support-22-ext/2, z_belt_space+35-40];
+  p4=[ext+22, z_pulley_support-22-ext/2, z_belt_h-5.5];
   translate(p4) rotate([0,0,0]) union(){
     NEMA(NEMA17M);
     translate([0,0,19]) rotate([0,180,0]) pulley(GT2x20ob_pulley);
   }
   // tension pulley
-  p5=[ext/2+92,z_pulley_support,z_belt_space];
+  p5=[ext/2+92,z_pulley_support,z_belt_h-1.5];
   translate(p5) pulley(GT2x20_plain_idler);
-  translate([p5.x,p5.y,ext]) pulley_support_z();
+  translate([p5.x,p5.y,ext]) rotate([0,0,180]) pulley_support_z();
 
   // second tension pulley
-  p6=[ext/2+200,z_pulley_support,z_belt_space];
+  p6=[ext/2+200,z_pulley_support,z_belt_h-1.5];
   translate(p6) pulley(GT2x20_plain_idler);
   translate([p6.x,p6.y,ext]) pulley_support_z();
   
   // belt
   belt_points=[[p5.x,p5.y,-pr20],[p4.x,p4.y,pr20],[p3.x,p3.y,pr20],[p6.x,p6.y,-pr20],[p2.x,p2.y,pr20],[p1.x,p1.y,pr20]];
-  translate([0,0,z_belt_space+4]) belt(GT2x6,belt_points);
+  translate([0,0,z_belt_h+3]) belt(GT2x6,belt_points);
   echo("Z belt length",belt_length(belt_points));
 
 
@@ -880,6 +896,7 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==9) translate([100,50,0]) bb_support(0);
   if (render_parts==0 || render_parts==10) translate([125,50,0]) bb_support(1);
   if (render_parts==0 || render_parts==11) translate([140,0,0]) joiner_front();
+  if (render_parts==0 || render_parts==12) translate([150,50,0]) pulley_support_z();
 }
 
 
