@@ -35,7 +35,7 @@ printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 pp_color=[0.3,0.3,0.3]; // [0:0.1:1]
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support ]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount]
 
 /* [tweaks/hacks for printing tolerance] */
 
@@ -50,6 +50,7 @@ m5_hole_scale=1.04;
 
 clamp_scale=1.02;
 bb_sup_scale=1.02;
+bridge_support=true;
 
 
 // internal stuff starts here
@@ -401,6 +402,40 @@ module motor_support_y(mot,inn,out){
   m5_screw5=60;
   translate([base_w-4*ext,base_d-ext/2,base_h+m5_screw5-5]) screw(M5_cap_screw,m5_screw5);
 }
+module motor_support_z(){
+  mot_bot=z_belt_h-ext-5.5;
+  msl=20; // mount screw length
+  color(pp_color) union(){
+    difference(){
+      union(){
+        // main body
+        cube([ext+44+2,ext+44,mot_bot+3]);
+        // v-slot
+        translate([ext/2,0,0]) rotate([-90,0,0]) vslot_groove(ext+44);
+        translate([ext,44+ext/2,0]) rotate([-90,0,-90]) vslot_groove(44);
+      }
+      // motor body
+      translate([ext,0,0]) cube([44,44,mot_bot]);
+      // motor screw holes
+      translate([ext+22,22,mot_bot]) NEMA_screw_positions(NEMA17M) cylinder(h=3,d=3.2);
+      // shaft motor hole
+      translate([ext+22,22,mot_bot]) cylinder(h=3,d=22.5);
+      // side triangle
+      translate([ext+44+2,0,mot_bot-5]) rotate([-155,0,180]) cube([2,60,40]);
+
+      // mount screws
+      translate([ext/2,ext/2,msl-joiner_extr_depth]) rotate([180,0,0]) joiner_hole(20,msl);
+      translate([ext/2,ext/2+44,msl-joiner_extr_depth]) rotate([180,0,0]) joiner_hole(20,msl);
+      translate([ext/2+44,ext/2+44,msl-joiner_extr_depth]) rotate([180,0,0]) joiner_hole(20,msl);
+    }
+    // hack for using bridge instead of supports in printing
+    if (bridge_support && !$preview){
+      translate([ext/2,ext/2,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5*m5_hole_scale+0.2);
+      translate([ext/2,ext/2+44,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5*m5_hole_scale+0.2);
+      translate([ext/2+44,ext/2+44,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5*m5_hole_scale+0.2);
+    }
+  }
+}
 module gantry_joint_l(){
   // pulley support //TODO
   m5_screw1=40;
@@ -651,25 +686,27 @@ module pulley_support_z(){
   
   // screws
   if ($preview) {
-    m5_screw1=40;
-    translate([0,0,m5_screw1-5]) screw(M5_cap_screw,m5_screw1);
+    m5_screw1=20;
+    translate([0,0,m5_screw1-5+20]) screw(M5_cap_screw,m5_screw1);
     m5_screw2=12;
     translate([ext,0,m5_screw2-5]) screw(M5_cap_screw,m5_screw2);
+    translate([-ext,0,m5_screw2-5]) screw(M5_cap_screw,m5_screw2);
   }
   // body
   color(pp_color) difference(){
     union(){
       // main block
-      translate([-ext/2,ext/2,0]) rotate([90,0,0]) linear_extrude(ext) polygon([[0,0], [2*ext,0], [2*ext,joiner_in_material], [ext/2+4,block_h], [0,block_h]]);
+      translate([-ext/2,ext/2,0]) rotate([90,0,0]) linear_extrude(ext) polygon([[-ext,0], [2*ext,0], [2*ext,joiner_in_material], [ext/2+4,block_h], [ext/2-4,block_h], [-ext,joiner_in_material]]);
       // spacer
       translate([0,0,block_h]) cylinder(h=1,d=7);
       // v-slot insert
       //translate([-ext/2,0,0])rotate([-90,0,-90]) vslot_groove(2*ext);
     }
     // hole for longer screw
-    translate([0,0,block_h+1+joiner_in_material])rotate([180,0,0]) joiner_hole(0,40);
+    translate([0,0,0]) cylinder(h=block_h+1,d=4.75);
     // hole for normal screw
     translate([ext,0,joiner_in_material])rotate([180,0,0]) joiner_hole(20);
+    translate([-ext,0,joiner_in_material])rotate([180,0,0]) joiner_hole(20);
   }
 }
 module z_axis(){
@@ -683,13 +720,16 @@ module z_axis(){
   // back rod
   p3=[base_w/2, base_d-ext/2, ext];
   translate(p3) rotate([0,0,90]) z_rod(1);
-  
+
   // Z motor
   p4=[ext+22, z_pulley_support-22-ext/2, z_belt_h-5.5];
   translate(p4) rotate([0,0,0]) union(){
     NEMA(NEMA17M);
     translate([0,0,19]) rotate([0,180,0]) pulley(GT2x20ob_pulley);
   }
+  // Z motor mount
+  translate([0,z_pulley_support-ext/2-44,ext]) motor_support_z();
+
   // tension pulley
   p5=[ext/2+92,z_pulley_support,z_belt_h-1.5];
   translate(p5) pulley(GT2x20_plain_idler);
@@ -699,7 +739,7 @@ module z_axis(){
   p6=[ext/2+200,z_pulley_support,z_belt_h-1.5];
   translate(p6) pulley(GT2x20_plain_idler);
   translate([p6.x,p6.y,ext]) pulley_support_z();
-  
+
   // belt
   belt_points=[[p5.x,p5.y,-pr20],[p4.x,p4.y,pr20],[p3.x,p3.y,pr20],[p6.x,p6.y,-pr20],[p2.x,p2.y,pr20],[p1.x,p1.y,pr20]];
   translate([0,0,z_belt_h+3]) belt(GT2x6,belt_points);
@@ -838,6 +878,31 @@ module control_board_mount(orient=0){
     }
   }
 }
+module cable_tie(sl=joiner_screw_len){
+  // sl - screw length
+  h=sl-joiner_extr_depth;
+  arm_w=3;
+  arm_space=2;
+  union(){
+    // plate
+    difference(){
+      cube([ext,ext,h]);
+      translate([ext/2,ext/2,0]) cylinder(h=h,d=joiner_screw_d*m5_hole_scale);
+    }
+    // arms
+    translate([ext/2,arm_space,h]) rotate([-90,0,0]) difference(){
+      cylinder(d=ext,h=ext-2*arm_space);
+      // zip holes
+      translate([-2,-ext/2+2,0]) cube([4,2.5,ext]);
+      translate([-ext/2+2,-2.5,0]) cube([4,2.5,ext]);
+      translate([ext/2-2-4,-2.5,0]) cube([4,2.5,ext]);
+
+      // cut
+      translate([-ext/2,0,0]) cube([ext,ext/2,ext]);
+      translate([-ext/2,-ext/2,arm_w]) cube([ext,ext/2,ext-2*arm_w-2*arm_space]);
+    }
+  }
+}
 module electronics(){
   translate([0,base_d,0]){
     // PSU
@@ -896,7 +961,9 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==9) translate([100,50,0]) bb_support(0);
   if (render_parts==0 || render_parts==10) translate([125,50,0]) bb_support(1);
   if (render_parts==0 || render_parts==11) translate([140,0,0]) joiner_front();
-  if (render_parts==0 || render_parts==12) translate([150,50,0]) pulley_support_z();
+  if (render_parts==0 || render_parts==12) translate([170,80,0]) pulley_support_z();
+  if (render_parts==0 || render_parts==13) translate([170,00,0]) motor_support_z();
+  if (render_parts==0 || render_parts==14) translate([-30,-25,0]) cable_tie(10);
 }
 
 
