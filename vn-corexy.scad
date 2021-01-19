@@ -7,7 +7,7 @@
    If not, see <http://creativecommons.org/licenses/by-sa/4.0/>
 */
 
-/* [print position] */
+/* [head position] */
 pos_x=0;
 pos_y=100;
 pos_z=320;
@@ -62,7 +62,9 @@ base_w=2*ext+max(build_x+hotend_w,build_plate_w+x_margin); // frame width
 base_h=ext*2+400+5; //height of frame base
 base_d=build_plate_d+hotend_d+2*ext+50; // frame depth
 top_d=base_d+50; // top left/right profiles length, 50 is just wild guess to allow some space between X carriage and rear of frame
-rail_l=base_d-2*ext; // MGN rails length
+//y_rail_l=base_d-2*ext; // MGN rails length
+y_rail_l=400;
+y_rails_from_front=1.5*ext;
 z_pulley_support=170; //distance from front to Z pulley support
 z_belt_h=48; // space from bottom of frame to Z belt
 pr20=pulley_pr(GT2x20ob_pulley); // radius of puller for belt calculations
@@ -473,24 +475,26 @@ module gantry_joint_r(){
 }
 module gantry(){
   // Y carriage positions
-  echo("Rail lenght",rail_l);
+  echo("Side rails lenght",y_rail_l);
+  echo("Maximum rails length",base_d-2*ext);
   real_y=pos_y+hotend_d;
-  carriage_pos_y=real_y-rail_travel(MGN12H,rail_l)/2;
+  carriage_pos_y=real_y-rail_travel(MGN12H,y_rail_l)/2-y_rails_from_front;
   carriage_y_real=real_y+ext+carriage_length(MGN12H_carriage)/2;
   carriage_pos_x=pos_x-build_x/2;
   motor_y=base_d+21;
 
 
   // left linear rail
-  translate([ext/2,rail_l/2+ext,base_h]) rotate([0,0,90]) rail_assembly(MGN12H,rail_l,carriage_pos_y);
+  translate([ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(MGN12H,y_rail_l,carriage_pos_y);
   // right linear rail
-  translate([base_w-ext/2,rail_l/2+ext,base_h]) rotate([0,0,90]) rail_assembly(MGN12H,rail_l,carriage_pos_y);
+  translate([base_w-ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(MGN12H,y_rail_l,carriage_pos_y);
 
   // X gantry support
   translate([0,carriage_y_real-ext,base_h+13]) union(){
     echo(base_w=base_w);
     translate([ext/4,0,0]) rotate([0,90,0]) ext2020(base_w-ext/2);
-    translate([base_w/2,ext*0.5,ext]) rotate([0,0,0]) rail_assembly(MGN12H,base_w-1.5*ext,carriage_pos_x);
+    echo("X rail length",base_w-2*ext);
+    translate([base_w/2,ext*0.5,ext]) rotate([0,0,0]) rail_assembly(MGN12H,base_w-2*ext,carriage_pos_x);
     // gantry joints
     translate([0,-3,0]) {
       #gantry_joint_l();
