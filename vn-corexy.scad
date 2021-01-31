@@ -253,9 +253,21 @@ module joiner_front(){
   echo("J2x2");
 }
 module leadnut_cut(){
-  intersection(){
-    leadnut(LSN8x2);
-    translate([-6,-15,-20]) cube([12,30,30]);
+  color("#ffc81f") difference(){
+    union(){
+      // plate
+      translate([0,0,-3.5]) intersection(){
+        cylinder(h=3.5,d=22);
+        translate([-6,-11,0]) cube([12,22,3.5]);
+      }
+      // cylinder
+      translate([0,0,-5]) cylinder(h=15,d=10);
+    }
+    // hole for T8
+    translate([0,0,-5]) cylinder(h=15,d=8);
+    // holes for M3 screws
+    translate([0,8,-3.5]) cylinder(h=3.5,d=3.5);
+    translate([0,-8,-3.5]) cylinder(h=3.5,d=3.5);
   }
 }
 module printed_joiners(){
