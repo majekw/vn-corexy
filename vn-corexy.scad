@@ -33,24 +33,34 @@ x_margin=10;
 printed_corners=true; // [false:no, true:yes]
 printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 pp_color=[0.3,0.3,0.3]; // [0:0.1:1]
+printed_t8_clamps=true; // [false:no, true:yes]
+
 
 /* [render printable parts] */
 render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount]
 
-/* [tweaks/hacks for printing tolerance] */
+/* [tweaks/hacks] */
 
-// vslot_groove_scale: increase up to 1 if your printer is perfect :-), decrease when joiner doesn't fit into v-slot groove
+// increase up to 1 if your printer is perfect :-), decrease when joiner doesn't fit into v-slot groove
 vslot_groove_scale=0.98;
 
-// tnut_nut_scale: 1 for perfect printer, little larger if nut doesn't fit into hole
+// 1 for perfect printer, little larger if nut doesn't fit into hole
 tnut_nut_scale=1.03;
 
 // how to scale up holes for M5 to fit
 m5_hole_scale=1.04;
 
+// scale for T8 hole in spacer and clamp
 clamp_scale=1.02;
-bb_sup_scale=1.02;
+
+// ball bearing support hole scale
+bb_sup_scale=1.01;
+
+// make holes printable withous supports
 bridge_support=true;
+
+// use upper ball bearings for T8 rods
+t8_upper_bearings=false;
 
 
 // internal stuff starts here
@@ -80,10 +90,13 @@ joiner_screw_head_h=5; // head height
 joiner_extr_depth=6; // depth of screw in extrusion profile, 6 is fine for 2020
 joiner_in_material=joiner_screw_len-joiner_extr_depth; // amount of thread in joiner
 joiner_space=joiner_screw_len-joiner_extr_depth+joiner_screw_head_h+joiner_screw_head_d/2; // minimum space from corner to allow put two perpendicular screws
+t8_frame_dist=2.5; // distance from frame to start of T8 screw
+t8_bb_offset=1.5; // space from start of T8 to ball bearing
 
 // Extra stuff not in NopSCADlib
 // 688RS ball bearings (8x16x5)
 BB688=["688", 8, 16, 5, "black", 1.4, 2.0];
+T8_BB=BB688;
 // GT2 10mm belt
 GT2x10=["GT", 2.0, 10, 1.38, 0.75, 0.254];
 // GT2 10mm pulleys
@@ -611,7 +624,7 @@ module T8_spacer(){
     cylinder(h=2,d=8*clamp_scale);
   }
 }
-module T8_clamp(){
+module T8_clamp_printed(){
   c_h=11.5; // clamp height
   c_d=19; // clamp outer diameter
   color(pp_color) difference(){
@@ -631,19 +644,34 @@ module T8_clamp(){
     translate([c_d/2-2,-c_d/2,0]) cube([2,c_d,c_h]);
   }
 }
+module T8_clamp_metal(){
+  mcl_h=7;
+  mcl_d=14;
+  color(grey(90)) difference(){
+    cylinder(h=mcl_h,d=mcl_d);
+    cylinder(h=mcl_h,d=8);
+  }
+}
+module T8_clamp(){
+  if (printed_t8_clamps) {
+    T8_clamp_printed();
+  } else {
+    T8_clamp_metal();
+  }
+}
 module bb_support(rear){
   color(pp_color) difference(){
     union(){
       // support
       translate([0,0,joiner_in_material/2]) cube([ext,2.8*ext,joiner_in_material], center=true);
       // around bb
-      cylinder(h=7.5,d=ext);
+      cylinder(h=t8_frame_dist+t8_bb_offset+T8_BB[3],d=ext);
     }
     
     //hole for bearing
-    translate([0,0,2.5]) cylinder(h=5,d=16*bb_sup_scale);
+    translate([0,0,t8_frame_dist+t8_bb_offset]) cylinder(h=T8_BB[3],d=T8_BB[2]*bb_sup_scale);
     // hole under bearing
-    translate([0,0,0]) cylinder(h=2.5,d=16-2);
+    translate([0,0,0]) cylinder(h=t8_frame_dist+t8_bb_offset,d=T8_BB[2]-2);
     
     // holes for screws
     translate([0,ext,joiner_in_material]) rotate([180,0,0]) joiner_hole(0);
@@ -663,22 +691,24 @@ module z_rod(rear){
     bb_support(1);
   }
   // lower ball bearing
-  translate([0,0,5]) ball_bearing(BB688);
+  translate([0,0,t8_frame_dist+t8_bb_offset+T8_BB[3]/2]) ball_bearing(T8_BB);
   // lower spacer
-  translate([0,0,2.5+5]) T8_spacer();
+  translate([0,0,t8_frame_dist+t8_bb_offset+T8_BB[3]]) T8_spacer();
   // lower clamp
-  translate([0,0,2.5+5+2]) T8_clamp();
+  translate([0,0,t8_frame_dist+t8_bb_offset+T8_BB[3]+2]) T8_clamp();
   // pulley
   translate([0,0,z_belt_h-7]) rotate([180,0,0]) pulley(GT2x20ob_pulley);
   // screw
   translate([0,0,base_h/2-ext]) leadscrew(8, base_h-2*ext-5, 8, 4);
   echo("Leadscrew length",base_h-2*ext-5);
-  // upper clamp
-  translate([0,0,base_h-2*ext-21]) T8_clamp();
-  // upper spacer
-  translate([0,0,base_h-2*ext-7.5-2]) T8_spacer();
-  // upper ball bearing
-  translate([0,0,base_h-2*ext-5]) ball_bearing(BB688);
+  if (t8_upper_bearings) {
+    // upper clamp
+    translate([0,0,base_h-2*ext-t8_frame_dist-t8_bb_offset-T8_BB[3]-2]) rotate([180,0,0]) T8_clamp();
+    // upper spacer
+    translate([0,0,base_h-2*ext-t8_frame_dist-t8_bb_offset-T8_BB[3]-2]) T8_spacer();
+    // upper ball bearing
+    translate([0,0,base_h-2*ext-t8_frame_dist-t8_bb_offset-T8_BB[3]/2]) ball_bearing(T8_BB);
+  }
   translate([0,0,base_h-2*ext]) rotate([0,180,0]) if (printed_corners) {
     bb_support(rear);
   } else {
