@@ -37,7 +37,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting]
 
 /* [tweaks/hacks] */
 
@@ -610,7 +610,7 @@ module gantry(){
 module build_plate(){
   // build plate
   plate_h=3.2;
-  plate_screw_l=20;
+  plate_screw_l=40;
   d1=(build_plate_w-build_plate_mount_space)/2;
   d2=d1+build_plate_mount_space;
   difference(){
@@ -623,7 +623,10 @@ module build_plate(){
     translate([d2,d2,0]) cylinder(d=4,h=plate_h);
   }
   //screws
-  translate([d1,d1,plate_h]) screw(M4_cs_cap_screw,plate_screw_l);
+  translate([d1,d1,plate_h]) {
+    screw(M4_cs_cap_screw,plate_screw_l);
+    translate([0,0,-30]) cylinder(h=1,d=12);
+  }
   translate([d1,d2,plate_h]) screw(M4_cs_cap_screw,plate_screw_l);
   translate([d2,d1,plate_h]) screw(M4_cs_cap_screw,plate_screw_l);
   translate([d2,d2,plate_h]) screw(M4_cs_cap_screw,plate_screw_l);
@@ -799,24 +802,32 @@ module z_axis(){
     
     // plate support
     // left
-    translate([ext/2+(base_w-build_plate_mount_space)/2,3*ext,0]) rotate([-90,0,0]) ext2020(base_d-5.5*ext);
+    translate([3.5*ext,3*ext,0]) rotate([-90,0,0]) ext2020(base_d-5.5*ext);
     // right
-    translate([ext/2+(base_w-build_plate_mount_space)/2+build_plate_mount_space,3*ext,0]) rotate([-90,0,0]) ext2020(base_d-5.5*ext);
+    translate([base_w-2.5*ext,3*ext,0]) rotate([-90,0,0]) ext2020(base_d-5.5*ext);
     // front
     translate([1.5*ext,2*ext,-ext]) rotate([0,90,0]) ext2020(base_w-3*ext);
     // back
     translate([1.5*ext,base_d-2.5*ext,-ext]) rotate([0,90,0]) ext2020(base_w-3*ext);
     // additional bed support
-    translate([base_w/2-build_plate_mount_space/2+ext/2,build_plate_mount_space/4+4*ext,-ext]) rotate([0,90,0]) ext2020(build_plate_mount_space-ext);
-    translate([base_w/2-build_plate_mount_space/2+ext/2,build_plate_mount_space*3/4+4*ext,-ext]) rotate([0,90,0]) ext2020(build_plate_mount_space-ext);
+    //translate([base_w/2-build_plate_mount_space/2+ext/2,build_plate_mount_space/4+4*ext,-ext]) rotate([0,90,0]) ext2020(build_plate_mount_space-ext);
+    //translate([base_w/2-build_plate_mount_space/2+ext/2,build_plate_mount_space*3/4+4*ext,-ext]) rotate([0,90,0]) ext2020(build_plate_mount_space-ext);
     
 
     // Z drive nuts
-    translate([p1.x,p1.y,-5]) leadnut_cut();
-    translate([p2.x,p2.y,-5]) leadnut_cut();
-    translate([p3.x,p3.y,-5]) rotate([0,0,90]) leadnut_cut();
+    translate([p1.x,p1.y,-ext]) leadnut_cut();
+    translate([p2.x,p2.y,-ext]) leadnut_cut();
+    translate([p3.x,p3.y,-ext]) rotate([0,0,90]) leadnut_cut();
   }
   
+}
+module z_pulley_helper(){
+  difference(){
+    cylinder(h=7.5,d=15);
+
+    cylinder(h=7.6,d=8.3);
+    translate([-8.3/2,0,0]) cube([8.3,7.5,7.5]);
+  }
 }
 module btt_skr_13(mot=0){
   // mot=1 - draw BTT-EXP-MOT module
@@ -1010,6 +1021,7 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==12) translate([170,80,0]) pulley_support_z();
   if (render_parts==0 || render_parts==13) translate([170,00,0]) motor_support_z();
   if (render_parts==0 || render_parts==14) translate([-30,-25,0]) cable_tie(10);
+  if (render_parts==0 || render_parts==15) translate([100,-20,0]) z_pulley_helper();
 }
 
 
