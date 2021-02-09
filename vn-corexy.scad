@@ -37,7 +37,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount]
 
 /* [tweaks/hacks] */
 
@@ -92,6 +92,7 @@ joiner_in_material=joiner_screw_len-joiner_extr_depth; // amount of thread in jo
 joiner_space=joiner_screw_len-joiner_extr_depth+joiner_screw_head_h+joiner_screw_head_d/2; // minimum space from corner to allow put two perpendicular screws
 t8_frame_dist=2.5; // distance from frame to start of T8 screw
 t8_bb_offset=1.5; // space from start of T8 to ball bearing
+m5_hole=4.75; // hole for direct M5 screw without tapping
 
 // Extra stuff not in NopSCADlib
 // 688RS ball bearings (8x16x5)
@@ -112,9 +113,10 @@ V2040  = [ "V2040", 20, 40,  4.2, 3, 7.8, 6.25, 11.0, 1.8, 1.5, 1 ];
 vtr=9.16; // v-slot top tiangle width
 // Large rocker
 large_rocker   = ["large_rocker", "Some large rocker found in drawer", 22, 28, 25, 30.5, 2.10, 21.3, 26, 15.8, 3,  -1, 2.5, small_spades];
-// v-slot wheel: [ 0:name, 1:outer dia, 2:hole dia, 3:bearing outer dia, 4:width, 5:roll dia, 6:flat width, 7: edge dia ]
-VWHEEL1 = [ "Large", 24.32, 5, 16, 11, 20.50, 5.1, 19.40 ];
-VWHEEL = VWHEEL1;
+// v-slot wheel: [ 0:name, 1:outer dia, 2:hole dia, 3:bearing outer dia, 4:width, 5:roll dia, 6:flat width, 7: edge dia, 8: spacer dia ]
+VWHEEL_L = [ "V-wheel large", 24.32, 5, 16, 11.1, 20.50, 5.1, 19.40, 8.5 ];
+VWHEEL_S = [ "V-wheel small", 15.25, 5, 11, 8.90, 12.10, 6.1, 12.50, 7.0 ];
+VWHEEL = VWHEEL_L;
 
 module vslot_wheel(wheel){
   // derlin part
@@ -749,7 +751,7 @@ module z_rod(rear){
     bb_support(1);
   }
 }
-module pulley_support_z(){
+module z_pulley_support(){
   block_h=z_belt_h-ext-1.5-1;
   
   // screws
@@ -771,11 +773,49 @@ module pulley_support_z(){
       //translate([-ext/2,0,0])rotate([-90,0,-90]) vslot_groove(2*ext);
     }
     // hole for longer screw
-    translate([0,0,0]) cylinder(h=block_h+1,d=4.75);
+    translate([0,0,0]) cylinder(h=block_h+1,d=m5_hole);
     // hole for normal screw
     translate([ext,0,joiner_in_material])rotate([180,0,0]) joiner_hole(20);
     translate([-ext,0,joiner_in_material])rotate([180,0,0]) joiner_hole(20);
   }
+}
+module z_front_wheel_mount(){
+  ro=6;
+  color(pp_color) rotate([90,0,0]) difference(){
+    union(){
+      // main shape
+      hull(){
+        translate([ext/2,-ro,0]) cylinder(h=ext,r=ro);
+        translate([VWHEEL[5]/2,-1.5*ext,0]) cylinder(h=ext,r=ro);
+        translate([ext/2,-joiner_in_material,0]) cube([3*ext,joiner_in_material,ext]);
+      }
+      // v-slot hump
+      translate([ext/2,0,ext/2]) rotate([0,90,0]) vslot_groove(3*ext);
+      // wheel spacer
+      translate([VWHEEL[5]/2,-1.5*ext,0]) cylinder(h=1.5*ext-VWHEEL[4]/2,d=VWHEEL[8]);
+    }
+
+    // slit
+    hull(){
+      translate([ext/2,-ro,0]) cylinder(h=ext,r=ro/2);
+      translate([VWHEEL[5]/2-(VWHEEL[5]/2-ext/2)*0.36,-1.5*ext+(1.5*ext-ro)*0.36,0]) cylinder(h=ext,r=ro/2);
+    }
+
+    translate([VWHEEL[5]/2,-1.5*ext,0]) {
+      // screw hole
+      #cylinder(h=1.5*ext,d=m5_hole);
+      // around screw
+      difference(){
+        intersection(){
+          cylinder(h=ext,r=ro*2);
+          translate([0,-ro,0]) cube([ro*2,ro*3,ext]);
+        }
+        cylinder(h=ext,r=ro);
+      }
+    }
+    // holes for screws
+    translate([3*ext,-joiner_in_material,ext/2]) rotate([-90,0,0]) joiner_hole(1.5*ext);
+    translate([1.2*ext,-joiner_in_material,ext/2]) rotate([-90,0,0]) joiner_hole(1.5*ext);  }
 }
 module z_axis(){
   // rods and pulleys
@@ -801,12 +841,12 @@ module z_axis(){
   // tension pulley
   p5=[ext/2+92,z_pulley_support,z_belt_h-1.5];
   translate(p5) pulley(GT2x20_plain_idler);
-  translate([p5.x,p5.y,ext]) rotate([0,0,180]) pulley_support_z();
+  translate([p5.x,p5.y,ext]) rotate([0,0,180]) z_pulley_support();
 
   // second tension pulley
   p6=[ext/2+200,z_pulley_support,z_belt_h-1.5];
   translate(p6) pulley(GT2x20_plain_idler);
-  translate([p6.x,p6.y,ext]) pulley_support_z();
+  translate([p6.x,p6.y,ext]) z_pulley_support();
 
   // belt
   belt_points=[[p5.x,p5.y,-pr20],[p4.x,p4.y,pr20],[p3.x,p3.y,pr20],[p6.x,p6.y,-pr20],[p2.x,p2.y,pr20],[p1.x,p1.y,pr20]];
@@ -838,12 +878,21 @@ module z_axis(){
     translate([p2.x,p2.y,-ext]) leadnut_cut();
     translate([p3.x,p3.y,-ext]) rotate([0,0,90]) leadnut_cut();
 
-    // v-wheels
+    // front v-wheels
     v_offset=ext+VWHEEL[5]/2;
-    translate([v_offset,1.5*ext+VWHEEL[4]/2,-ext/2]) rotate([90,0,0]) {
+    v_front_screw_len=30;
+    translate([v_offset,1.5*ext+VWHEEL[4]/2,-2.5*ext]) rotate([90,0,0]) {
       vslot_wheel(VWHEEL);
-      translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,20);
+      translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
     }
+    translate([base_w-v_offset,1.5*ext+VWHEEL[4]/2,-2.5*ext]) rotate([90,0,0]) {
+      vslot_wheel(VWHEEL);
+      translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
+    }
+    // left front wheel mount
+    translate([ext,3*ext,-ext]) z_front_wheel_mount();
+    // left front wheel mount
+    translate([base_w-ext,3*ext,-ext]) mirror([1,0,0]) z_front_wheel_mount();
   }
   
 }
@@ -1044,10 +1093,11 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==9) translate([100,50,0]) bb_support(0);
   if (render_parts==0 || render_parts==10) translate([125,50,0]) bb_support(1);
   if (render_parts==0 || render_parts==11) translate([140,0,0]) joiner_front();
-  if (render_parts==0 || render_parts==12) translate([170,80,0]) pulley_support_z();
+  if (render_parts==0 || render_parts==12) translate([170,80,0]) z_pulley_support();
   if (render_parts==0 || render_parts==13) translate([170,00,0]) motor_support_z();
   if (render_parts==0 || render_parts==14) translate([-30,-25,0]) cable_tie(10);
   if (render_parts==0 || render_parts==15) translate([100,-20,0]) z_pulley_helper();
+  if (render_parts==0 || render_parts==16) translate([120,-20,0]) z_front_wheel_mount();
 }
 
 
