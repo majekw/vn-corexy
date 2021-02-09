@@ -112,8 +112,27 @@ V2040  = [ "V2040", 20, 40,  4.2, 3, 7.8, 6.25, 11.0, 1.8, 1.5, 1 ];
 vtr=9.16; // v-slot top tiangle width
 // Large rocker
 large_rocker   = ["large_rocker", "Some large rocker found in drawer", 22, 28, 25, 30.5, 2.10, 21.3, 26, 15.8, 3,  -1, 2.5, small_spades];
+// v-slot wheel: [ 0:name, 1:outer dia, 2:hole dia, 3:bearing outer dia, 4:width, 5:roll dia, 6:flat width, 7: edge dia ]
+VWHEEL1 = [ "Large", 24.32, 5, 16, 11, 20.50, 5.1, 19.40 ];
+VWHEEL = VWHEEL1;
 
-
+module vslot_wheel(wheel){
+  // derlin part
+  side_h=(wheel[4]-wheel[6])/2;
+  color("#020202") difference(){
+    union(){
+      cylinder(d1=wheel[7], h=side_h, d2=wheel[1]);
+      translate([0,0,side_h]) cylinder(d=wheel[1], h=wheel[6]);
+      translate([0,0,side_h+wheel[6]]) cylinder(d2=wheel[7], h=side_h, d1=wheel[1]);
+    }
+    cylinder(d=wheel[3], h=wheel[4]);
+  }
+  // ball bearing
+  color("#f0f0f0") difference(){
+    cylinder(d=wheel[3], h=wheel[4]);
+    cylinder(d=wheel[2], h=wheel[4]);
+  }
+}
 module vtriangle(){
     polygon([[-vtr/2,0],[vtr/2,0],[0,vtr/2]]);
 }
@@ -503,23 +522,23 @@ module gantry(){
   echo("Side rails lenght",y_rail_l);
   echo("Maximum rails length",base_d-2*ext);
   real_y=pos_y+hotend_d;
-  carriage_pos_y=real_y-rail_travel(MGN12H,y_rail_l)/2-y_rails_from_front;
+  carriage_pos_y=real_y-carriage_travel(MGN12H_carriage,y_rail_l)/2-y_rails_from_front;
   carriage_y_real=real_y+ext+carriage_length(MGN12H_carriage)/2;
   carriage_pos_x=pos_x-build_x/2;
   motor_y=base_d+21;
 
 
   // left linear rail
-  translate([ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(MGN12H,y_rail_l,carriage_pos_y);
+  translate([ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(MGN12H_carriage,y_rail_l,carriage_pos_y);
   // right linear rail
-  translate([base_w-ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(MGN12H,y_rail_l,carriage_pos_y);
+  translate([base_w-ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(MGN12H_carriage,y_rail_l,carriage_pos_y);
 
   // X gantry support
   translate([0,carriage_y_real-ext,base_h+13]) union(){
     echo(base_w=base_w);
     translate([ext/4,0,0]) rotate([0,90,0]) ext2020(base_w-ext/2);
     echo("X rail length",base_w-2*ext);
-    translate([base_w/2,ext*0.5,ext]) rotate([0,0,0]) rail_assembly(MGN12H,base_w-2*ext,carriage_pos_x);
+    translate([base_w/2,ext*0.5,ext]) rotate([0,0,0]) rail_assembly(MGN12H_carriage,base_w-2*ext,carriage_pos_x);
     // gantry joints
     translate([0,-3,0]) {
       #gantry_joint_l();
@@ -818,6 +837,13 @@ module z_axis(){
     translate([p1.x,p1.y,-ext]) leadnut_cut();
     translate([p2.x,p2.y,-ext]) leadnut_cut();
     translate([p3.x,p3.y,-ext]) rotate([0,0,90]) leadnut_cut();
+
+    // v-wheels
+    v_offset=ext+VWHEEL[5]/2;
+    translate([v_offset,1.5*ext+VWHEEL[4]/2,-ext/2]) rotate([90,0,0]) {
+      vslot_wheel(VWHEEL);
+      translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,20);
+    }
   }
   
 }
