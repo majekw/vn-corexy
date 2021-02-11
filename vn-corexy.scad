@@ -10,7 +10,7 @@
 /* [head position] */
 pos_x=0;
 pos_y=100;
-pos_z=320;
+pos_z=310;
 /* [build plate] */
 build_plate_w=310; // (X)
 build_plate_d=310; // (Y)
@@ -18,7 +18,7 @@ build_plate_mount_space=240; // space between mounting screws
 /* [build volume] */
 build_x=300;
 build_y=300;
-build_z=320;
+build_z=310;
 /* [hotend size] */
 hotend_w=50;
 hotend_d=70;
@@ -37,7 +37,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount]
 
 /* [tweaks/hacks] */
 
@@ -779,44 +779,55 @@ module z_pulley_support(){
     translate([-ext,0,joiner_in_material])rotate([180,0,0]) joiner_hole(20);
   }
 }
-module z_front_wheel_mount(){
+module z_wheel_mount(back=0){
   ro=6;
   color(pp_color) rotate([90,0,0]) difference(){
     union(){
       // main shape
       hull(){
-        translate([ext/2,-ro,0]) cylinder(h=ext,r=ro);
+        // side curve
+        translate([ext/2,-ro,0]) cylinder(h=ext+back*ext/2,r=ro);
+        // wheel mount
         translate([VWHEEL[5]/2,-1.5*ext,0]) cylinder(h=ext,r=ro);
-        translate([ext/2,-joiner_in_material,0]) cube([3*ext,joiner_in_material,ext]);
+        // flat profile side
+        translate([ext/2,-joiner_in_material,0]) cube([3*ext,joiner_in_material,ext+back*ext/2]);
       }
       // v-slot hump
-      translate([ext/2,0,ext/2]) rotate([0,90,0]) vslot_groove(3*ext);
+      translate([ext/2,0,ext/2+back*ext/2]) rotate([0,90,0]) vslot_groove(3*ext);
       // wheel spacer
       translate([VWHEEL[5]/2,-1.5*ext,0]) cylinder(h=1.5*ext-VWHEEL[4]/2,d=VWHEEL[8]);
     }
 
     // slit
     hull(){
-      translate([ext/2,-ro,0]) cylinder(h=ext,r=ro/2);
-      translate([VWHEEL[5]/2-(VWHEEL[5]/2-ext/2)*0.36,-1.5*ext+(1.5*ext-ro)*0.36,0]) cylinder(h=ext,r=ro/2);
+      translate([ext/2,-ro,0]) cylinder(h=ext*1.5,r=ro/2);
+      translate([VWHEEL[5]/2-(VWHEEL[5]/2-ext/2)*0.36,-1.5*ext+(1.5*ext-ro)*0.36,0]) cylinder(h=ext*1.5,r=ro/2);
     }
 
     translate([VWHEEL[5]/2,-1.5*ext,0]) {
       // screw hole
-      #cylinder(h=1.5*ext,d=m5_hole);
+      cylinder(h=1.5*ext,d=m5_hole);
       // around screw
       difference(){
         intersection(){
-          cylinder(h=ext,r=ro*2);
-          translate([0,-ro,0]) cube([ro*2,ro*3,ext]);
+          cylinder(h=ext*1.5,r=ro*2);
+          translate([0,-ro,0]) cube([ro*2,ro*3,ext*1.5]);
         }
-        cylinder(h=ext,r=ro);
+        cylinder(h=ext*1.5,r=ro);
+      }
+      // space for wheel
+      if (back==1) {
+        translate([0,0,1.5*ext-VWHEEL[4]/2-2]) difference(){
+          cylinder(h=ext/2,d=VWHEEL[1]+2);
+          cylinder(h=ext/2,d=VWHEEL[8]);
+        }
       }
     }
     // holes for screws
-    translate([3*ext,-joiner_in_material,ext/2]) rotate([-90,0,0]) joiner_hole(1.5*ext);
-    translate([1.2*ext,-joiner_in_material,ext/2]) rotate([-90,0,0]) joiner_hole(1.5*ext);  }
+    translate([3*ext,-joiner_in_material,ext/2+back*ext/2]) rotate([-90,0,0]) joiner_hole(1.5*ext);
+    translate([1.2*ext,-joiner_in_material,ext/2+back*ext/2]) rotate([-90,0,0]) joiner_hole(1.5*ext);  }
 }
+
 module z_axis(){
   // rods and pulleys
   // left rod
@@ -868,6 +879,16 @@ module z_axis(){
     translate([1.5*ext,2*ext,-ext]) rotate([0,90,0]) ext2020(base_w-3*ext);
     // back
     translate([1.5*ext,base_d-2.5*ext,-ext]) rotate([0,90,0]) ext2020(base_w-3*ext);
+    // joiners 1x1
+    translate([2.5*ext,3*ext,-ext]) rotate([0,0,90]) joiner1x1();
+    translate([base_w-2.5*ext,3*ext,-ext]) rotate([0,0,0]) joiner1x1();
+    translate([2.5*ext,base_d-2.5*ext,-ext]) rotate([0,0,180]) joiner1x1();
+    translate([base_w-2.5*ext,base_d-2.5*ext,-ext]) rotate([0,0,-90]) joiner1x1();
+    // joiners 2x2
+    translate([3.5*ext,base_d-2.5*ext,-ext]) rotate([0,0,-90]) joiner2x2();
+    translate([base_w-3.5*ext,base_d-2.5*ext,-ext]) rotate([0,0,180]) joiner2x2();
+    // joiners/bed mount
+    #translate([3.5*ext,3*ext,-ext]) rotate([0,0,0]) joiner2x2();
     // additional bed support
     //translate([base_w/2-build_plate_mount_space/2+ext/2,build_plate_mount_space/4+4*ext,-ext]) rotate([0,90,0]) ext2020(build_plate_mount_space-ext);
     //translate([base_w/2-build_plate_mount_space/2+ext/2,build_plate_mount_space*3/4+4*ext,-ext]) rotate([0,90,0]) ext2020(build_plate_mount_space-ext);
@@ -890,9 +911,23 @@ module z_axis(){
       translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
     }
     // left front wheel mount
-    translate([ext,3*ext,-ext]) z_front_wheel_mount();
+    translate([ext,3*ext,-ext]) z_wheel_mount();
     // left front wheel mount
-    translate([base_w-ext,3*ext,-ext]) mirror([1,0,0]) z_front_wheel_mount();
+    translate([base_w-ext,3*ext,-ext]) mirror([1,0,0]) z_wheel_mount();
+
+    // back v-wheels
+    translate([v_offset,base_d-1.5*ext-VWHEEL[4]/2,-2.5*ext]) rotate([-90,0,0]) {
+      vslot_wheel(VWHEEL);
+      translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
+    }
+    translate([base_w-v_offset,base_d-1.5*ext-VWHEEL[4]/2,-2.5*ext]) rotate([-90,0,0]) {
+      vslot_wheel(VWHEEL);
+      translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
+    }
+    // left back wheel mount
+    translate([ext,base_d-3*ext,-ext]) mirror([0,1,0]) z_wheel_mount(1);
+    // left back wheel mount
+    translate([base_w-ext,base_d-3*ext,-ext]) rotate([0,0,180]) z_wheel_mount(1);
   }
   
 }
@@ -1097,12 +1132,13 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==13) translate([170,00,0]) motor_support_z();
   if (render_parts==0 || render_parts==14) translate([-30,-25,0]) cable_tie(10);
   if (render_parts==0 || render_parts==15) translate([100,-20,0]) z_pulley_helper();
-  if (render_parts==0 || render_parts==16) translate([120,-20,0]) z_front_wheel_mount();
+  if (render_parts==0 || render_parts==16) translate([120,-20,0]) z_wheel_mount(0);
+  if (render_parts==0 || render_parts==17) translate([120,-60,0]) z_wheel_mount(1);
 }
 
 
 if ($preview) {
-  $fn=30;
+  $fn=20;
   draw_whole_printer();
 } else {
   $fn=90;
