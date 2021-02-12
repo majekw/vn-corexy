@@ -850,23 +850,19 @@ module z_bed_support(){
     
     // plate support
     // left
-    translate([3.5*ext,3*ext,0]) rotate([-90,0,0]) ext2020(base_d-5.5*ext);
+    translate([2.5*ext,2.5*ext,0]) rotate([-90,0,0]) ext2020(base_d-5.5*ext);
     // right
-    translate([base_w-2.5*ext,3*ext,0]) rotate([-90,0,0]) ext2020(base_d-5.5*ext);
+    translate([base_w-1.5*ext,2.5*ext,0]) rotate([-90,0,0]) ext2020(base_d-5.5*ext);
     // front
-    translate([1.5*ext,2*ext,-ext]) rotate([0,90,0]) ext2020(base_w-3*ext);
+    translate([1.5*ext,1.5*ext,-ext]) rotate([0,90,0]) ext2020(base_w-3*ext);
     // back
-    translate([1.5*ext,base_d-2.5*ext,-ext]) rotate([0,90,0]) ext2020(base_w-3*ext);
-    // joiners 1x1
-    translate([2.5*ext,3*ext,-ext]) rotate([0,0,90]) joiner1x1();
-    translate([base_w-2.5*ext,3*ext,-ext]) rotate([0,0,0]) joiner1x1();
-    translate([2.5*ext,base_d-2.5*ext,-ext]) rotate([0,0,180]) joiner1x1();
-    translate([base_w-2.5*ext,base_d-2.5*ext,-ext]) rotate([0,0,-90]) joiner1x1();
+    translate([1.5*ext,base_d-3*ext,-ext]) rotate([0,90,0]) ext2020(base_w-3*ext);
+
     // joiners 2x2
-    translate([3.5*ext,base_d-2.5*ext,-ext]) rotate([0,0,-90]) joiner2x2();
-    translate([base_w-3.5*ext,base_d-2.5*ext,-ext]) rotate([0,0,180]) joiner2x2();
+    translate([2.5*ext,base_d-3*ext,-ext]) rotate([0,0,-90]) joiner2x2();
+    translate([base_w-2.5*ext,base_d-3*ext,-ext]) rotate([0,0,180]) joiner2x2();
     // joiners/bed mount
-    #translate([3.5*ext,3*ext,-ext]) rotate([0,0,0]) joiner2x2();
+    #translate([2.5*ext,2.5*ext,-ext]) rotate([0,0,0]) joiner2x2();
 
     // front v-wheels
     v_offset=ext+VWHEEL[5]/2;
@@ -880,9 +876,9 @@ module z_bed_support(){
       translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
     }
     // left front wheel mount
-    translate([ext,3*ext,-ext]) z_wheel_mount();
+    translate([ext,3*ext,-ext]) z_wheel_mount(1);
     // left front wheel mount
-    translate([base_w-ext,3*ext,-ext]) mirror([1,0,0]) z_wheel_mount();
+    translate([base_w-ext,3*ext,-ext]) mirror([1,0,0]) z_wheel_mount(1);
 
     // back v-wheels
     translate([v_offset,base_d-1.5*ext-VWHEEL[4]/2,-2.5*ext]) rotate([-90,0,0]) {
@@ -894,9 +890,9 @@ module z_bed_support(){
       translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
     }
     // left back wheel mount
-    translate([ext,base_d-3*ext,-ext]) mirror([0,1,0]) z_wheel_mount(1);
-    // left back wheel mount
-    translate([base_w-ext,base_d-3*ext,-ext]) rotate([0,0,180]) z_wheel_mount(1);
+    translate([ext,base_d-3*ext,-ext]) mirror([0,1,0]) z_wheel_mount(0);
+    // right back wheel mount
+    translate([base_w-ext,base_d-3*ext,-ext]) rotate([0,0,180]) z_wheel_mount(0);
 }
 module z_axis(){
   // rods and pulleys
