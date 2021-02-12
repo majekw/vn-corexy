@@ -38,7 +38,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed joiner]
 
 /* [tweaks/hacks] */
 
@@ -255,6 +255,41 @@ module joiner2x2(){
   }
   
   echo("J2x2");
+}
+module joiner_bed(){
+  jb_x=45;
+  jb_y=70;
+  slot_l=40;
+  slot_w=12.5;
+  slot_w2=5.2;
+  slot_x=(base_w-build_plate_mount_space)/2-2.5*ext;
+  slot_y=15;
+  slot_z=5;
+
+  color(pp_color) difference(){
+    union(){
+      // main shape
+      cube([jb_x,jb_y,ext]);
+      // positioning groove
+      translate([0,0,ext/2]) rotate([180,-90,0]) vslot_groove(jb_x);
+      translate([0,0,ext/2]) rotate([0,90,90]) vslot_groove(jb_y);
+    }
+    // screw holes
+    translate([joiner_space+4,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(jb_y);
+    translate([jb_x-6,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(jb_y);
+    translate([joiner_in_material,joiner_space,ext/2]) rotate([0,-90,0]) joiner_hole(jb_x);
+    translate([joiner_in_material,jb_y-14,ext/2]) rotate([0,-90,0]) joiner_hole(jb_x);
+
+    // slot
+    translate([slot_x,slot_y,slot_z]) hull(){
+      cylinder(h=ext-slot_z,d=slot_w);
+      translate([0,slot_l,0]) cylinder(h=ext-slot_z,d=slot_w);
+    }
+    translate([slot_x,slot_y,0]) hull(){
+      cylinder(h=slot_z,d=slot_w2);
+      translate([0,slot_l,0]) cylinder(h=slot_z,d=slot_w2);
+    }
+  }
 }
 module joiner_front(){
   jf_h=1*ext;
@@ -862,7 +897,8 @@ module z_bed_support(){
     translate([2.5*ext,base_d-3*ext,-ext]) rotate([0,0,-90]) joiner2x2();
     translate([base_w-2.5*ext,base_d-3*ext,-ext]) rotate([0,0,180]) joiner2x2();
     // joiners/bed mount
-    #translate([2.5*ext,2.5*ext,-ext]) rotate([0,0,0]) joiner2x2();
+    translate([2.5*ext,2.5*ext,-ext]) joiner_bed();
+    translate([base_w-2.5*ext,2.5*ext,-ext]) mirror([1,0,0]) joiner_bed();
 
     // front v-wheels
     v_offset=ext+VWHEEL[5]/2;
@@ -1137,6 +1173,7 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==15) translate([100,-20,0]) z_pulley_helper();
   if (render_parts==0 || render_parts==16) translate([120,-20,0]) z_wheel_mount(0);
   if (render_parts==0 || render_parts==17) translate([120,-60,0]) z_wheel_mount(1);
+  if (render_parts==0 || render_parts==18) translate([10,-80,0]) joiner_bed();
 }
 
 
