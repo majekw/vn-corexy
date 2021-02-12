@@ -19,10 +19,11 @@ build_plate_mount_space=240; // space between mounting screws
 build_x=300;
 build_y=300;
 build_z=310;
-/* [hotend size] */
+/* [hotend] */
 hotend_w=50;
 hotend_d=70;
-hotend_nozzle=60; //distance from gantry to nozzle
+hotend_type=1; // [0:with BMG extruder, 1: bowden type]
+hotend_nozzle=67-hotend_type*30; //distance from gantry to nozzle
 /* [extrusions family size] */
 ext=20;
 /* [extrusion type] */
@@ -399,11 +400,22 @@ module bmg_extruder(){
   bmg_side_points=[[0,0],[20,0],[20,26],[16,54],[4,54],[0,26]];
   translate([20,-29,-3]) rotate([95,0,90]) color(bmg_color) linear_extrude(height=5, center=true) polygon(bmg_side_points);
 }
-module extruder(){
+module extruder_with_bmg(){
   translate([0,-36,-4]) rotate([0,0,90]) hot_end(E3Dv6, 1.75, bowden = false,resistor_wire_rotate = [0,0,0], naked = false);
   translate([-6,-12,8]) {
     rotate([90,0,0])NEMA(NEMA17S23);
     translate([0,-1,0])bmg_extruder();
+  }
+}
+module extruder_bowden_type(){
+  translate([0,0,-4]) rotate([0,0,-90]) hot_end(E3Dv6, 1.75, bowden = true,resistor_wire_rotate = [0,0,0], naked = false);
+}
+module extruder(){
+  if (hotend_type==0) {
+    extruder_with_bmg();
+  } else
+  if (hotend_type==1) {
+    extruder_bowden_type();
   }
 }
 module pulley_support_front(){
@@ -539,26 +551,27 @@ module gantry(){
   // X gantry support
   translate([0,carriage_y_real-ext,base_h+13]) union(){
     echo(base_w=base_w);
-    translate([ext/4,0,0]) rotate([0,90,0]) ext2020(base_w-ext/2);
+    translate([ext/4,5,3.5]) rotate([0,90,0]) ext2020(base_w-ext/2);
     echo("X rail length",base_w-2*ext);
-    translate([base_w/2,ext*0.5,ext]) rotate([0,0,0]) rail_assembly(MGN12H_carriage,base_w-2*ext,carriage_pos_x);
+    translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN12H_carriage,base_w-2*ext,carriage_pos_x);
     // gantry joints
     translate([0,-3,0]) {
       #gantry_joint_l();
       #translate([base_w-ext,0,0]) gantry_joint_r();
     }
-  // Extruder and mount
-  translate([base_w/2-build_x/2+pos_x,-18,10]) extruder();
+    // Extruder and mount
+    translate([base_w/2-build_x/2+pos_x,-18,10]) extruder();
   }
   
   // pulleys
+  belt_shift_y=3;
   // X axis
-  shift_x=34;
+  shift_x=34+2;
   // X start anchor point
-  bx1=[base_w/2-build_x/2+pos_x,carriage_y_real+3+pr20,base_h+shift_x];
+  bx1=[base_w/2-build_x/2+pos_x,carriage_y_real+belt_shift_y+pr20,base_h+shift_x];
   translate(bx1) cube([0.1,12,12]);
   // X idler - gantry left
-  bx2=[ext/2+belt_separation,carriage_y_real+3+2*pr20,base_h+shift_x];
+  bx2=[ext/2+belt_separation,carriage_y_real+belt_shift_y+2*pr20,base_h+shift_x];
   translate(bx2) pulley(GT2_10x20_plain_idler);
   // X idler - inner rail-motor
   bx3=[ext/2+belt_separation,motor_y,base_h+shift_x];
@@ -577,7 +590,7 @@ module gantry(){
   bx7=[base_w-ext/2,ext/2,base_h+shift_x];
   translate(bx7) pulley(GT2_10x20_toothed_idler);
   // X idler - gantry right
-  bx8=[base_w-ext/2,carriage_y_real+3,base_h+shift_x];
+  bx8=[base_w-ext/2,carriage_y_real+belt_shift_y,base_h+shift_x];
   translate(bx8) pulley(GT2_10x20_toothed_idler);
   
   // X belt
@@ -588,10 +601,10 @@ module gantry(){
   // Y axis
   shift_y=shift_x+15;
   // Y start anchor point
-  by1=[base_w/2-build_x/2+pos_x,carriage_y_real+3+pr20,base_h+shift_y];
+  by1=[base_w/2-build_x/2+pos_x,carriage_y_real+belt_shift_y+pr20,base_h+shift_y];
   translate(by1) cube([0.1,12,12]);
   // Y idler - gantry right
-  by2=[base_w-ext/2-belt_separation,carriage_y_real+3+2*pr20,base_h+shift_y];
+  by2=[base_w-ext/2-belt_separation,carriage_y_real+belt_shift_y+2*pr20,base_h+shift_y];
   translate(by2) pulley(GT2_10x20_plain_idler);
   // Y idler - inner rail-motor
   by3=[base_w-ext/2-belt_separation,motor_y,base_h+shift_y];
@@ -611,7 +624,7 @@ module gantry(){
   by7=[ext/2,ext/2,base_h+shift_y];
   translate(by7) pulley(GT2_10x20_toothed_idler);
   // Y idler - gantry left
-  by8=[ext/2,carriage_y_real+3,base_h+shift_y];
+  by8=[ext/2,carriage_y_real+belt_shift_y,base_h+shift_y];
   translate(by8) pulley(GT2_10x20_toothed_idler);
 
   // Y belt
