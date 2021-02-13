@@ -277,7 +277,7 @@ module joiner_bed(){
     }
     // screw holes
     translate([joiner_space+4,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(jb_y);
-    translate([jb_x-6,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(jb_y);
+    translate([jb_x-6.5,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(jb_y);
     translate([joiner_in_material,joiner_space,ext/2]) rotate([0,-90,0]) joiner_hole(jb_x);
     translate([joiner_in_material,slot_l+slot_y,ext/2]) rotate([0,-90,0]) joiner_hole(jb_x);
 
@@ -301,22 +301,22 @@ module bed_support(){
   slot_x=(base_w-build_plate_mount_space)/2-2.5*ext;
   slot_y=(jb_y-slot_l)/2;
   slot_z=5;
+  outer_d=(jb_x-slot_x)*2;
 
   color(pp_color) difference(){
     union(){
       // main shape
       hull(){
         cube([1,jb_y,ext]);
-        translate([jb_x-slot_w/2,slot_w/2,0]) cylinder(h=ext,d=slot_w);
-        translate([jb_x-slot_w/2,jb_y-slot_w/2,0]) cylinder(h=ext,d=slot_w);
+        translate([jb_x-outer_d/2,outer_d/2,0]) cylinder(h=ext,d=outer_d);
+        translate([jb_x-outer_d/2,jb_y-outer_d/2,0]) cylinder(h=ext,d=outer_d);
       }
-      //cube([jb_x,jb_y,ext]);
       // positioning groove
       translate([0,0,ext/2]) rotate([0,90,90]) vslot_groove(jb_y);
     }
     // screw holes
-    translate([joiner_in_material,10,ext/2]) rotate([0,-90,0]) joiner_hole(jb_x);
-    translate([joiner_in_material,jb_y-10,ext/2]) rotate([0,-90,0]) joiner_hole(jb_x);
+    translate([joiner_in_material,13,ext/2]) rotate([0,-90,0]) joiner_hole(jb_x);
+    translate([joiner_in_material,jb_y-13,ext/2]) rotate([0,-90,0]) joiner_hole(jb_x);
 
     // slot
     translate([slot_x,slot_y,slot_z]) hull(){
