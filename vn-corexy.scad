@@ -38,7 +38,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed joiner, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount]
 
 /* [tweaks/hacks] */
 
@@ -259,7 +259,7 @@ module joiner2x2(){
 }
 module joiner_bed(){
   jb_x=45;
-  jb_y=70;
+  jb_y=65;
   slot_l=40;
   slot_w=12.5;
   slot_w2=5.2;
@@ -270,11 +270,7 @@ module joiner_bed(){
   color(pp_color) difference(){
     union(){
       // main shape
-      hull(){
-        cube([jb_x,1,ext]);
-        translate([jb_x-21,jb_y-16,0]) cylinder(h=ext,d=20);
-        translate([0,jb_y-1,0]) cube([1,1,ext]);
-      }
+      cube([jb_x,jb_y,ext]);
       // positioning groove
       translate([0,0,ext/2]) rotate([180,-90,0]) vslot_groove(jb_x);
       translate([0,0,ext/2]) rotate([0,90,90]) vslot_groove(jb_y);
@@ -283,7 +279,7 @@ module joiner_bed(){
     translate([joiner_space+4,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(jb_y);
     translate([jb_x-6,joiner_in_material,ext/2]) rotate([90,0,0]) joiner_hole(jb_y);
     translate([joiner_in_material,joiner_space,ext/2]) rotate([0,-90,0]) joiner_hole(jb_x);
-    translate([joiner_in_material,jb_y-14,ext/2]) rotate([0,-90,0]) joiner_hole(jb_x);
+    translate([joiner_in_material,slot_l+slot_y,ext/2]) rotate([0,-90,0]) joiner_hole(jb_x);
 
     // slot
     translate([slot_x,slot_y,slot_z]) hull(){
