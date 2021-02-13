@@ -918,9 +918,9 @@ module z_wheel_mount(back=0){
 }
 
 module bed_to_t8(dist){
-  bw=2*ext; // width of mount
+  bw=2*ext+4; // width of mount
   ln_d=10.5; // diameter of leadnut
-  color(pp_color) difference(){
+  color(pp_color) translate([0,-bw/2,0]) difference(){
     union(){
       // main shape
       translate([0,bw,0]) rotate([90,0,0]) linear_extrude(bw) polygon([[0,0],[dist,0],[dist,ext],[dist-joiner_in_material,ext],[0,10]]);
@@ -933,8 +933,8 @@ module bed_to_t8(dist){
       translate([0,-ln_d/2,0]) cube([ln_d/2,ln_d,ext]);
     }
     // holes for frame mount screws
-    translate([dist-joiner_in_material,5,ext/2]) rotate([0,90,0]) joiner_hole(bw);
-    translate([dist-joiner_in_material,bw-5,ext/2]) rotate([0,90,0]) joiner_hole(bw);
+    translate([dist-joiner_in_material,6,ext/2]) rotate([0,90,0]) joiner_hole(bw);
+    translate([dist-joiner_in_material,bw-6,ext/2]) rotate([0,90,0]) joiner_hole(bw);
 
     // holes for leadnut mount screws
     translate([ext/2,bw/2-8,0]) cylinder(h=ext,d=m3_hole);
@@ -966,9 +966,9 @@ module z_bed_frame(){
   translate([base_w-2.5*ext,2.75*ext+build_plate_mount_space,-ext]) mirror([1,0,0]) bed_support();
 
   // mount frame to T8 screws
-  translate([0,3*ext,-ext]) bed_to_t8(1.5*ext);
-  translate([base_w,3*ext,-ext]) mirror([1,0,0]) bed_to_t8(1.5*ext);
-  translate([base_w/2-ext,base_d,-ext]) rotate([0,0,-90]) bed_to_t8(2*ext);
+  translate([0,4*ext,-ext]) bed_to_t8(1.5*ext);
+  translate([base_w,4*ext,-ext]) mirror([1,0,0]) bed_to_t8(1.5*ext);
+  translate([base_w/2,base_d,-ext]) rotate([0,0,-90]) bed_to_t8(2*ext);
 
   // front v-wheels
   v_offset=ext+VWHEEL[5]/2;
