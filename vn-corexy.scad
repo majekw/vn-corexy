@@ -38,7 +38,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed joiner, 19: Back bed support]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed joiner, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount]
 
 /* [tweaks/hacks] */
 
@@ -94,6 +94,7 @@ joiner_space=joiner_screw_len-joiner_extr_depth+joiner_screw_head_h+joiner_screw
 t8_frame_dist=2.5; // distance from frame to start of T8 screw
 t8_bb_offset=1.5; // space from start of T8 to ball bearing
 m5_hole=4.75; // hole for direct M5 screw without tapping
+m3_hole=2.75; // hole for direct M3 screw without tapping
 bed_z=base_h-2*ext-10-pos_z; // bed Z position
 
 // Extra stuff not in NopSCADlib
@@ -269,7 +270,11 @@ module joiner_bed(){
   color(pp_color) difference(){
     union(){
       // main shape
-      cube([jb_x,jb_y,ext]);
+      hull(){
+        cube([jb_x,1,ext]);
+        translate([jb_x-21,jb_y-16,0]) cylinder(h=ext,d=20);
+        translate([0,jb_y-1,0]) cube([1,1,ext]);
+      }
       // positioning groove
       translate([0,0,ext/2]) rotate([180,-90,0]) vslot_groove(jb_x);
       translate([0,0,ext/2]) rotate([0,90,90]) vslot_groove(jb_y);
@@ -304,7 +309,12 @@ module bed_support(){
   color(pp_color) difference(){
     union(){
       // main shape
-      cube([jb_x,jb_y,ext]);
+      hull(){
+        cube([1,jb_y,ext]);
+        translate([jb_x-slot_w/2,slot_w/2,0]) cylinder(h=ext,d=slot_w);
+        translate([jb_x-slot_w/2,jb_y-slot_w/2,0]) cylinder(h=ext,d=slot_w);
+      }
+      //cube([jb_x,jb_y,ext]);
       // positioning groove
       translate([0,0,ext/2]) rotate([0,90,90]) vslot_groove(jb_y);
     }
@@ -911,11 +921,35 @@ module z_wheel_mount(back=0){
     translate([1.2*ext,-joiner_in_material,ext/2+back*ext/2]) rotate([-90,0,0]) joiner_hole(1.5*ext);  }
 }
 
+module bed_to_t8(dist){
+  bw=2*ext; // width of mount
+  ln_d=10.5; // diameter of leadnut
+  color(pp_color) difference(){
+    union(){
+      // main shape
+      translate([0,bw,0]) rotate([90,0,0]) linear_extrude(bw) polygon([[0,0],[dist,0],[dist,ext],[dist-joiner_in_material,ext],[0,10]]);
+      // v-slot part
+      translate([dist,0,ext/2]) rotate([-90,-90,0]) vslot_groove(bw);
+    }
+    // hole for leadnut
+    translate([0,bw/2,0]) hull(){
+      translate([ext/2,0,0]) cylinder(h=ext, d=ln_d);
+      translate([0,-ln_d/2,0]) cube([ln_d/2,ln_d,ext]);
+    }
+    // holes for frame mount screws
+    translate([dist-joiner_in_material,5,ext/2]) rotate([0,90,0]) joiner_hole(bw);
+    translate([dist-joiner_in_material,bw-5,ext/2]) rotate([0,90,0]) joiner_hole(bw);
+
+    // holes for leadnut mount screws
+    translate([ext/2,bw/2-8,0]) cylinder(h=ext,d=m3_hole);
+    translate([ext/2,bw/2+8,0]) cylinder(h=ext,d=m3_hole);
+  }
+}
 module z_bed_frame(){
   // build plate
   translate([(base_w-build_plate_w)/2,hotend_d-hotend_nozzle+ext+10,12]) build_plate();
 
-  // plate support
+  // plate frame
   // left
   translate([2.5*ext,2.5*ext,0]) rotate([-90,0,0]) ext2020(base_d-5.5*ext);
   // right
@@ -934,6 +968,11 @@ module z_bed_frame(){
   // rear bed support
   translate([2.5*ext,2.75*ext+build_plate_mount_space,-ext]) bed_support();
   translate([base_w-2.5*ext,2.75*ext+build_plate_mount_space,-ext]) mirror([1,0,0]) bed_support();
+
+  // mount frame to T8 screws
+  translate([0,3*ext,-ext]) bed_to_t8(1.5*ext);
+  translate([base_w,3*ext,-ext]) mirror([1,0,0]) bed_to_t8(1.5*ext);
+  translate([base_w/2-ext,base_d,-ext]) rotate([0,0,-90]) bed_to_t8(2*ext);
 
   // front v-wheels
   v_offset=ext+VWHEEL[5]/2;
@@ -1208,10 +1247,11 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==15) translate([100,-20,0]) z_pulley_helper();
   if (render_parts==0 || render_parts==16) translate([120,-20,0]) z_wheel_mount(0);
   if (render_parts==0 || render_parts==17) translate([120,-60,0]) z_wheel_mount(1);
-  if (render_parts==0 || render_parts==18) translate([10,-80,0]) joiner_bed();
+  if (render_parts==0 || render_parts==18) translate([0,-80,0]) joiner_bed();
   if (render_parts==0 || render_parts==19) translate([50,-80,0]) bed_support();
+  if (render_parts==0 || render_parts==20) translate([200,-90,0]) bed_to_t8(1.5*ext);
+  if (render_parts==0 || render_parts==21) translate([200,-45,0]) bed_to_t8(2*ext);
 }
-
 
 if ($preview) {
   $fn=20;

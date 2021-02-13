@@ -22,6 +22,11 @@ GT2 belt lengts are also calculated.
 - OpenScad https://www.openscad.org/
 - NopSCADlib library https://github.com/nophead/NopSCADlib
 
+# Known issues
+- MGN12 carriage sticks 3.5mm out of frame
+- bed frame should be 10mm shorter to use 4 the same wheel supports
+- bed frame wheels supports are temporary, will be changed in future
+
 # Copyright & license
 (C) 2020-2021 Marek Wodzinski <majek@w7i.pl>
 
