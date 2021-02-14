@@ -38,7 +38,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger]
 
 /* [tweaks/hacks] */
 
@@ -357,7 +357,7 @@ module leadnut_cut(){
         translate([-6,-11,0]) cube([12,22,3.5]);
       }
       // cylinder
-      translate([0,0,-5]) cylinder(h=15,d=10);
+      translate([0,0,-5]) cylinder(h=15,d=10.25);
     }
     // hole for T8
     translate([0,0,-5]) cylinder(h=15,d=8);
@@ -919,7 +919,7 @@ module z_wheel_mount(back=0){
 
 module bed_to_t8(dist){
   bw=2*ext+4; // width of mount
-  ln_d=10.5; // diameter of leadnut
+  ln_d=10.4; // diameter of leadnut
   color(pp_color) translate([0,-bw/2,0]) difference(){
     union(){
       // main shape
@@ -929,7 +929,7 @@ module bed_to_t8(dist){
     }
     // hole for leadnut
     translate([0,bw/2,0]) hull(){
-      translate([ext/2,0,0]) cylinder(h=ext, d=ln_d);
+      translate([ext/2,0,0]) cylinder(h=ext, d=ln_d+1);
       translate([0,-ln_d/2,0]) cube([ln_d/2,ln_d,ext]);
     }
     // holes for frame mount screws
@@ -939,6 +939,22 @@ module bed_to_t8(dist){
     // holes for leadnut mount screws
     translate([ext/2,bw/2-8,0]) cylinder(h=ext,d=m3_hole);
     translate([ext/2,bw/2+8,0]) cylinder(h=ext,d=m3_hole);
+  }
+}
+module z_endstop_trigger(){
+  h=4;
+  fd=9;
+  color(pp_color) difference(){
+    union(){
+      // mount
+      cube([ext,h,ext]);
+      // v-slot positioning
+      translate([0,0,ext/2]) rotate([0,-90,180]) vslot_groove(ext);
+      // feather
+      translate([ext-1.6,0,-0.5*ext]) cube([1.6,fd,1.5*ext]);
+    }
+    // hole for screw
+    translate([0.25*ext,4,ext/2]) rotate([90,0,0]) joiner_hole(5,10);
   }
 }
 module z_bed_frame(){
@@ -999,6 +1015,9 @@ module z_bed_frame(){
   translate([ext,base_d-3*ext,-ext]) mirror([0,1,0]) z_wheel_mount(0);
   // right back wheel mount
   translate([base_w-ext,base_d-3*ext,-ext]) rotate([0,0,180]) z_wheel_mount(0);
+
+  // Z end-stop
+  translate([base_w-elec_support-11.5,base_d-2*ext,-ext]) z_endstop_trigger();
 }
 module z_axis(){
   // rods and pulleys
@@ -1179,6 +1198,43 @@ module cable_tie(sl=joiner_screw_len){
     }
   }
 }
+module optical_endstop(){
+  difference(){
+    union(){
+      // pcb
+      color("green") cube([33.3,10.2,1.5]);
+      // photo elements
+      color("#0f0f0f") translate([0,1.95,1.5]) {
+        cube([25.1,6.30,3.20]);
+        translate([6.8,0,0]) cube([4.4,6.3,12.10]);
+        translate([14,0,0]) cube([4.4,6.3,12.10]);
+      }
+      // socket
+      translate([30,5.1,0]) rotate([180,0,-90]) jst_xh_header(jst_xh_header,3);
+    }
+    // holes
+    translate([2.75,5.1,0]) cylinder(h=5,d=3.2);
+    translate([2.75+19,5.1,0]) cylinder(h=5,d=3.2);
+  }
+}
+module z_endstop_mount(){
+  scr_len=10;
+  h=scr_len-joiner_extr_depth; //4
+  color(pp_color) difference(){
+    union(){
+      cube([25,ext,h]);
+      translate([ext/2,0,0]) rotate([-90,0,0]) vslot_groove(ext);
+    }
+    // hole for pcb elements legs
+    translate([6.25,0,2]) cube([12,10.2,2]);
+
+    // holes for M3
+    translate([2.75,5.1,0]) cylinder(h=5,d=m3_hole);
+    translate([2.75+19,5.1,0]) cylinder(h=5,d=m3_hole);
+    // hole for mounting screw
+    translate([ext/2,0.75*ext,h]) rotate([180,0,0]) joiner_hole(10,10);
+  }
+}
 module electronics(){
   translate([0,base_d,0]){
     // PSU
@@ -1206,10 +1262,14 @@ module electronics(){
     translate([base_w,0,cb_h+110-8+ext]) rotate([0,180,0]) control_board_mount(0);
     translate([base_w-elec_support,0,cb_h+161-8]) control_board_mount(1);
     translate([base_w,0,cb_h+161-8+ext]) rotate([0,180,0]) control_board_mount(0);
+
+    // Z end stop
+    translate([base_w-elec_support+ext,-ext,ext*3+10]) rotate([90,180,0]) {
+      translate([0,0,4]) optical_endstop();
+      z_endstop_mount();
+    }
   }
 }
-
-
 
 module draw_whole_printer(){
   frame();
@@ -1246,7 +1306,9 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==18) translate([0,-80,0]) joiner_bed();
   if (render_parts==0 || render_parts==19) translate([50,-80,0]) bed_support();
   if (render_parts==0 || render_parts==20) translate([200,-90,0]) bed_to_t8(1.5*ext);
-  if (render_parts==0 || render_parts==21) translate([200,-45,0]) bed_to_t8(2*ext);
+  if (render_parts==0 || render_parts==21) translate([200,-40,0]) bed_to_t8(2*ext);
+  if (render_parts==0 || render_parts==22) translate([250,-30,0]) z_endstop_mount();
+  if (render_parts==0 || render_parts==23) translate([250,-60,0]) z_endstop_trigger();
 }
 
 if ($preview) {
