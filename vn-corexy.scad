@@ -38,7 +38,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: Linear rails positioning tool]
 
 /* [tweaks/hacks] */
 
@@ -923,7 +923,7 @@ module bed_to_t8(dist){
   color(pp_color) translate([0,-bw/2,0]) difference(){
     union(){
       // main shape
-      translate([0,bw,0]) rotate([90,0,0]) linear_extrude(bw) polygon([[0,0],[dist,0],[dist,ext],[dist-joiner_in_material,ext],[0,10]]);
+      translate([4,bw,0]) rotate([90,0,0]) linear_extrude(bw) polygon([[0,0],[dist-4,0],[dist-4,ext],[dist-4-joiner_in_material,ext],[0,10]]);
       // v-slot part
       translate([dist,0,ext/2]) rotate([-90,-90,0]) vslot_groove(bw);
     }
@@ -1017,7 +1017,7 @@ module z_bed_frame(){
   translate([base_w-ext,base_d-3*ext,-ext]) rotate([0,0,180]) z_wheel_mount(0);
 
   // Z end-stop
-  translate([base_w-elec_support-11.5,base_d-2*ext,-ext]) z_endstop_trigger();
+  translate([base_w-elec_support-6.5,base_d-2*ext,-ext]) z_endstop_trigger();
 }
 module z_axis(){
   // rods and pulleys
@@ -1065,6 +1065,22 @@ module z_pulley_helper(){
 
     cylinder(h=7.6,d=8.3);
     translate([-8.3/2,0,0]) cube([8.3,7.5,7.5]);
+  }
+}
+module rail_mount_helper(){
+  mgn_x=12;
+  mgn_y=8.20;
+  off=0.12; // correction for printer
+  wall=5;
+  th=ext/2;
+  difference(){
+    //main body
+    cube([ext+2*wall,ext/2+mgn_y+wall,th]);
+
+    // hole for 2020
+    translate([wall-off,0,0]) cube([ext+2*off,ext/2,th]);
+    // hole for rail
+    translate([wall+ext/2-mgn_x/2-off,ext/2,0]) cube([mgn_x+2*off,mgn_y+off,th]);
   }
 }
 module btt_skr_13(mot=0){
@@ -1264,7 +1280,7 @@ module electronics(){
     translate([base_w,0,cb_h+161-8+ext]) rotate([0,180,0]) control_board_mount(0);
 
     // Z end stop
-    translate([base_w-elec_support+ext,-ext,ext*3+10]) rotate([90,180,0]) {
+    translate([base_w-elec_support,-ext,ext*3]) rotate([90,0,0]) {
       translate([0,0,4]) optical_endstop();
       z_endstop_mount();
     }
@@ -1309,6 +1325,7 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==21) translate([200,-40,0]) bed_to_t8(2*ext);
   if (render_parts==0 || render_parts==22) translate([250,-30,0]) z_endstop_mount();
   if (render_parts==0 || render_parts==23) translate([250,-60,0]) z_endstop_trigger();
+  if (render_parts==0 || render_parts==24) translate([250,0,0]) rail_mount_helper();
 }
 
 if ($preview) {
