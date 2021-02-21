@@ -570,38 +570,70 @@ module motor_support_z(){
     }
   }
 }
-module gantry_joint_l(){
-  // pulley support //TODO
-  m5_screw1=40;
-  translate([ext/2,6+ext,m5_screw1-5+7+ext]) screw(M5_cap_screw,m5_screw1);
-  m5_screw2=40;
-  translate([ext/2+belt_separation,18.5+ext,m5_screw2+3]) screw(M5_cap_screw,m5_screw2);
-  m5_screw3=16;
-  translate([ext/2,carriage_length(MGN12H_carriage),17]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
-  m3_screw1=12;
-  translate([ext,13,m3_screw1-8]) screw(M3_cap_screw,m3_screw1);
-  translate([ext,33,m3_screw1-8]) screw(M3_cap_screw,m3_screw1);
-  m3_screw2=35;
-  translate([0,13,m3_screw2-8]) screw(M3_cap_screw,m3_screw2);
-  translate([0,33,m3_screw2-8]) screw(M3_cap_screw,m3_screw2);
+module gantry_joint_l(pulx, puly){
+  // screws
+  if ($preview) {
+    // Y pulley
+    m5_screw1=40;
+    translate([puly.x,puly.y,puly.z+15]) screw(M5_cap_screw,m5_screw1);
+    // X pulley
+    m5_screw2=40;
+    translate([pulx.x,pulx.y,m5_screw2+3]) screw(M5_cap_screw,m5_screw2);
+    // back 2020 mounting
+    m5_screw3=25;
+    translate([ext/2,carriage_length(MGN12H_carriage),ext/2+3]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
+    // front 2020 mounting
+    m5_screw4=10;
+    translate([ext/2,0,ext/2+3]) rotate([90,0,0]) screw(M5_cap_screw,m5_screw4);
+    // carriage inner mount
+    m3_screw1=6;
+    translate([ext,13,m3_screw1-3]) screw(M3_cs_cap_screw,m3_screw1);
+    m3_screw3=20;
+    translate([ext,33,m3_screw3-3]) screw(M3_cap_screw,m3_screw3);
+    // carriage outer mount
+    m3_screw2=25;
+    translate([0,13,m3_screw2-3]) screw(M3_cap_screw,m3_screw2);
+    translate([0,33,m3_screw2-3]) screw(M3_cap_screw,m3_screw2);
+  }
+
   // box
-  translate([-(carriage_width(MGN12H_carriage)-ext)/2,0,0]) cube([carriage_width(MGN12H_carriage),carriage_length(MGN12H_carriage),40]);
+  rd=5;
+  box_h=puly.z;
+  translate([-(carriage_width(MGN12H_carriage)-ext)/2,0,0]) {
+    //#cube([carriage_width(MGN12H_carriage),carriage_length(MGN12H_carriage),40]);
+    // lower part
+    difference(){
+      hull(){
+        translate([rd,rd,0]) cylinder(h=box_h,r=rd);
+        translate([rd,carriage_length(MGN12H_carriage)-rd,0]) cylinder(h=box_h,r=rd);
+        translate([carriage_width(MGN12H_carriage)-rd,carriage_length(MGN12H_carriage)-rd,0]) cylinder(h=box_h,r=rd);
+        translate([carriage_width(MGN12H_carriage)-rd+2,25,0]) cylinder(h=box_h,r=rd);
+        translate([carriage_width(MGN12H_carriage)-1+2,0,0]) cube([1,1,box_h]);
+      }
+    }
+  }
 
 }
-module gantry_joint_r(){
+module gantry_joint_r(pulx, puly){
   // pulley support //TODO
-  m5_screw1=40;
-  translate([ext/2,6+ext,m5_screw1-15+ext]) screw(M5_cap_screw,m5_screw1);
-  m5_screw2=40;
-  translate([ext/2-belt_separation,18.5+ext,m5_screw2+10]) screw(M5_cap_screw,m5_screw2);
-  m5_screw3=16;
-  translate([ext/2,carriage_length(MGN12H_carriage),10]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
-  m3_screw1=12;
-  translate([0,13,m3_screw1-8]) screw(M3_cap_screw,m3_screw1);
-  translate([0,33,m3_screw1-8]) screw(M3_cap_screw,m3_screw1);
-  m3_screw2=35;
-  translate([ext,13,m3_screw2-8]) screw(M3_cap_screw,m3_screw2);
-  translate([ext,33,m3_screw2-8]) screw(M3_cap_screw,m3_screw2);
+
+  // screws
+  if ($preview) {
+    // X pulley
+    m5_screw1=40;
+    translate([pulx.x,pulx.y,pulx.z+15]) screw(M5_cap_screw,m5_screw1);
+    // Y pulley
+    m5_screw2=40;
+    translate([puly.x,puly.y,puly.z+15]) screw(M5_cap_screw,m5_screw2);
+    m5_screw3=16;
+    translate([ext/2,carriage_length(MGN12H_carriage),10]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
+    m3_screw1=12;
+    translate([0,13,m3_screw1-8]) screw(M3_cap_screw,m3_screw1);
+    translate([0,33,m3_screw1-8]) screw(M3_cap_screw,m3_screw1);
+    m3_screw2=35;
+    translate([ext,13,m3_screw2-8]) screw(M3_cap_screw,m3_screw2);
+    translate([ext,33,m3_screw2-8]) screw(M3_cap_screw,m3_screw2);
+  }
 
   translate([-(carriage_width(MGN12H_carriage)-ext)/2,0,0]) cube([carriage_width(MGN12H_carriage),carriage_length(MGN12H_carriage),40]);
 }
@@ -621,25 +653,10 @@ module gantry(){
   // right linear rail
   translate([base_w-ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(MGN12H_carriage,y_rail_l,carriage_pos_y);
 
-  // X gantry support
-  translate([0,carriage_y_real-ext,base_h+13]) union(){
-    echo(base_w=base_w);
-    translate([ext/4,5,3.5]) rotate([0,90,0]) ext2020(base_w-ext/2);
-    echo("X rail length",base_w-2*ext);
-    translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN12H_carriage,base_w-2*ext,carriage_pos_x);
-    // gantry joints
-    translate([0,-3,0]) {
-      #gantry_joint_l();
-      #translate([base_w-ext,0,0]) gantry_joint_r();
-    }
-    // Extruder and mount
-    translate([base_w/2-build_x/2+pos_x,-18,10]) extruder();
-  }
-  
   // pulleys
-  belt_shift_y=3;
+  belt_shift_y=6;
   // X axis
-  shift_x=34+2;
+  shift_x=34+4;
   // X start anchor point
   bx1=[base_w/2-build_x/2+pos_x,carriage_y_real+belt_shift_y+pr20,base_h+shift_x];
   translate(bx1) cube([0.1,12,12]);
@@ -650,9 +667,9 @@ module gantry(){
   bx3=[ext/2+belt_separation,motor_y,base_h+shift_x];
   translate(bx3) pulley(GT2_10x20_plain_idler);
   // X motor
-  bx4=[21+2*ext,motor_y,base_h+shift_x-3];
+  bx4=[21+2*ext,motor_y,base_h+shift_x-4];
   translate(bx4) NEMA(NEMA17M);
-  translate([bx4.x,bx4.y,bx4.z+24]) rotate([0,180,0]) pulley(GT2_10x20ob_pulley);
+  translate([bx4.x,bx4.y,bx4.z+24.5]) rotate([0,180,0]) pulley(GT2_10x20ob_pulley);
   // X idler - outer rail-motor
   bx5=[ext/2,motor_y+ext,base_h+shift_x];
   translate(bx5) pulley(GT2_10x20_toothed_idler);
@@ -668,7 +685,7 @@ module gantry(){
   
   // X belt
   belt_x_path=[[bx8.x,bx8.y,pr20], [bx7.x,bx7.y,pr20], [bx6.x,bx6.y,pr20], [bx5.x,bx5.y,pr20], [bx4.x,bx4.y,pr20], [bx3.x,bx3.y,-pr20], [bx2.x,bx2.y,-pr20],[bx1.x,bx1.y,0]];
-  translate([0,0,base_h+shift_x+7]) belt(GT2x10,belt_x_path);
+  translate([0,0,base_h+shift_x+6.5]) belt(GT2x10,belt_x_path);
   echo("X belt length",belt_length(belt_x_path));
 
   // Y axis
@@ -686,7 +703,7 @@ module gantry(){
   pulley_motor_space=3.5;
   by4=[base_w-21-2*ext,motor_y,base_h+shift_y-9-pulley_motor_space];
   translate(by4) NEMA(NEMA17M);
-  translate([by4.x,by4.y,by4.z+2+pulley_motor_space]) pulley(GT2_10x20ob_pulley);
+  translate([by4.x,by4.y,by4.z+1.5+pulley_motor_space]) pulley(GT2_10x20ob_pulley);
   // Y idler - outer rail-motor
   by5=[base_w-ext/2,motor_y+ext,base_h+shift_y];
   translate(by5) pulley(GT2_10x20_toothed_idler);
@@ -702,9 +719,26 @@ module gantry(){
 
   // Y belt
   belt_y_path=[[by1.x,by1.y,0], [by2.x,by2.y,-pr20], [by3.x,by3.y,-pr20], [by4.x,by4.y,pr20], [by5.x,by5.y,pr20], [by6.x,by6.y,pr20], [by7.x,by7.y,pr20], [by8.x,by8.y,pr20]];
-  translate([0,0,base_h+shift_y+7]) belt(GT2x10,belt_y_path);
+  translate([0,0,base_h+shift_y+6.5]) belt(GT2x10,belt_y_path);
   echo("Y belt length",belt_length(belt_y_path));
   
+  // X gantry support
+  g_shift_y=carriage_y_real-ext-3;
+  g_shift_z=base_h+carriage_height(MGN12H_carriage);
+  translate([0,g_shift_y,g_shift_z]) union(){
+    echo(base_w=base_w);
+    translate([ext/4,5,3.5]) rotate([0,90,0]) ext2020(base_w-ext/2);
+    echo("X rail length",base_w-2*ext);
+    translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN12H_carriage,base_w-2*ext,carriage_pos_x);
+    // gantry joints
+    translate([0,0,0]) {
+      #gantry_joint_l([bx2.x,bx2.y-g_shift_y,bx2.z-g_shift_z],[by8.x,by8.y-g_shift_y,by8.z-g_shift_z]);
+      #translate([base_w-ext,0,0]) gantry_joint_r([bx8.x-(base_w-ext),bx8.y-g_shift_y,bx8.z-g_shift_z],[by2.x-(base_w-ext),by2.y-g_shift_y,by2.z-g_shift_z]);
+    }
+    // Extruder and mount
+    translate([base_w/2-build_x/2+pos_x,-18,10]) extruder();
+  }
+
   // front pulley support
   #translate([0,0,base_h]) pulley_support_front();
   #translate([base_w,0,base_h]) mirror([1,0,0]) pulley_support_front();
