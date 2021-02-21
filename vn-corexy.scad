@@ -48,21 +48,14 @@ vslot_groove_scale=0.98;
 // 1 for perfect printer, little larger if nut doesn't fit into hole
 tnut_nut_scale=1.03;
 
-// how to scale up holes for M5 to fit
-m5_hole_scale=1.04;
-
-// scale for T8 hole in spacer and clamp
-clamp_scale=1.02;
-
-// ball bearing support hole scale
-bb_sup_scale=1.01;
-
 // make holes printable withous supports
 bridge_support=true;
 
 // use upper ball bearings for T8 rods
 t8_upper_bearings=false;
 
+// correction for offset on overextrusion or slicer problems impacting on XY dimensions
+printer_off=0.10; // [0:0.01:0.2]
 
 // internal stuff starts here
 /* [Hidden] */
@@ -200,14 +193,14 @@ module tnut_m5(){
 translate([-t_len/2,-5,0]) rotate([90,0,90]) linear_extrude(t_len) polygon([ [0,0], [2,0], [2,-t_tongue], [8,-t_tongue], [8,0], [10,0], [10,1.9], [8,3.8], [1.9,3.8], [0,1.9] ]);
     
     scale([tnut_nut_scale,tnut_nut_scale,1]) translate([0,0,0.7]) nut(M5_nut);
-    translate([0,0,-1]) cylinder(h=5,d=5*m5_hole_scale);
+    translate([0,0,-1]) cylinder(h=5,d=5+2*printer_off);
     
   }
 }
 module joiner_hole(jl,screw_l=joiner_screw_len){
   union(){
     // hole for thread
-    rotate([0,0,0]) cylinder(h=screw_l,d=joiner_screw_d*m5_hole_scale);
+    rotate([0,0,0]) cylinder(h=screw_l,d=joiner_screw_d+2*printer_off);
     // hole for head
     rotate([180,0,0]) cylinder(h=jl,d=joiner_screw_washer);
     // hole for hex tool
@@ -564,9 +557,9 @@ module motor_support_z(){
     }
     // hack for using bridge instead of supports in printing
     if (bridge_support && !$preview){
-      translate([ext/2,ext/2,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5*m5_hole_scale+0.2);
-      translate([ext/2,ext/2+44,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5*m5_hole_scale+0.2);
-      translate([ext/2+44,ext/2+44,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5*m5_hole_scale+0.2);
+      translate([ext/2,ext/2,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5+2*printer_off+0.2);
+      translate([ext/2,ext/2+44,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5+2*printer_off+0.2);
+      translate([ext/2+44,ext/2+44,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5+2*printer_off+0.2);
     }
   }
 }
@@ -778,7 +771,7 @@ module build_plate(){
 module T8_spacer(){
   color(pp_color) difference(){
     cylinder(h=2,d=10);
-    cylinder(h=2,d=8*clamp_scale);
+    cylinder(h=2,d=8+2*printer_off);
   }
 }
 module T8_clamp_printed(){
@@ -789,7 +782,7 @@ module T8_clamp_printed(){
     cylinder(h=c_h,d=c_d);
     
     // inner hole
-    cylinder(h=c_h,d=8*clamp_scale);
+    cylinder(h=c_h,d=8+2*printer_off);
     // space for clamping
     translate([-c_d/2,-0.5,0]) cube([c_d/2,1,c_h]);
     // hole for screw
@@ -826,7 +819,7 @@ module bb_support(rear){
     }
     
     //hole for bearing
-    translate([0,0,t8_frame_dist+t8_bb_offset]) cylinder(h=T8_BB[3],d=T8_BB[2]*bb_sup_scale);
+    translate([0,0,t8_frame_dist+t8_bb_offset]) cylinder(h=T8_BB[3],d=T8_BB[2]+2*printer_off);
     // hole under bearing
     translate([0,0,0]) cylinder(h=t8_frame_dist+t8_bb_offset,d=T8_BB[2]-2);
     
@@ -1104,7 +1097,6 @@ module z_pulley_helper(){
 module rail_mount_helper(){
   mgn_x=12;
   mgn_y=8.20;
-  off=0.12; // correction for printer
   wall=5;
   th=ext/2;
   difference(){
@@ -1112,9 +1104,9 @@ module rail_mount_helper(){
     cube([ext+2*wall,ext/2+mgn_y+wall,th]);
 
     // hole for 2020
-    translate([wall-off,0,0]) cube([ext+2*off,ext/2,th]);
+    translate([wall-printer_off,0,0]) cube([ext+2*printer_off,ext/2,th]);
     // hole for rail
-    translate([wall+ext/2-mgn_x/2-off,ext/2,0]) cube([mgn_x+2*off,mgn_y+off,th]);
+    translate([wall+ext/2-mgn_x/2-printer_off,ext/2,0]) cube([mgn_x+2*printer_off,mgn_y+printer_off,th]);
   }
 }
 module btt_skr_13(mot=0){
@@ -1232,7 +1224,7 @@ module cable_tie(sl=joiner_screw_len){
     // plate
     difference(){
       cube([ext,ext,h]);
-      translate([ext/2,ext/2,0]) cylinder(h=h,d=joiner_screw_d*m5_hole_scale);
+      translate([ext/2,ext/2,0]) cylinder(h=h,d=joiner_screw_d+2*printer_off);
     }
     // arms
     translate([ext/2,arm_space,h]) rotate([-90,0,0]) difference(){
