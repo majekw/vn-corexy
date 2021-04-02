@@ -48,8 +48,10 @@ vslot_groove_scale=0.98;
 // 1 for perfect printer, little larger if nut doesn't fit into hole
 tnut_nut_scale=1.03;
 
-// make holes printable withous supports
+// make holes printable without supports
 bridge_support=true;
+// thickness of bridge layer if bridge_support is enabled
+bridge_thickness=0.2;
 
 // use upper ball bearings for T8 rods
 t8_upper_bearings=false;
@@ -200,12 +202,16 @@ translate([-t_len/2,-5,0]) rotate([90,0,90]) linear_extrude(t_len) polygon([ [0,
     
   }
 }
-module joiner_hole(jl,screw_l=joiner_screw_len){
+module joiner_hole(jl,screw_l=joiner_screw_len,print_upside=false){
   union(){
     // hole for thread
     rotate([0,0,0]) cylinder(h=screw_l,d=joiner_screw_d+2*printer_off);
     // hole for head
-    rotate([180,0,0]) cylinder(h=jl,d=joiner_screw_washer);
+    if (print_upside && bridge_support) {
+      translate([0,0,-bridge_thickness]) rotate([180,0,0]) cylinder(h=jl-bridge_thickness,d=joiner_screw_washer);
+    } else {
+      rotate([180,0,0]) cylinder(h=jl,d=joiner_screw_washer);
+    }
     // hole for hex tool
     translate([0,0,-jl]) rotate([180,0,0]) cylinder(h=40,d=5);
     // cut tongue for rotating t-nut
@@ -603,13 +609,13 @@ module motor_support_x_up(mot,inn,out){
     }
 
      // back screw hole
-    translate([ext/2,3*ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
+    translate([ext/2,3*ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60,true);
      // middle front screw hole
-    translate([2*ext,ext/2,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
+    translate([2*ext,ext/2,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60,true);
     // outer pulley hole
-    translate([out.x,out.y-base_d+ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
+    translate([out.x,out.y-base_d+ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60,true);
     // inner pulley hole
-    translate([inn.x,inn.y-base_d+ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
+    translate([inn.x,inn.y-base_d+ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60,true);
   }
 }
 module motor_support_x(mot,inn,out){
@@ -680,15 +686,9 @@ module motor_support_z(){
       translate([ext+44+2,0,mot_bot-5]) rotate([-155,0,180]) cube([2,60,40]);
 
       // mount screws
-      translate([ext/2,ext/2,msl-joiner_extr_depth]) rotate([180,0,0]) joiner_hole(20,msl);
-      translate([ext/2,ext/2+44,msl-joiner_extr_depth]) rotate([180,0,0]) joiner_hole(20,msl);
-      translate([ext/2+44,ext/2+44,msl-joiner_extr_depth]) rotate([180,0,0]) joiner_hole(20,msl);
-    }
-    // hack for using bridge instead of supports in printing
-    if (bridge_support && !$preview){
-      translate([ext/2,ext/2,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5+2*printer_off+0.2);
-      translate([ext/2,ext/2+44,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5+2*printer_off+0.2);
-      translate([ext/2+44,ext/2+44,msl-joiner_extr_depth-0.2]) cylinder(h=mot_bot+3-msl+joiner_extr_depth+0.2,d=5+2*printer_off+0.2);
+      translate([ext/2,ext/2,msl-joiner_extr_depth]) rotate([180,0,0]) joiner_hole(20,msl,true);
+      translate([ext/2,ext/2+44,msl-joiner_extr_depth]) rotate([180,0,0]) joiner_hole(20,msl,true);
+      translate([ext/2+44,ext/2+44,msl-joiner_extr_depth]) rotate([180,0,0]) joiner_hole(20,msl,true);
     }
   }
 }
