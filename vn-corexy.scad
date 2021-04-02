@@ -81,7 +81,7 @@ joiner_screw_d=5; // screw diameter
 joiner_screw_head_d=8.5; // head diameter
 joiner_screw_washer=10; // washer diameter
 joiner_screw_head_h=5; // head height
-joiner_extr_depth=6; // depth of screw in extrusion profile, 6 is fine for 2020
+joiner_extr_depth=5.5; // depth of screw in extrusion profile, 6 is fine for 2020
 joiner_in_material=joiner_screw_len-joiner_extr_depth; // amount of thread in joiner
 joiner_space=joiner_screw_len-joiner_extr_depth+joiner_screw_head_h+joiner_screw_head_d/2; // minimum space from corner to allow put two perpendicular screws
 t8_frame_dist=2.5; // distance from frame to start of T8 screw
@@ -107,7 +107,7 @@ NEMA17S23 = ["NEMA17S", 42.3, 23, 53.6/2, 25, 11, 2, 5, 24, 31, [8, 8]];
 V2020  = [ "V2020", 20, 20,  4.2, 3, 7.8, 6.25, 11.0, 1.8, 1.5, 1 ];
 V2040  = [ "V2040", 20, 40,  4.2, 3, 7.8, 6.25, 11.0, 1.8, 1.5, 1 ];
 vtr=9.16; // v-slot top tiangle width
-// Large rocker
+// Large rocker switch
 large_rocker   = ["large_rocker", "Some large rocker found in drawer", 22, 28, 25, 30.5, 2.10, 21.3, 26, 15.8, 3,  -1, 2.5, small_spades];
 // v-slot wheel: [ 0:name, 1:outer dia, 2:hole dia, 3:bearing outer dia, 4:width, 5:roll dia, 6:flat width, 7: edge dia, 8: spacer dia ]
 VWHEEL_L = [ "V-wheel large", 24.32, 5, 16, 11.1, 20.50, 5.1, 19.40, 8.5 ];
@@ -525,25 +525,118 @@ module pulley_support_front(){
   pulley_support_front_down();
   pulley_support_front_up();
 }
+module motor_support_x_down(mot,inn,out){
+  mz=mot.z-base_h; // motor Z
+  pz=inn.z-base_h; // pulley Z
+  yadj=16; // motos position adjust range
+  mm_d=top_d-base_d+ext; // motor mount depth
+  color(pp_color) difference(){
+    union(){
+      // left
+      translate([0,0,0]) cube([ext,mm_d,mz]);
+      // front
+      translate([0,0,0]) cube([5*ext,ext,mz]);
+      // top
+      translate([0,0,mz]) cube([5*ext,mm_d,3]);
+      // back
+      translate([0,mm_d,0]) rotate([90,0,0]) linear_extrude(4) polygon([[0,0],[ext,0],[5*ext,mz-10],[5*ext,mz],[0,mz]]);
+      // v-slot left
+      translate([ext/2,0,0]) rotate([-90,0,0]) vslot_groove(mm_d);
+      // v-slot front
+      translate([ext,ext/2,0]) rotate([-90,0,-90]) vslot_groove(4*ext);
+      // outer pulley spacer
+      translate([out.x,out.y-base_d+ext,mz+3]) cylinder(h=pz-mz-3,d=7);
+      // inner pulley spacer
+      translate([inn.x,inn.y-base_d+ext,mz+3]) cylinder(h=pz-mz-3,d=7);
+    }
+    // corner screw hole
+    translate([ext/2,ext/2,35-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,35);
+     // right screw hole
+    translate([4.5*ext,ext/2,35-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,35);
+     // back screw hole
+    translate([ext/2,3*ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
+     // middle front screw hole
+    translate([2*ext,ext/2,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
+    // motor mount holes
+    translate([mot.x,mot.y-base_d+ext,mz]){
+      // slots for screws
+      NEMA_screw_positions(NEMA17M) hull(){
+        translate([-yadj/2,0,0]) cylinder(h=3,d=3.2);
+        translate([yadj/2,0,0]) cylinder(h=3,d=3.2);
+      }
+      hull(){
+        translate([-yadj/2,0,0]) cylinder(h=3,d=22.5);
+        translate([yadj/2,0,0]) cylinder(h=3,d=22.5);
+      }
+    }
+    // outer pulley hole
+    translate([out.x,out.y-base_d+ext,0]) cylinder(h=pz,d=m5_hole);
+    // inner pulley hole
+    translate([inn.x,inn.y-base_d+ext,0]) cylinder(h=pz,d=m5_hole);
+  }
+}
+module motor_support_x_up(mot,inn,out){
+  mz=mot.z-base_h; // motor Z
+  pz=inn.z-base_h; // pulley Z
+  yadj=16; // motos position adjust range
+  mm_d=top_d-base_d+ext; // motor mount depth
+  h_space=pulley_height(GT2_10x20_plain_idler)+(pz-mz-3)+1;
+  color(pp_color) difference(){
+    translate([0,0,mz+3]) union(){
+      // main body
+      difference(){
+        // main body
+        linear_extrude(24) polygon([[ext,0],[0,ext],[0,mm_d],[ext,mm_d],[2.5*ext,ext],[2.5*ext,0]]);
+  
+        //belt path
+        hull(){
+          translate([out.x,out.y-base_d+ext,0]) cylinder(h=h_space,d=22);
+          translate([inn.x,inn.y-base_d+ext,0]) cylinder(h=h_space,d=22);
+          translate([mot.x,out.y-base_d+ext,0]) cylinder(h=h_space,d=22);
+          translate([ext/2,ext,0]) cylinder(h=h_space,d=22);
+        }
+      }
+      // outer pulley spacer
+      translate([out.x,out.y-base_d+ext,h_space-1]) cylinder(h=1,d=7);
+      // inner pulley spacer
+      translate([inn.x,inn.y-base_d+ext,h_space-1]) cylinder(h=1,d=7);
+    }
+
+     // back screw hole
+    translate([ext/2,3*ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
+     // middle front screw hole
+    translate([2*ext,ext/2,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
+    // outer pulley hole
+    translate([out.x,out.y-base_d+ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
+    // inner pulley hole
+    translate([inn.x,inn.y-base_d+ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
+  }
+}
 module motor_support_x(mot,inn,out){
-  // rear mount
-  m5_screw0=60;
-  translate([ext/2,base_d+2*ext,base_h+m5_screw0-5]) screw(M5_cap_screw,m5_screw0);
-  // pulley support back
-  m5_screw1=50;
-  translate([out.x,out.y,base_h+m5_screw1+5]) screw(M5_cap_screw,m5_screw1);
-  // pulley support front
-  m5_screw2=50;
-  translate([inn.x,inn.y,inn.z+17]) screw(M5_cap_screw,m5_screw2);
-  // corner
-  m5_screw3=30;
-  translate([ext/2,base_d-ext/2,base_h+m5_screw3-5]) screw(M5_cap_screw,m5_screw3);
-  // front left
-  m5_screw4=60;
-  translate([2*ext,base_d-ext/2,base_h+m5_screw4-5]) screw(M5_cap_screw,m5_screw4);
-  // front right
-  m5_screw5=40;
-  translate([4*ext,base_d-ext/2,base_h+m5_screw5-5]) screw(M5_cap_screw,m5_screw5);
+  if ($preview) {
+    // rear mount
+    m5_screw0=60;
+    translate([ext/2,base_d+2*ext,base_h+m5_screw0-5]) screw(M5_cap_screw,m5_screw0);
+    // pulley support back
+    m5_screw1=50;
+    translate([out.x,out.y,base_h+m5_screw1+5]) screw(M5_cap_screw,m5_screw1);
+    // pulley support front
+    m5_screw2=50;
+    translate([inn.x,inn.y,inn.z+17]) screw(M5_cap_screw,m5_screw2);
+    // corner
+    m5_screw3=35;
+    translate([ext/2,base_d-ext/2,base_h+m5_screw3-5]) screw(M5_cap_screw,m5_screw3);
+    // front left
+    m5_screw4=60;
+    translate([2*ext,base_d-ext/2,base_h+m5_screw4-5]) screw(M5_cap_screw,m5_screw4);
+    // front right
+    m5_screw5=35;
+    translate([4.5*ext,base_d-ext/2,base_h+m5_screw5-5]) screw(M5_cap_screw,m5_screw5);
+    // motor screws
+    translate([mot.x,mot.y,mot.z+3]) NEMA_screw_positions(NEMA17M) screw(M3_cap_screw,8);
+  }
+  translate([0,base_d-ext,base_h]) motor_support_x_down(mot,inn,out);
+  translate([0,base_d-ext,base_h]) motor_support_x_up(mot,inn,out);
 }
 module motor_support_y(mot,inn,out){
   // rear mount
@@ -674,7 +767,7 @@ module gantry(){
   carriage_pos_y=real_y-carriage_travel(MGN12H_carriage,y_rail_l)/2-y_rails_from_front;
   carriage_y_real=real_y+ext+carriage_length(MGN12H_carriage)/2;
   carriage_pos_x=pos_x-build_x/2;
-  motor_y=base_d+21;
+  motor_y=base_d+22;
 
 
   // left linear rail
@@ -696,9 +789,9 @@ module gantry(){
   bx3=[ext/2+belt_separation,base_d,base_h+shift_x];
   translate(bx3) pulley(GT2_10x20_plain_idler);
   // X motor
-  bx4=[21+2*ext,motor_y,base_h+shift_x-4];
+  bx4=[21+2*ext,motor_y,base_h+shift_x-5];
   translate(bx4) NEMA(NEMA17M);
-  translate([bx4.x,bx4.y,bx4.z+24.5]) rotate([0,180,0]) pulley(GT2_10x20ob_pulley);
+  translate([bx4.x,bx4.y,bx4.z+25.5]) rotate([0,180,0]) pulley(GT2_10x20ob_pulley);
   // X idler - outer rail-motor
   bx5=[ext/2,base_d+ext,base_h+shift_x];
   translate(bx5) pulley(GT2_10x20_toothed_idler);
@@ -773,7 +866,7 @@ module gantry(){
   #translate([base_w,0,base_h]) mirror([1,0,0]) pulley_support_front();
   
   // X motor support
-  #motor_support_x(bx4,bx3,bx5);
+  motor_support_x(bx4,bx3,bx5);
   // Y motor support
   #motor_support_y(by4,by3,by5);
 
