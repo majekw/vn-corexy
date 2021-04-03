@@ -34,6 +34,7 @@ x_margin=10;
 printed_corners=true; // [false:no, true:yes]
 printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 pp_color=[0.3,0.3,0.3]; // [0:0.1:1]
+pp_color2=[0.3,0.3,0.8]; // [0:0.1:1]
 printed_t8_clamps=true; // [false:no, true:yes]
 
 
@@ -551,7 +552,7 @@ module motor_support_x_down(){
       // top
       translate([0,0,x_motor_z]) cube([5*ext,mm_d,3]);
       // back
-      translate([0,mm_d,0]) rotate([90,0,0]) linear_extrude(4) polygon([[0,0],[ext,0],[5*ext,x_motor_z-10],[5*ext,x_motor_z],[0,x_motor_z]]);
+      translate([0,mm_d,0]) rotate([90,0,0]) linear_extrude(5.5) polygon([[0,0],[ext,0],[5*ext,x_motor_z-10],[5*ext,x_motor_z],[0,x_motor_z]]);
       // v-slot left
       translate([ext/2,0,0]) rotate([-90,0,0]) vslot_groove(mm_d);
       // v-slot front
@@ -568,7 +569,7 @@ module motor_support_x_down(){
     // back screw hole
     translate([ext/2,3*ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
     // middle front screw hole
-    translate([2*ext,ext/2,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
+    translate([1.5*ext,ext/2,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60);
     // motor mount holes
     translate([xy_motor_pos.x,xy_motor_pos.y-base_d+ext,x_motor_z]){
       // slots for screws
@@ -591,12 +592,12 @@ module motor_support_x_up(){
   yadj=16; // motos position adjust range
   mm_d=top_d-base_d+ext; // motor mount depth
   h_space=pulley_height(GT2_10x20_plain_idler)+(belt_x_shift-x_motor_z-3)+1;
-  color(pp_color) difference(){
+  color(pp_color2) difference(){
     translate([0,0,x_motor_z+3]) union(){
       // main body
       difference(){
         // main body
-        linear_extrude(24) polygon([[ext,0],[0,ext],[0,mm_d],[ext,mm_d],[2.5*ext,ext],[2.5*ext,0]]);
+        linear_extrude(24) polygon([[ext,0],[0,ext],[0,mm_d],[ext,mm_d],[2*ext,ext],[2*ext,0]]);
   
         //belt path
         hull(){
@@ -615,11 +616,14 @@ module motor_support_x_up(){
      // back screw hole
     translate([ext/2,3*ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60,true);
      // middle front screw hole
-    translate([2*ext,ext/2,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60,true);
+    translate([1.5*ext,ext/2,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60,true);
     // outer pulley hole
     translate([xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60,true);
     // inner pulley hole
     translate([xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,60-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,60,true);
+    // corner screw hole
+    translate([ext/2,ext/2,35-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(22,35);
+
   }
 }
 module motor_support_x(){
@@ -628,17 +632,17 @@ module motor_support_x(){
     m5_screw0=60;
     translate([ext/2,base_d+2*ext,base_h+m5_screw0-5]) screw(M5_cap_screw,m5_screw0);
     // pulley support back
-    m5_screw1=50;
-    translate([xy_o_pulley_pos.x,xy_o_pulley_pos.y,base_h+m5_screw1+5]) screw(M5_cap_screw,m5_screw1);
+    m5_screw1=40;
+    translate([xy_o_pulley_pos.x,xy_o_pulley_pos.y,base_h+m5_screw1+15]) screw(M5_cap_screw,m5_screw1);
     // pulley support front
-    m5_screw2=50;
-    translate([xy_i_pulley_pos.x,xy_i_pulley_pos.y,base_h+m5_screw1+5]) screw(M5_cap_screw,m5_screw2);
+    m5_screw2=40;
+    translate([xy_i_pulley_pos.x,xy_i_pulley_pos.y,base_h+m5_screw2+15]) screw(M5_cap_screw,m5_screw2);
     // corner
     m5_screw3=35;
     translate([ext/2,base_d-ext/2,base_h+m5_screw3-5]) screw(M5_cap_screw,m5_screw3);
     // front left
     m5_screw4=60;
-    translate([2*ext,base_d-ext/2,base_h+m5_screw4-5]) screw(M5_cap_screw,m5_screw4);
+    translate([1.5*ext,base_d-ext/2,base_h+m5_screw4-5]) screw(M5_cap_screw,m5_screw4);
     // front right
     m5_screw5=35;
     translate([4.5*ext,base_d-ext/2,base_h+m5_screw5-5]) screw(M5_cap_screw,m5_screw5);
@@ -793,7 +797,7 @@ module gantry(){
   translate(bx3) pulley(GT2_10x20_plain_idler);
   // X motor
   bx4=[xy_motor_pos.x,xy_motor_pos.y,base_h+belt_x_shift-5];
-  translate(bx4) NEMA(NEMA17M);
+  translate(bx4) rotate([0,0,-90]) NEMA(NEMA17M);
   translate([bx4.x,bx4.y,bx4.z+25.5]) rotate([0,180,0]) pulley(GT2_10x20ob_pulley);
   // X idler - outer rail-motor
   bx5=[ext/2,base_d+ext,base_h+belt_x_shift];
