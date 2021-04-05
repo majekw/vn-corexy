@@ -82,7 +82,7 @@ belt_x_shift=34+4; // distance from frame to bottom of X belt pulley
 belt_y_shift=belt_x_shift+belt_z_separation; // distance from frame to bottom of Y belt pulley
 xy_motor_pos=[21+2*ext,base_d+22]; // X motor position, for Y motor is mirrored
 x_motor_z=belt_x_shift-5; // X motor relative Z position
-y_motor_z=belt_y_shift-14; // Y motor relative Z position
+y_motor_z=belt_y_shift-12; // Y motor relative Z position
 xy_o_pulley_pos=[ext/2,base_d+ext]; // motor outer pulley position
 xy_i_pulley_pos=[ext/2+belt_x_separation,base_d]; // motor inner pulley position
 elec_support=135; // distance for electronic supports from edge of frame (just guess, should be adjusted for real hardware)
@@ -597,7 +597,7 @@ module motor_support_x_up(){
       // main body
       difference(){
         // main body
-        linear_extrude(24) polygon([[ext,0],[0,ext],[0,mm_d],[ext,mm_d],[2*ext,ext],[2*ext,0]]);
+        linear_extrude(x_motor_z-9) polygon([[ext,0],[0,ext],[0,mm_d],[ext,mm_d],[2*ext,ext],[2*ext,0]]);
   
         //belt path
         hull(){
@@ -661,7 +661,7 @@ module motor_support_y_up(){
       // main body
       mirror([1,0,0]) difference(){
         // main body
-        linear_extrude(33) polygon([[ext,0],[0,ext],[0,mm_d],[ext,mm_d],[2*ext,ext],[2*ext,0]]);
+        linear_extrude(y_motor_z-10) polygon([[ext,0],[0,ext],[0,mm_d],[ext,mm_d],[2*ext,ext],[2*ext,0]]);
   
         //belt path
         hull(){
