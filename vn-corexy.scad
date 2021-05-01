@@ -72,6 +72,8 @@ top_d=base_d+50; // top left/right profiles length, 50 is just wild guess to all
 //y_rail_l=base_d-2*ext; // MGN rails length
 y_rail_l=400;
 y_rails_from_front=1.5*ext;
+x_rail_carriage=MGN12H_carriage;
+y_rail_carriage=MGN12H_carriage;
 z_pulley_support=170; //distance from front to Z pulley support
 z_belt_h=48; // space from bottom of frame to Z belt
 pr20=pulley_pr(GT2x20ob_pulley); // radius of puller for belt calculations
@@ -804,7 +806,7 @@ module gantry_joint_l(pulx, puly){
     translate([pulx.x,pulx.y,m5_screw2+3]) screw(M5_cap_screw,m5_screw2);
     // back 2020 mounting
     m5_screw3=25;
-    translate([ext/2,carriage_length(MGN12H_carriage),ext/2+3]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
+    translate([ext/2,carriage_length(y_rail_carriage),ext/2+3]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
     // front 2020 mounting
     m5_screw4=10;
     translate([ext/2,0,ext/2+3]) rotate([90,0,0]) screw(M5_cap_screw,m5_screw4);
@@ -822,16 +824,16 @@ module gantry_joint_l(pulx, puly){
   // box
   rd=5;
   box_h=puly.z;
-  translate([-(carriage_width(MGN12H_carriage)-ext)/2,0,0]) {
-    //#cube([carriage_width(MGN12H_carriage),carriage_length(MGN12H_carriage),40]);
+  translate([-(carriage_width(y_rail_carriage)-ext)/2,0,0]) {
+    //#cube([carriage_width(y_rail_carriage),carriage_length(y_rail_carriage),40]);
     // lower part
     difference(){
       hull(){
         translate([rd,rd,0]) cylinder(h=box_h,r=rd);
-        translate([rd,carriage_length(MGN12H_carriage)-rd,0]) cylinder(h=box_h,r=rd);
-        translate([carriage_width(MGN12H_carriage)-rd,carriage_length(MGN12H_carriage)-rd,0]) cylinder(h=box_h,r=rd);
-        translate([carriage_width(MGN12H_carriage)-rd+2,25,0]) cylinder(h=box_h,r=rd);
-        translate([carriage_width(MGN12H_carriage)-1+2,0,0]) cube([1,1,box_h]);
+        translate([rd,carriage_length(y_rail_carriage)-rd,0]) cylinder(h=box_h,r=rd);
+        translate([carriage_width(y_rail_carriage)-rd,carriage_length(y_rail_carriage)-rd,0]) cylinder(h=box_h,r=rd);
+        translate([carriage_width(y_rail_carriage)-rd+2,25,0]) cylinder(h=box_h,r=rd);
+        translate([carriage_width(y_rail_carriage)-1+2,0,0]) cube([1,1,box_h]);
       }
     }
   }
@@ -849,7 +851,7 @@ module gantry_joint_r(pulx, puly){
     m5_screw2=40;
     translate([puly.x,puly.y,puly.z+15]) screw(M5_cap_screw,m5_screw2);
     m5_screw3=16;
-    translate([ext/2,carriage_length(MGN12H_carriage),10]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
+    translate([ext/2,carriage_length(y_rail_carriage),10]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
     m3_screw1=12;
     translate([0,13,m3_screw1-8]) screw(M3_cap_screw,m3_screw1);
     translate([0,33,m3_screw1-8]) screw(M3_cap_screw,m3_screw1);
@@ -858,22 +860,22 @@ module gantry_joint_r(pulx, puly){
     translate([ext,33,m3_screw2-8]) screw(M3_cap_screw,m3_screw2);
   }
 
-  translate([-(carriage_width(MGN12H_carriage)-ext)/2,0,0]) cube([carriage_width(MGN12H_carriage),carriage_length(MGN12H_carriage),40]);
+  translate([-(carriage_width(y_rail_carriage)-ext)/2,0,0]) cube([carriage_width(y_rail_carriage),carriage_length(y_rail_carriage),40]);
 }
 module gantry(){
   // Y carriage positions
   echo("Side rails lenght",y_rail_l);
   echo("Maximum rails length",base_d-2*ext);
   real_y=pos_y+hotend_d;
-  carriage_pos_y=real_y-carriage_travel(MGN12H_carriage,y_rail_l)/2-y_rails_from_front;
-  carriage_y_real=real_y+ext+carriage_length(MGN12H_carriage)/2;
+  carriage_pos_y=real_y-carriage_travel(y_rail_carriage,y_rail_l)/2-y_rails_from_front;
+  carriage_y_real=real_y+ext+carriage_length(y_rail_carriage)/2;
   carriage_pos_x=pos_x-build_x/2;
 
 
   // left linear rail
-  translate([ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(MGN12H_carriage,y_rail_l,carriage_pos_y);
+  translate([ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(y_rail_carriage,y_rail_l,carriage_pos_y);
   // right linear rail
-  translate([base_w-ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(MGN12H_carriage,y_rail_l,carriage_pos_y);
+  translate([base_w-ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(y_rail_carriage,y_rail_l,carriage_pos_y);
 
   // position in Y of pulleys/belt on gantry
   gantry_belt_shift=6;
@@ -945,12 +947,12 @@ module gantry(){
   
   // X gantry support
   g_shift_y=carriage_y_real-ext-3;
-  g_shift_z=base_h+carriage_height(MGN12H_carriage);
+  g_shift_z=base_h+carriage_height(y_rail_carriage);
   translate([0,g_shift_y,g_shift_z]) union(){
     echo(base_w=base_w);
     translate([ext/4,5,3.5]) rotate([0,90,0]) ext2020(base_w-ext/2);
     echo("X rail length",base_w-2*ext);
-    translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN12H_carriage,base_w-2*ext,carriage_pos_x);
+    translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(x_rail_carriage,base_w-2*ext,carriage_pos_x);
     // gantry joints
     translate([0,0,0]) {
       #gantry_joint_l([bx2.x,bx2.y-g_shift_y,bx2.z-g_shift_z],[by8.x,by8.y-g_shift_y,by8.z-g_shift_z]);
