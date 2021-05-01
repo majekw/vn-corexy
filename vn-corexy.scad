@@ -910,7 +910,7 @@ module gantry(){
   // X belt
   belt_x_path=[[bx8.x,bx8.y,pr20], [bx7.x,bx7.y,pr20], [bx6.x,bx6.y,pr20], [bx5.x,bx5.y,pr20], [bx4.x,bx4.y,pr20], [bx3.x,bx3.y,-pr20], [bx2.x,bx2.y,-pr20],[bx1.x,bx1.y,0]];
   translate([0,0,base_h+belt_x_shift+6.5]) belt(GT2x10,belt_x_path);
-  echo("X belt length",belt_length(belt_x_path));
+  echo("X belt length",belt_length(GT2x10,belt_x_path));
 
   // Y axis
   // Y start anchor point
@@ -943,7 +943,7 @@ module gantry(){
   // Y belt
   belt_y_path=[[by1.x,by1.y,0], [by2.x,by2.y,-pr20], [by3.x,by3.y,-pr20], [by4.x,by4.y,pr20], [by5.x,by5.y,pr20], [by6.x,by6.y,pr20], [by7.x,by7.y,pr20], [by8.x,by8.y,pr20]];
   translate([0,0,base_h+belt_y_shift+6.5]) belt(GT2x10,belt_y_path);
-  echo("Y belt length",belt_length(belt_y_path));
+  echo("Y belt length",belt_length(GT2x10,belt_y_path));
   
   // X gantry support
   g_shift_y=carriage_y_real-ext-3;
@@ -1310,7 +1310,7 @@ module z_axis(){
   // belt
   belt_points=[[p5.x,p5.y,-pr20],[p4.x,p4.y,pr20],[p3.x,p3.y,pr20],[p6.x,p6.y,-pr20],[p2.x,p2.y,pr20],[p1.x,p1.y,pr20]];
   translate([0,0,z_belt_h+3]) belt(GT2x6,belt_points);
-  echo("Z belt length",belt_length(belt_points));
+  echo("Z belt length",belt_length(GT2x6,belt_points));
 
   //moving part
   translate([0,0,bed_z]) z_bed_frame();
