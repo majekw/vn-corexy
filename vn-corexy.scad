@@ -39,7 +39,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: Linear rails positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: Linear rails positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up]
 
 /* [tweaks/hacks] */
 
@@ -52,7 +52,7 @@ tnut_nut_scale=1.03;
 // make holes printable without supports
 bridge_support=true;
 // thickness of bridge layer if bridge_support is enabled
-bridge_thickness=0.2;
+bridge_thickness=0.25;
 
 // use upper ball bearings for T8 rods
 t8_upper_bearings=false;
@@ -546,13 +546,53 @@ module pulley_support_front_down(logo=0){
   }
 }
 module pulley_support_front_up(){
+  belts_h=30;
+  belt_w=6;
+  fh=belts_h+5;
+  color(pp_color2) translate([0,0,belt_x_shift-1]) difference(){
+    union(){
+      // front
+      hull(){
+        cube([3*ext,ext,0.2]);
+        translate([0,0,fh-0.2]) cube([2*ext,ext,0.2]);
+      }
+      // side
+      hull(){
+        cube([ext-4,3.5*ext,0.2]);
+        translate([0,0,fh-0.2]) cube([ext-4,2.3*ext,0.2]);
+      }
+    }
+    
+    // hole for pulleys
+    translate([ext/2,ext/2,0]) difference(){
+      cylinder(d=20,h=belts_h);
+      translate([0,0,belts_h-1]) cylinder(d=7,h=1);
+    }
+    // hole for left belt
+    cube([belt_w,3.5*ext,belts_h]);
+    // hole for front belt
+    cube([3*ext,belt_w,belts_h]);
+    // screws
+    translate([0,0,-belt_x_shift+1]) {
+      // front left hole
+      translate([ext*1.5,ext/2,70-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,70,true);
+      // left front hole
+      translate([ext/2,ext,35-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(8,35,true);
+      // left back hole
+      translate([ext/2,ext*2,70-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,70,true);
+      // pulley hole
+      translate([ext/2,ext/2,70]) rotate([180,0,00]) joiner_hole(15,50,true);
+    }
+    // hole for M3 allen key
+    translate([ext/2,ext*2.5+12.5,0]) cylinder(h=fh,d=5);
+  }
 }
 module pulley_support_front(side=0,logo=0){
   mirror([side,0,0]) {
     if ($preview) {
       // pulley support
-      m5_screw1=70;
-      translate([ext/2,ext/2,m5_screw1+0]) screw(M5_cap_screw,m5_screw1);
+      m5_screw1=50;
+      translate([ext/2,ext/2,m5_screw1+20]) screw(M5_cap_screw,m5_screw1);
       // screw for linear rail
       m3_screw1=35;
       translate([ext/2,ext*2.5+12.5,m3_screw1-5]) screw(M3_cap_screw,m3_screw1);
@@ -1625,6 +1665,8 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==30) translate([-110,0,0]) mirror([1,0,0]) pulley_support_front_down(logo=0);
   if (render_parts==0 || render_parts==31) translate([-140,40,0]) pulley_spacer(1);
   if (render_parts==0 || render_parts==32) translate([-140,50,0]) pulley_spacer(2);
+  if (render_parts==0 || render_parts==33) translate([-200,60,0]) pulley_support_front_up();
+  if (render_parts==0 || render_parts==34) translate([-210,60,0]) mirror([1,0,0]) pulley_support_front_up();
 }
 
 if ($preview) {
