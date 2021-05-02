@@ -507,7 +507,7 @@ module extruder(){
 module pulley_spacer(h=1) {
   color(pp_color2) difference(){
     cylinder(d=7,h=h);
-    cylinder(d=5,h=h);
+    cylinder(d=5+2*printer_off,h=h);
   }
 }
 module pulley_support_front_down(logo=0){
@@ -548,7 +548,7 @@ module pulley_support_front_down(logo=0){
 module pulley_support_front_up(){
   belts_h=30;
   belt_w=6;
-  fh=belts_h+5;
+  fh=belts_h+5+3;
   color(pp_color2) translate([0,0,belt_x_shift-1]) difference(){
     union(){
       // front
