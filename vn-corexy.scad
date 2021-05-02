@@ -39,7 +39,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: Linear rails positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: Linear rails positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm]
 
 /* [tweaks/hacks] */
 
@@ -71,7 +71,7 @@ base_d=build_plate_d+hotend_d+2*ext+50; // frame depth
 top_d=base_d+50; // top left/right profiles length, 50 is just wild guess to allow some space between X carriage and rear of frame
 //y_rail_l=base_d-2*ext; // MGN rails length
 y_rail_l=400;
-y_rails_from_front=1.5*ext;
+y_rails_from_front=2.5*ext;
 x_rail_carriage=MGN12H_carriage;
 y_rail_carriage=MGN12H_carriage;
 z_pulley_support=170; //distance from front to Z pulley support
@@ -110,9 +110,9 @@ T8_BB=BB688;
 // GT2 10mm belt
 GT2x10=["GT", 2.0, 10, 1.38, 0.75, 0.254];
 // GT2 10mm pulleys
-GT2_10x20_toothed_idler2=["GT2_10x20_toothed_idler2", "GT2", 20, 12.22, GT2x10, 10.9, 18, 0, 5, 18.0, 1.55, 0, 0, false, 0];
-GT2_10x20_toothed_idler=["GT2_10x20_toothed_idler", "GT2", 20, 12.22, GT2x10, 10.9, 18, 0, 5, 18.0, 1.05, 0, 0, false, 0];
-GT2_10x20_plain_idler=["GT2_10x20_plain_idler", "GT2", 0, 12.0, GT2x10, 10.9, 18, 0, 5, 18.0, 1.05, 0, 0, false, 0];
+GT2_10x20_toothed_idler2=["GT2_10x20_toothed_idler_14mm", "GT2", 20, 12.22, GT2x10, 10.9, 18, 0, 5, 18.0, 1.55, 0, 0, false, 0];
+GT2_10x20_toothed_idler=["GT2_10x20_toothed_idler_13mm", "GT2", 20, 12.22, GT2x10, 10.9, 18, 0, 5, 18.0, 1.05, 0, 0, false, 0];
+GT2_10x20_plain_idler=["GT2_10x20_plain_idler_13mm", "GT2", 0, 12.0, GT2x10, 10.9, 18, 0, 5, 18.0, 1.05, 0, 0, false, 0];
 GT2_10x20ob_pulley=["GT2_10x20ob_pulley", "GT2OB", 20, 12.22, GT2x10, 10.9, 16, 7.0, 5, 16.0, 1.5, 6, 3.25, M3_grub_screw, 2];
 // NEMA 17 23mm (pancake)
 NEMA17S23 = ["NEMA17S", 42.3, 23, 53.6/2, 25, 11, 2, 5, 24, 31, [8, 8]];
@@ -504,43 +504,78 @@ module extruder(){
     extruder_bowden_type();
   }
 }
-module pulley_support_front_down(){
-  difference(){
+module pulley_spacer(h=1) {
+  color(pp_color2) difference(){
+    cylinder(d=7,h=h);
+    cylinder(d=5,h=h);
+  }
+}
+module pulley_support_front_down(logo=0){
+  color(pp_color) difference(){
     union(){
       // front
-      cube([5*ext,ext,4*ext]);
+      cube([4.5*ext,ext,belt_x_shift-1]);
       // side
-      cube([ext-4,3.5*ext,2*ext]);
+      cube([ext-4,3.5*ext,belt_x_shift-1]);
+      // v-slot side
+      translate([ext/2,0,0]) rotate([-90,0,0]) vslot_groove(y_rails_from_front-1);
+      // v-slot front
+      translate([ext,ext/2,0]) rotate([-90,0,-90]) vslot_groove(3.5*ext);
+      // pulley support
+      //translate([ext/2,ext/2,belt_x_shift-1]) cylinder(d1=9,d2=7,h=1);
     }
     // logo
-    translate([1.75*ext,ext,ext/2]) rotate([90,0,0]) scale([2,2,1]) vn_logo(ext);
+    if (logo==1) translate([1.75*ext,1,ext/2]) rotate([90,0,0]) scale([2,2,1]) vn_logo(1);
     // hole for linear rail
-    translate([(ext-12)/2-printer_off,ext*2.5-1,0]) cube([12+printer_off,ext+1,8]);
+    translate([(ext-12)/2-2*printer_off,ext*2.5-1,0]) cube([12+2*printer_off,ext+1,8.10]);
+    // pulley screw hole
+    translate([ext/2,ext/2,-3]) cylinder(h=belt_y_shift+3,d=m5_hole);
+    // front right hole
+    translate([ext*4,ext/2,35-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,35,true);
+    // front left hole
+    translate([ext*1.5,ext/2,70-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,70,true);
+    // left front hole
+    translate([ext/2,ext,35-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,35,true);
+    // left back hole
+    translate([ext/2,ext*2,70-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,70,true);
+    // M3 hole
+    translate([ext/2,ext*2.5+12.5,-5]) {
+      cylinder(d=3,h=35);
+      translate([0,0,35+bridge_thickness]) cylinder(d=9.5,h=10);
+    }
   }
 }
 module pulley_support_front_up(){
 }
-module pulley_support_front(){
-  // pulley support
-  m5_screw1=70;
-  translate([ext/2,ext/2,m5_screw1+0]) screw(M5_cap_screw,m5_screw1);
-  // screw for linear rail
-  m3_screw1=35;
-  translate([ext/2,ext*2.5+12.5,m3_screw1-5]) screw(M3_cap_screw,m3_screw1);
-  // left
-  m5_screw4=35;
-  translate([ext/2,ext*1,m5_screw4-4]) screw(M5_cap_screw,m5_screw4);
-  // left
-  m5_screw5=70;
-  translate([ext/2,ext*2,m5_screw5-4]) screw(M5_cap_screw,m5_screw5);
-  // front screws
-  m5_screw2=70;
-  translate([ext*1.5,ext/2,m5_screw2-5]) screw(M5_cap_screw,m5_screw2);
-  m5_screw3=35;
-  translate([ext*4,ext/2,m5_screw3-5]) screw(M5_cap_screw,m5_screw3);
-  // block body
-  pulley_support_front_down();
-  pulley_support_front_up();
+module pulley_support_front(side=0,logo=0){
+  mirror([side,0,0]) {
+    if ($preview) {
+      // pulley support
+      m5_screw1=70;
+      translate([ext/2,ext/2,m5_screw1+0]) screw(M5_cap_screw,m5_screw1);
+      // screw for linear rail
+      m3_screw1=35;
+      translate([ext/2,ext*2.5+12.5,m3_screw1-5]) screw(M3_cap_screw,m3_screw1);
+      // left front
+      m5_screw4=35;
+      translate([ext/2,ext*1,m5_screw4-5]) screw(M5_cap_screw,m5_screw4);
+      // left back
+      m5_screw5=70;
+      translate([ext/2,ext*2,m5_screw5-5]) screw(M5_cap_screw,m5_screw5);
+      // front left
+      m5_screw2=70;
+      translate([ext*1.5,ext/2,m5_screw2-5]) screw(M5_cap_screw,m5_screw2);
+      // front right
+      m5_screw3=35;
+      translate([ext*4,ext/2,m5_screw3-5]) screw(M5_cap_screw,m5_screw3);
+    }
+    // block body
+    pulley_support_front_down(logo);
+    pulley_support_front_up();
+    // pulley spacers
+    translate([ext/2,ext/2,belt_x_shift-1]) pulley_spacer(1);
+    translate([ext/2,ext/2,belt_x_shift+13]) pulley_spacer(2);
+  }
 }
 module motor_support_x_down(){
   yadj=16; // motor position adjust range
@@ -867,15 +902,15 @@ module gantry(){
   echo("Side rails lenght",y_rail_l);
   echo("Maximum rails length",base_d-2*ext);
   real_y=pos_y+hotend_d;
-  carriage_pos_y=real_y-carriage_travel(y_rail_carriage,y_rail_l)/2-y_rails_from_front;
+  carriage_pos_y=real_y-carriage_travel(y_rail_carriage,y_rail_l)/2-y_rails_from_front+ext;
   carriage_y_real=real_y+ext+carriage_length(y_rail_carriage)/2;
   carriage_pos_x=pos_x-build_x/2;
 
 
   // left linear rail
-  translate([ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(y_rail_carriage,y_rail_l,carriage_pos_y);
+  translate([ext/2,y_rail_l/2+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(y_rail_carriage,y_rail_l,carriage_pos_y);
   // right linear rail
-  translate([base_w-ext/2,y_rail_l/2+ext+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(y_rail_carriage,y_rail_l,carriage_pos_y);
+  translate([base_w-ext/2,y_rail_l/2+y_rails_from_front,base_h]) rotate([0,0,90]) rail_assembly(y_rail_carriage,y_rail_l,carriage_pos_y);
 
   // position in Y of pulleys/belt on gantry
   gantry_belt_shift=6;
@@ -963,8 +998,8 @@ module gantry(){
   }
 
   // front pulley support
-  #translate([0,0,base_h]) pulley_support_front();
-  #translate([base_w,0,base_h]) mirror([1,0,0]) pulley_support_front();
+  translate([0,0,base_h]) pulley_support_front(side=0,logo=1);
+  translate([base_w,0,base_h]) pulley_support_front(side=1,logo=0);
   
   // X motor support
   motor_support_x();
@@ -1586,6 +1621,10 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==26) translate([-200,-80,-40]) motor_support_x_up();
   if (render_parts==0 || render_parts==27) translate([-base_w-210,-80,0]) motor_support_y_down();
   if (render_parts==0 || render_parts==28) translate([-base_w-320,-80,-40]) motor_support_y_up();
+  if (render_parts==0 || render_parts==29) translate([-310,0,0]) pulley_support_front_down(logo=1);
+  if (render_parts==0 || render_parts==30) translate([-110,0,0]) mirror([1,0,0]) pulley_support_front_down(logo=0);
+  if (render_parts==0 || render_parts==31) translate([-140,40,0]) pulley_spacer(1);
+  if (render_parts==0 || render_parts==32) translate([-140,50,0]) pulley_spacer(2);
 }
 
 if ($preview) {
