@@ -24,12 +24,19 @@ hotend_w=50;
 hotend_d=70;
 hotend_type=1; // [0:with BMG extruder, 1: bowden type]
 hotend_nozzle=67-hotend_type*30; //distance from gantry to nozzle
-/* [extrusions family size] */
+/* [frame] */
+// extrusions family size
 ext=20;
-/* [extrusion type] */
+// extrusion type
 ext_type=1; // [0:T-SLOT, 1:V-SLOT]
-/* [minumum margin between build plate and frame] */
+// minimum margin between build plate and frame
 x_margin=10;
+// X gantry build type
+x_gantry_type=1; // [0: V-SLOT + MGN12, 1: Carbon fiber tube + MGN9]
+// CF tube size
+cf_tube_size=20.20;
+// CF tube wall thickness
+cf_tube_wall=1.15;
 /* [printed parts] */
 printed_corners=true; // [false:no, true:yes]
 printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
@@ -870,7 +877,7 @@ module motor_support_z(){
     }
   }
 }
-module gantry_joint_l(pulx, puly){
+module gantry_joint_l_vslot(pulx, puly){
   // screws
   if ($preview) {
     // Y pulley
@@ -913,6 +920,62 @@ module gantry_joint_l(pulx, puly){
     }
   }
 
+}
+module gantry_joint_l_cf(pulx, puly){
+  cf_h=3.5; // height of cf above carriage
+  cf_s=5; // distance from front of carriage
+  // screws
+  if ($preview) {
+    // Y pulley
+    m5_screw1=40;
+    translate([puly.x,puly.y,puly.z+15]) screw(M5_cap_screw,m5_screw1);
+    // X pulley
+    m5_screw2=40;
+    translate([pulx.x,pulx.y,m5_screw2+3]) screw(M5_cap_screw,m5_screw2);
+    // back 2020 mounting
+    m5_screw3=12;
+    translate([ext/2-2,carriage_length(y_rail_carriage)+m5_screw3-cf_s-cf_tube_size,ext/2+cf_h]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
+    // front 2020 mounting
+    m5_screw4=10;
+    translate([ext/2,1,ext/2+cf_h]) rotate([90,0,0]) screw(M5_dome_screw,m5_screw4);
+    // bottom 2020 mount
+    m5_screw5=8;
+    translate([ext*2,cf_tube_size/2+cf_s,cf_h-2]) rotate([180,0,0]) screw(M5_dome_screw,m5_screw5);
+    // carriage inner mount
+    m3_screw1=6;
+    translate([ext,13,m3_screw1-3]) screw(M3_cs_cap_screw,m3_screw1);
+    m3_screw3=20;
+    translate([ext,33,m3_screw3-3]) screw(M3_cap_screw,m3_screw3);
+    // carriage outer mount
+    m3_screw2=25;
+    translate([0,13,m3_screw1-3]) screw(M3_cs_cap_screw,m3_screw1);
+    translate([0,33,m3_screw2-3]) screw(M3_cap_screw,m3_screw2);
+  }
+
+  // box
+  rd=5;
+  box_h=puly.z;
+  translate([-(carriage_width(y_rail_carriage)-ext)/2,0,0]) {
+    //#cube([carriage_width(y_rail_carriage),carriage_length(y_rail_carriage),40]);
+    // lower part
+    difference(){
+      hull(){
+        translate([rd,rd,0]) cylinder(h=box_h,r=rd);
+        translate([rd,carriage_length(y_rail_carriage)-rd,0]) cylinder(h=box_h,r=rd);
+        translate([carriage_width(y_rail_carriage)-rd,carriage_length(y_rail_carriage)-rd,0]) cylinder(h=box_h,r=rd);
+        translate([carriage_width(y_rail_carriage)-rd+2,25,0]) cylinder(h=box_h,r=rd);
+        translate([carriage_width(y_rail_carriage)-1+2,0,0]) cube([1,1,box_h]);
+      }
+    }
+  }
+
+}
+module gantry_joint_l(pulx, puly){
+  if (x_gantry_type==0) {
+    gantry_joint_l_vslot(pulx, puly);
+  } else if (x_gantry_type==1) {
+    gantry_joint_l_cf(pulx, puly);
+  }
 }
 module gantry_joint_r(pulx, puly){
   // pulley support //TODO
@@ -1025,9 +1088,21 @@ module gantry(){
   g_shift_z=base_h+carriage_height(y_rail_carriage);
   translate([0,g_shift_y,g_shift_z]) union(){
     echo(base_w=base_w);
-    translate([ext/4,5,3.5]) rotate([0,90,0]) ext2020(base_w-ext/2);
     echo("X rail length",base_w-2*ext);
-    translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(x_rail_carriage,base_w-2*ext,carriage_pos_x);
+    if (x_gantry_type==0) {
+      // v-slot + MGN12
+      translate([ext/4,5,3.5]) rotate([0,90,0]) ext2020(base_w-ext/2);
+      translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN12H_carriage,base_w-2*ext,carriage_pos_x);
+    } else if (x_gantry_type==1 ) {
+      // cf tube + MGN9
+      cf_len=base_w+7;;
+      echo("CF tube length",cf_len);
+      translate([(base_w-cf_len)/2,5,3.5]) color([0.1,0.1,0.1]) difference(){
+        cube([cf_len,cf_tube_size,cf_tube_size]);
+        translate([0,cf_tube_wall,cf_tube_wall]) cube([cf_len,cf_tube_size-2*cf_tube_wall,cf_tube_size-2*cf_tube_wall]);
+      }
+      translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN9H_carriage,base_w-2*ext,carriage_pos_x);
+    }
     // gantry joints
     translate([0,0,0]) {
       #gantry_joint_l([bx2.x,bx2.y-g_shift_y,bx2.z-g_shift_z],[by8.x,by8.y-g_shift_y,by8.z-g_shift_z]);
