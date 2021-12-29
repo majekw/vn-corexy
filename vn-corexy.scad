@@ -43,10 +43,11 @@ printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
 pp_color=[0.3,0.3,0.3]; // [0:0.1:1]
 pp_color2=[0.3,0.3,0.8]; // [0:0.1:1]
 printed_t8_clamps=true; // [false:no, true:yes]
+bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: Linear rails positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: Linear rails positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back]
 
 /* [tweaks/hacks] */
 
@@ -62,10 +63,11 @@ bridge_support=true;
 bridge_thickness=0.25;
 
 // use upper ball bearings for T8 rods
-t8_upper_bearings=false;
+t8_upper_bearings=true;
 
 // correction for offset on overextrusion or slicer problems impacting on XY dimensions
 printer_off=0.10; // [0:0.01:0.2]
+
 
 // internal stuff starts here
 /* [Hidden] */
@@ -79,8 +81,10 @@ top_d=base_d+50; // top left/right profiles length, 50 is just wild guess to all
 //y_rail_l=base_d-2*ext; // MGN rails length
 y_rail_l=400;
 y_rails_from_front=2.5*ext;
-x_rail_carriage=MGN12H_carriage;
 y_rail_carriage=MGN12H_carriage;
+x_rail_carriage=MGN12H_carriage;
+x_rail_l=base_w-2*ext; // 350
+//x_rail_l=375;
 z_pulley_support=170; //distance from front to Z pulley support
 z_belt_h=48; // space from bottom of frame to Z belt
 pr20=pulley_pr(GT2x20ob_pulley); // radius of puller for belt calculations
@@ -1088,11 +1092,11 @@ module gantry(){
   g_shift_z=base_h+carriage_height(y_rail_carriage);
   translate([0,g_shift_y,g_shift_z]) union(){
     echo(base_w=base_w);
-    echo("X rail length",base_w-2*ext);
+    echo("X rail length",x_rail_l);
     if (x_gantry_type==0) {
       // v-slot + MGN12
       translate([ext/4,5,3.5]) rotate([0,90,0]) ext2020(base_w-ext/2);
-      translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN12H_carriage,base_w-2*ext,carriage_pos_x);
+      translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN12H_carriage,x_rail_l,carriage_pos_x);
     } else if (x_gantry_type==1 ) {
       // cf tube + MGN9
       cf_len=base_w+7;;
@@ -1101,7 +1105,7 @@ module gantry(){
         cube([cf_len,cf_tube_size,cf_tube_size]);
         translate([0,cf_tube_wall,cf_tube_wall]) cube([cf_len,cf_tube_size-2*cf_tube_wall,cf_tube_size-2*cf_tube_wall]);
       }
-      translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN9H_carriage,base_w-2*ext,carriage_pos_x);
+      translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN9H_carriage,x_rail_l,carriage_pos_x);
     }
     // gantry joints
     translate([0,0,0]) {
@@ -1323,29 +1327,114 @@ module z_wheel_mount(back=0){
     translate([3*ext,-joiner_in_material,ext/2+back*ext/2]) rotate([-90,0,0]) joiner_hole(1.5*ext);
     translate([1.2*ext,-joiner_in_material,ext/2+back*ext/2]) rotate([-90,0,0]) joiner_hole(1.5*ext);  }
 }
-
-module bed_to_t8(dist){
-  bw=2*ext+4; // width of mount
-  ln_d=10.4; // diameter of leadnut
-  color(pp_color) translate([0,-bw/2,0]) difference(){
+// oldham coupler
+oldham_w=ext*1.3; // width of oldham coupler
+oldham_d=ext*1.2; // depth of oldham coupler (without margin)
+oldham_lh=10.5; // height of low part
+oldham_mh=8; // height of middle part
+oldham_margin=2.0; // space between coupler and outer shape of printer
+oldham_w_h=5; // wedge height
+module oldham_wedge(off=0){
+  oh=oldham_w_h+off; // height
+  ow1=5+4*off; // base
+  ow2=7+4*off; // top
+  ol=4*ext; // length
+  translate([ow1/2,-ol/2,0]) rotate([90,0,180]) linear_extrude(ol) polygon([ [0,0], [ow1,0], [ow1-(ow1-ow2)/2,oh], [(ow1-ow2)/2,oh] ]);
+}
+module oldham_low(){
+  color(pp_color) difference(){
     union(){
-      // main shape
-      translate([4,bw,0]) rotate([90,0,0]) linear_extrude(bw) polygon([[0,0],[dist-4,0],[dist-4,ext],[dist-4-joiner_in_material,ext],[0,10]]);
-      // v-slot part
-      translate([dist,0,ext/2]) rotate([-90,-90,0]) vslot_groove(bw);
+      translate([oldham_margin,-oldham_w/2,0]) cube([oldham_d-oldham_margin,oldham_w,oldham_lh]);
+      intersection(){
+        translate([ext/2,0,oldham_lh]) rotate([0,0,45]) oldham_wedge();
+        translate([oldham_margin,-oldham_w/2,oldham_lh]) cube([oldham_d-oldham_margin,oldham_w,oldham_w_h]);
+      }
     }
     // hole for leadnut
-    translate([0,bw/2,0]) hull(){
-      translate([ext/2,0,0]) cylinder(h=ext, d=ln_d+1);
-      translate([0,-ln_d/2,0]) cube([ln_d/2,ln_d,ext]);
-    }
-    // holes for frame mount screws
-    translate([dist-joiner_in_material,6,ext/2]) rotate([0,90,0]) joiner_hole(bw);
-    translate([dist-joiner_in_material,bw-6,ext/2]) rotate([0,90,0]) joiner_hole(bw);
-
+    translate([ext/2,0,0]) cylinder(d=11,h=oldham_lh+oldham_w_h);
     // holes for leadnut mount screws
-    translate([ext/2,bw/2-8,0]) cylinder(h=ext,d=m3_hole);
-    translate([ext/2,bw/2+8,0]) cylinder(h=ext,d=m3_hole);
+    translate([ext/2,-8,0]) cylinder(h=ext,d=m3_hole);
+    translate([ext/2,8,0]) cylinder(h=ext,d=m3_hole);
+    translate([ext/2+8,0,0]) cylinder(h=ext,d=m3_hole);
+  }
+}
+module oldham_mid(){
+  color(pp_color2) difference(){
+    // main block
+    translate([oldham_margin,-oldham_w/2,oldham_lh]) cube([oldham_d-oldham_margin,oldham_w,oldham_mh]);
+
+    // hole for lower wedge
+    translate([ext/2,0,oldham_lh]) rotate([0,0,45]) oldham_wedge(printer_off);
+    // hole for upper wedge
+    translate([ext/2,0,oldham_lh+oldham_mh]) rotate([180,0,-45]) oldham_wedge(printer_off);
+    // hole for leadnut
+    translate([ext/2,0,oldham_lh]) cylinder(d=8+oldham_margin*2,h=oldham_mh);
+    // corners
+    translate([oldham_d,oldham_w/2,oldham_lh]) linear_extrude(oldham_mh) polygon([ [0,0],[-5,0], [0,-5] ]);
+    translate([oldham_d,-oldham_w/2,oldham_lh]) linear_extrude(oldham_mh) polygon([ [0,0],[-5,0], [0,5] ]);
+  }
+}
+module oldham_hi(dist){
+  ow2=ext*3.5;
+  ow=2*dist;
+  tri=[ [dist-oldham_margin,0], [dist-oldham_margin,ext], [0,ext] ];
+  trw=0.7*ext;
+  color(pp_color) difference(){
+    union(){
+      // top plate
+      // -ow/2+(ow-4*ext)/2=-2*ext
+      translate([oldham_margin,-2*ext,oldham_lh+oldham_mh]) cube([dist-oldham_margin,max(ow,ow2),3]);
+      // wedge
+      intersection(){
+        translate([ext/2,0,oldham_lh+oldham_mh]) rotate([180,0,-45]) oldham_wedge();
+        translate([oldham_margin,-ow/2,oldham_lh+oldham_mh-oldham_w_h]) cube([dist-oldham_margin,ow,oldham_w_h]);
+      }
+      // left support
+      translate([oldham_margin,ow/2,0]) rotate([90,0,0]) linear_extrude(trw) polygon(tri);
+      // right support
+      translate([oldham_margin,-2*ext+trw,0]) rotate([90,0,0]) linear_extrude(trw) polygon(tri);
+      // backplate
+      translate([dist-2,-2*ext,0]) cube([2,max(ow,ow2),ext]);
+      // v-slot
+      translate([dist,-2*ext,ext/2]) rotate([-90,-90,0]) vslot_groove(max(ow,ow2));
+    }
+    // mount holes
+    translate([dist-joiner_in_material,ow/2-7,ext/2]) rotate([0,90,0]) joiner_hole(dist);
+    translate([dist-joiner_in_material,-2*ext+7,ext/2]) rotate([0,90,0]) joiner_hole(dist);
+    // hole for leadnut
+    translate([ext/2,0,oldham_lh+3]) cylinder(d=8+oldham_margin*2,h=oldham_mh);
+  }
+}
+module bed_to_t8(dist){
+  if (bed_coupler==0) {
+    // permanent mount
+    bw=2*ext+4; // width of mount
+    ln_d=10.4; // diameter of leadnut
+    color(pp_color) translate([0,-bw/2,0]) difference(){
+      union(){
+        // main shape
+        translate([4,bw,0]) rotate([90,0,0]) linear_extrude(bw) polygon([[0,0],[dist-4,0],[dist-4,ext],[dist-4-joiner_in_material,ext],[0,10]]);
+        // v-slot part
+        translate([dist,0,ext/2]) rotate([-90,-90,0]) vslot_groove(bw);
+      }
+      // hole for leadnut
+      translate([0,bw/2,0]) hull(){
+        translate([ext/2,0,0]) cylinder(h=ext, d=ln_d+1);
+        translate([0,-ln_d/2,0]) cube([ln_d/2,ln_d,ext]);
+      }
+      // holes for frame mount screws
+      translate([dist-joiner_in_material,6,ext/2]) rotate([0,90,0]) joiner_hole(bw);
+      translate([dist-joiner_in_material,bw-6,ext/2]) rotate([0,90,0]) joiner_hole(bw);
+
+      // holes for leadnut mount screws
+      translate([ext/2,bw/2-8,0]) cylinder(h=ext,d=m3_hole);
+      translate([ext/2,bw/2+8,0]) cylinder(h=ext,d=m3_hole);
+    }
+  } else {
+    // oldham coupling
+    oldham_low();
+    oldham_mid();
+    oldham_hi(dist);
   }
 }
 module z_endstop_trigger(){
@@ -1389,8 +1478,8 @@ module z_bed_frame(){
   translate([base_w-2.5*ext,2.75*ext+build_plate_mount_space,-ext]) mirror([1,0,0]) bed_support();
 
   // mount frame to T8 screws
-  translate([0,4*ext,-ext]) bed_to_t8(1.5*ext);
-  translate([base_w,4*ext,-ext]) mirror([1,0,0]) bed_to_t8(1.5*ext);
+  translate([0,4*ext,-ext]) mirror([0,1,0]) bed_to_t8(1.5*ext);
+  translate([base_w,4*ext,-ext]) rotate([0,0,180]) bed_to_t8(1.5*ext);
   translate([base_w/2,base_d,-ext]) rotate([0,0,-90]) bed_to_t8(2*ext);
 
   // front v-wheels
@@ -1742,6 +1831,10 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==32) translate([-140,50,0]) pulley_spacer(2);
   if (render_parts==0 || render_parts==33) translate([-200,60,0]) pulley_support_front_up();
   if (render_parts==0 || render_parts==34) translate([-210,60,0]) mirror([1,0,0]) pulley_support_front_up();
+  if (render_parts==0 || render_parts==35) translate([0,100,0]) oldham_low();
+  if (render_parts==0 || render_parts==36) translate([-30,100,0]) oldham_mid();
+  if (render_parts==0 || render_parts==37) translate([0,150,0]) oldham_hi(1.5*ext);
+  if (render_parts==0 || render_parts==38) translate([-40,150,0]) oldham_hi(2*ext);
 }
 
 if ($preview) {
