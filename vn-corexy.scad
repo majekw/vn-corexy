@@ -93,7 +93,7 @@ belt_x_separation=6; // horizontal separation between XY belts
 belt_z_separation=15; // vertical distance between XY belts
 beltx_shift=34+4; // distance from frame to bottom of X belt pulley
 belty_shift=beltx_shift+belt_z_separation; // distance from frame to bottom of Y belt pulley
-gantry_belt_shift=13; // position in Y of belt on gantry relative to center of carriage??
+gantry_belt_shift=12.5; // position in Y of belt on gantry relative to center of carriage
 xy_motor_pos=[21+2*ext,base_d+22]; // X motor position, for Y motor is mirrored
 x_motor_z=beltx_shift-5; // X motor relative Z position
 y_motor_z=belty_shift-12; // Y motor relative Z position
@@ -238,7 +238,7 @@ translate([-t_len/2,-5,0]) rotate([90,0,90]) linear_extrude(t_len) polygon([ [0,
     
   }
 }
-module joiner_hole(jl,screw_l=joiner_screw_len,print_upside=false){
+module joiner_hole(jl=6,screw_l=joiner_screw_len,print_upside=false){
   union(){
     // hole for thread
     rotate([0,0,0]) cylinder(h=screw_l,d=joiner_screw_d+2*printer_off);
@@ -939,41 +939,51 @@ module gantry_joint_l_vslot(pulx, puly){
   }
 
 }
-module gantry_joint_l_cf(pulx, puly){
+module gantry_joint_l_cf(){
   under_screw_pos=2*ext;
   belt_pos=gantry_belt_shift+carriage_length(y_rail_carriage)/2;
+  py_x=ext/2; // x of Y pulley
+  px_x=py_x+belt_x_separation; // x of X pulley
+  px_y=belt_pos+pr20;
+  py_y=belt_pos-pr20;
+  px_z=beltx_shift-carriage_height(y_rail_carriage);
+  py_z=belty_shift-carriage_height(y_rail_carriage);
   // screws
+  m5_screw1=40; // Y pulley
+  m5_screw2=50; // X pulley
+  m5_screw3=20; // back
+  m5_screw4=10; // front
+  m5_screw5=8; // bottom
+  m3_screw1=6; // carriage short
+  m3_screw3=20; // carriage inner
+  m3_screw2=25; // carriage outer
+  m3_1=[20,12.7]; // inner front
+  m3_2=[20,32.7]; // inner back
+  m3_3=[0,12.7]; // outer front
+  m3_4=[0,32.7]; // outer back
   if ($preview) {
     // Y pulley
-    m5_screw1=40;
-    translate([puly.x,belt_pos-pr20,puly.z+17]) screw(M5_cap_screw,m5_screw1);
+    translate([py_x,py_y,m5_screw1+17]) screw(M5_cap_screw,m5_screw1);
     // X pulley
-    m5_screw2=50;
-    translate([pulx.x,belt_pos+pr20,m5_screw2+7]) screw(M5_cap_screw,m5_screw2);
+    translate([px_x,px_y,m5_screw2+7]) screw(M5_cap_screw,m5_screw2);
     // back cf mounting
-    m5_screw3=20;
-    translate([ext/2-2,carriage_length(y_rail_carriage)+m5_screw3-cf_from_front-cf_tube_size,ext/2+cf_above_carriage]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
+    translate([ext/2-3,cf_tube_size+cf_from_front-6+m5_screw3,ext/2+cf_above_carriage]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
     // front cf mounting
-    m5_screw4=10;
-    translate([ext/2,1,ext/2+cf_above_carriage]) rotate([90,0,0]) screw(M5_dome_screw,m5_screw4);
+    translate([ext/2,1.2,ext/2+cf_above_carriage]) rotate([90,0,0]) screw(M5_dome_screw,m5_screw4);
     // bottom cf mount
-    m5_screw5=8;
     translate([under_screw_pos,cf_tube_size/2+cf_from_front,cf_above_carriage-1.5]) rotate([180,0,0]) screw(M5_dome_screw,m5_screw5);
     // carriage inner mount
-    m3_screw1=6;
-    translate([ext,13,m3_screw1-3]) screw(M3_cs_cap_screw,m3_screw1);
-    m3_screw3=20;
-    translate([ext,33,m3_screw3-3]) screw(M3_cap_screw,m3_screw3);
+    translate([m3_1.x,m3_1.y,cf_above_carriage]) screw(M3_cs_cap_screw,m3_screw1);
+    translate([m3_2.x,m3_2.y,m3_screw3-3]) screw(M3_cap_screw,m3_screw3);
     // carriage outer mount
-    m3_screw2=25;
-    translate([0,13,m3_screw1-3]) screw(M3_cs_cap_screw,m3_screw1);
-    translate([0,33,m3_screw2-3]) screw(M3_cap_screw,m3_screw2);
+    translate([m3_3.x,m3_3.y,cf_above_carriage]) screw(M3_cs_cap_screw,m3_screw1);
+    translate([m3_4.x,m3_4.y,m3_screw2-3]) screw(M3_cap_screw,m3_screw2);
   }
 
   // mount
-  rd=5;
+  rd=5; // radius of rouning
   box_h=cf_above_carriage+cf_tube_size;
-  x_offset=-(carriage_width(y_rail_carriage)-ext)/2;
+  x_offset=-(carriage_width(y_rail_carriage)-ext)/2; // how much carriage sticks out of frame
   difference(){
     union(){
       // main shape
@@ -995,28 +1005,64 @@ module gantry_joint_l_cf(pulx, puly){
       }
       // upper part
       difference(){
-        translate([puly.x-3.5,0,box_h]) rotate([90,0,90]) linear_extrude(ext-7) polygon([ [0,0], [puly.y+6,0], [puly.y+6,puly.z-box_h-1], [puly.y-3.5,puly.z-box_h-1],[0,6.5] ]);
+        translate([py_x-3.5,0,box_h]) rotate([90,0,90]) linear_extrude(12) polygon([ [0,0], [py_y+6,0], [py_y+6,py_z-box_h-1], [py_y-3.5,py_z-box_h-1],[0,6.5] ]);
         // hole for X pulley
-        translate([pulx.x,belt_pos+pr20,pulx.z-1]) cylinder(h=16,d=20);
+        translate([px_x,px_y,px_z-1]) cylinder(h=16,d=20);
       }
       //spacer for Y idler
-      translate([puly.x,belt_pos-pr20,puly.z-1]) pulley_spacer();
+      translate([py_x,py_y,py_z-1]) pulley_spacer();
       //spacer for X idler
-      translate([pulx.x,belt_pos+pr20,pulx.z-2]) pulley_spacer(2);
+      translate([px_x,px_y,px_z-2]) pulley_spacer(2);
     }
     // holes
 
     // hole for cf tube
     translate([x_offset,cf_from_front-printer_off,cf_above_carriage]) cube([carriage_width(y_rail_carriage)+2,cf_tube_size+2*printer_off,cf_tube_size+0.5]); // 0.5 for hanging bidge or rought surface above supports
-    //hole for mgn
+    // hole for mgn
     translate([x_offset,cf_from_front+cf_tube_size/2-5,cf_above_carriage+cf_tube_size]) cube([carriage_width(y_rail_carriage),10,7]);
+    // hole for X pulley
+    translate([px_x,px_y,0]) cylinder(h=px_z,d=m5_hole);
+    // hole for Y pulley
+    translate([py_x,py_y,0]) cylinder(h=py_z,d=m5_hole);
+    // bottom screw
+    #translate([under_screw_pos,cf_tube_size/2+cf_from_front,0]) {
+      cylinder(h=cf_above_carriage,d=5);
+      cylinder(h=1.5,d=10.5);
+    }
+    // front screw
+    translate([ext/2,0,ext/2+cf_above_carriage]) rotate([-90,0,0]) {
+      cylinder(h=cf_from_front,d=5);
+      cylinder(h=1.2,d=10.5);
+    }
+    // back screw
+    translate([ext/2-3,cf_tube_size+cf_from_front-6+m5_screw3,ext/2+cf_above_carriage]) rotate([90,0,0]) joiner_hole(10,screw_l=m5_screw3);
+    // M3 mouning screw - outer back
+    translate([m3_4.x,m3_4.y,0]) {
+      cylinder(d=3,h=m3_screw2-3);
+      translate([0,0,m3_screw2-3]) cylinder(d=6.5,h=3);
+    }
+    // M3 mouning screw - inner back
+    translate([m3_2.x,m3_2.y,0]) {
+      cylinder(d=3,h=m3_screw3-3);
+      translate([0,0,m3_screw3-3]) cylinder(d=6.5,h=8);
+    }
+    // M3 mouning screw - inner front
+    translate([m3_1.x,m3_1.y,0]) {
+      cylinder(d=3,h=m3_screw1-3);
+      translate([0,0,cf_above_carriage-2]) cylinder(d2=6.5,d1=3,h=2);
+    }
+    // M3 mouning screw - outer front
+    translate([m3_3.x,m3_3.y,0]) {
+      cylinder(d=3,h=m3_screw1-3);
+      translate([0,0,cf_above_carriage-2]) cylinder(d2=6.5,d1=3,h=2);
+    }
   }
 }
 module gantry_joint_l(pulx, puly){
   if (x_gantry_type==0) {
     gantry_joint_l_vslot(pulx, puly);
   } else if (x_gantry_type==1) {
-    gantry_joint_l_cf(pulx, puly);
+    gantry_joint_l_cf();
   }
 }
 module gantry_joint_r(pulx, puly){
@@ -1124,7 +1170,7 @@ module gantry(){
   
   // X gantry support
   g_shift_z=base_h+carriage_height(y_rail_carriage); // top of Y carriage
-  translate([0,real_y,g_shift_z]) union(){
+  translate([0,real_y,g_shift_z]) {
     echo(base_w=base_w);
     echo("X rail length",x_rail_l);
     if (x_gantry_type==0) {
@@ -1862,7 +1908,7 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==36) translate([-30,100,0]) oldham_mid();
   if (render_parts==0 || render_parts==37) translate([0,150,0]) oldham_hi(1.5*ext);
   if (render_parts==0 || render_parts==38) translate([-40,150,0]) oldham_hi(2*ext);
-  if (ender_parts==39) translate([-40,200,0]) gantry_joint_l_cf();
+  if (render_parts==39) translate([-40,200,0]) gantry_joint_l_cf();
 }
 
 if ($preview) {
