@@ -1,6 +1,6 @@
 /* Very Narrow CoreXY Printer (vn-corexy)
    Created with goal: use as small space in width dimension as possible.
-   (C) 2020 Marek Wodzinski <majek@w7i.pl> https://majek.sh
+   (C) 2020-2022 Marek Wodzinski <majek@w7i.pl> https://majek.sh
    
    vn-corexy is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
    You should have received a copy of the license along with this work.
@@ -91,12 +91,12 @@ pr20=pulley_pr(GT2x20ob_pulley); // radius of puller for belt calculations
 //belt_x_separation=pulley_od(GT2_10x20_toothed_idler);
 belt_x_separation=6; // horizontal separation between XY belts
 belt_z_separation=15; // vertical distance between XY belts
-belt_x_shift=34+4; // distance from frame to bottom of X belt pulley
-belt_y_shift=belt_x_shift+belt_z_separation; // distance from frame to bottom of Y belt pulley
+beltx_shift=34+4; // distance from frame to bottom of X belt pulley
+belty_shift=beltx_shift+belt_z_separation; // distance from frame to bottom of Y belt pulley
 gantry_belt_shift=13; // position in Y of belt on gantry relative to center of carriage??
 xy_motor_pos=[21+2*ext,base_d+22]; // X motor position, for Y motor is mirrored
-x_motor_z=belt_x_shift-5; // X motor relative Z position
-y_motor_z=belt_y_shift-12; // Y motor relative Z position
+x_motor_z=beltx_shift-5; // X motor relative Z position
+y_motor_z=belty_shift-12; // Y motor relative Z position
 xy_o_pulley_pos=[ext/2,base_d+ext]; // motor outer pulley position
 xy_i_pulley_pos=[ext/2+belt_x_separation,base_d]; // motor inner pulley position
 elec_support=135; // distance for electronic supports from edge of frame (just guess, should be adjusted for real hardware)
@@ -526,22 +526,22 @@ module pulley_support_front_down(logo=0){
   color(pp_color) difference(){
     union(){
       // front
-      cube([4.5*ext,ext,belt_x_shift-1]);
+      cube([4.5*ext,ext,beltx_shift-1]);
       // side
-      cube([ext-4,3.5*ext,belt_x_shift-1]);
+      cube([ext-4,3.5*ext,beltx_shift-1]);
       // v-slot side
       translate([ext/2,0,0]) rotate([-90,0,0]) vslot_groove(y_rails_from_front-1);
       // v-slot front
       translate([ext,ext/2,0]) rotate([-90,0,-90]) vslot_groove(3.5*ext);
       // pulley support
-      //translate([ext/2,ext/2,belt_x_shift-1]) cylinder(d1=9,d2=7,h=1);
+      //translate([ext/2,ext/2,beltx_shift-1]) cylinder(d1=9,d2=7,h=1);
     }
     // logo
     if (logo==1) translate([1.75*ext,1,ext/2]) rotate([90,0,0]) scale([2,2,1]) vn_logo(1);
     // hole for linear rail
     translate([(ext-12)/2-2*printer_off,ext*2.5-1,0]) cube([12+2*printer_off,ext+1,8.10]);
     // pulley screw hole
-    translate([ext/2,ext/2,-3]) cylinder(h=belt_y_shift+3,d=m5_hole);
+    translate([ext/2,ext/2,-3]) cylinder(h=belty_shift+3,d=m5_hole);
     // front right hole
     translate([ext*4,ext/2,35-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,35,true);
     // front left hole
@@ -561,7 +561,7 @@ module pulley_support_front_up(){
   belts_h=30;
   belt_w=6;
   fh=belts_h+5+3;
-  color(pp_color2) translate([0,0,belt_x_shift-1]) difference(){
+  color(pp_color2) translate([0,0,beltx_shift-1]) difference(){
     union(){
       // front
       hull(){
@@ -585,7 +585,7 @@ module pulley_support_front_up(){
     // hole for front belt
     cube([3*ext,belt_w,belts_h]);
     // screws
-    translate([0,0,-belt_x_shift+1]) {
+    translate([0,0,-beltx_shift+1]) {
       // front left hole
       translate([ext*1.5,ext/2,70-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,70,true);
       // left front hole
@@ -625,8 +625,8 @@ module pulley_support_front(side=0,logo=0){
     pulley_support_front_down(logo);
     pulley_support_front_up();
     // pulley spacers
-    translate([ext/2,ext/2,belt_x_shift-1]) pulley_spacer(1);
-    translate([ext/2,ext/2,belt_x_shift+13]) pulley_spacer(2);
+    translate([ext/2,ext/2,beltx_shift-1]) pulley_spacer(1);
+    translate([ext/2,ext/2,beltx_shift+13]) pulley_spacer(2);
   }
 }
 module motor_support_x_down(){
@@ -647,9 +647,9 @@ module motor_support_x_down(){
       // v-slot front
       translate([ext,ext/2,0]) rotate([-90,0,-90]) vslot_groove(4*ext);
       // outer pulley spacer
-      translate([xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,x_motor_z+3]) cylinder(h=belt_x_shift-x_motor_z-3,d2=7,d1=9);
+      translate([xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,x_motor_z+3]) cylinder(h=beltx_shift-x_motor_z-3,d2=7,d1=9);
       // inner pulley spacer
-      translate([xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,x_motor_z+3]) cylinder(h=belt_x_shift-x_motor_z-3,d2=7,d1=9);
+      translate([xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,x_motor_z+3]) cylinder(h=beltx_shift-x_motor_z-3,d2=7,d1=9);
     }
     // corner screw hole
     translate([ext/2,ext/2,35-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,35);
@@ -672,15 +672,15 @@ module motor_support_x_down(){
       }
     }
     // outer pulley hole
-    translate([xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,0]) cylinder(h=belt_x_shift,d=m5_hole);
+    translate([xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,0]) cylinder(h=beltx_shift,d=m5_hole);
     // inner pulley hole
-    translate([xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,0]) cylinder(h=belt_x_shift,d=m5_hole);
+    translate([xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,0]) cylinder(h=beltx_shift,d=m5_hole);
   }
 }
 module motor_support_x_up(){
   yadj=16; // motos position adjust range
   mm_d=top_d-base_d+ext; // motor mount depth
-  h_space=pulley_height(GT2_10x20_plain_idler)+(belt_x_shift-x_motor_z-3)+1;
+  h_space=pulley_height(GT2_10x20_plain_idler)+(beltx_shift-x_motor_z-3)+1;
   color(pp_color2) difference(){
     translate([0,0,x_motor_z+3]) union(){
       // main body
@@ -744,7 +744,7 @@ module motor_support_x(){
 module motor_support_y_up(){
   yadj=16; // motos position adjust range
   mm_d=top_d-base_d+ext; // motor mount depth
-  h_space=pulley_height(GT2_10x20_plain_idler)+(belt_y_shift-y_motor_z-3)+1;
+  h_space=pulley_height(GT2_10x20_plain_idler)+(belty_shift-y_motor_z-3)+1;
   color(pp_color2) difference(){
     translate([base_w,0,y_motor_z+3]) union(){
       // main body
@@ -798,9 +798,9 @@ module motor_support_y_down(){
       // v-slot front
       translate([base_w-ext,ext/2,0]) rotate([-90,0,90]) vslot_groove(4*ext);
       // outer pulley spacer
-      translate([base_w-xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,y_motor_z+3]) cylinder(h=belt_y_shift-y_motor_z-3,d2=7,d1=20);
+      translate([base_w-xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,y_motor_z+3]) cylinder(h=belty_shift-y_motor_z-3,d2=7,d1=20);
       // inner pulley spacer
-      translate([base_w-xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,y_motor_z+3]) cylinder(h=belt_y_shift-y_motor_z-3,d2=7,d1=20);
+      translate([base_w-xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,y_motor_z+3]) cylinder(h=belty_shift-y_motor_z-3,d2=7,d1=20);
     }
     // corner screw hole
     translate([base_w-ext/2,ext/2,50-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,50);
@@ -823,9 +823,9 @@ module motor_support_y_down(){
       }
     }
     // outer pulley hole
-    translate([base_w-xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,0]) cylinder(h=belt_y_shift,d=m5_hole);
+    translate([base_w-xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,0]) cylinder(h=belty_shift,d=m5_hole);
     // inner pulley hole
-    translate([base_w-xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,0]) cylinder(h=belt_y_shift,d=m5_hole);
+    translate([base_w-xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,0]) cylinder(h=belty_shift,d=m5_hole);
   }
 }
 module motor_support_y(){
@@ -1049,67 +1049,67 @@ module gantry(){
 
   // X axis
   // X start anchor point
-  bx1=[base_w/2-build_x/2+pos_x,carriage_y_real+gantry_belt_shift,base_h+belt_x_shift];
+  bx1=[base_w/2-build_x/2+pos_x,carriage_y_real+gantry_belt_shift,base_h+beltx_shift];
   translate(bx1) cube([0.1,12,12]);
   // X idler - gantry left
-  bx2=[ext/2+belt_x_separation,carriage_y_real+gantry_belt_shift+pr20,base_h+belt_x_shift];
+  bx2=[ext/2+belt_x_separation,carriage_y_real+gantry_belt_shift+pr20,base_h+beltx_shift];
   translate(bx2) pulley(GT2_10x20_plain_idler);
   // X idler - inner rail-motor
-  bx3=[ext/2+belt_x_separation,base_d,base_h+belt_x_shift];
+  bx3=[ext/2+belt_x_separation,base_d,base_h+beltx_shift];
   translate(bx3) pulley(GT2_10x20_plain_idler);
   // X motor
-  bx4=[xy_motor_pos.x,xy_motor_pos.y,base_h+belt_x_shift-5];
+  bx4=[xy_motor_pos.x,xy_motor_pos.y,base_h+beltx_shift-5];
   translate(bx4) rotate([0,0,-90]) NEMA(NEMA17M);
   translate([bx4.x,bx4.y,bx4.z+25.5]) rotate([0,180,0]) pulley(GT2_10x20ob_pulley);
   // X idler - outer rail-motor
-  bx5=[ext/2,base_d+ext,base_h+belt_x_shift];
+  bx5=[ext/2,base_d+ext,base_h+beltx_shift];
   translate(bx5) pulley(GT2_10x20_toothed_idler);
   // X idler - front left
-  bx6=[ext/2,ext/2,base_h+belt_x_shift];
+  bx6=[ext/2,ext/2,base_h+beltx_shift];
   translate(bx6) pulley(GT2_10x20_toothed_idler);
   // X idler - front right
-  bx7=[base_w-ext/2,ext/2,base_h+belt_x_shift];
+  bx7=[base_w-ext/2,ext/2,base_h+beltx_shift];
   translate(bx7) pulley(GT2_10x20_toothed_idler);
   // X idler - gantry right
-  bx8=[base_w-ext/2,carriage_y_real+gantry_belt_shift-pr20,base_h+belt_x_shift];
+  bx8=[base_w-ext/2,carriage_y_real+gantry_belt_shift-pr20,base_h+beltx_shift];
   translate(bx8) pulley(GT2_10x20_toothed_idler);
   
   // X belt
   belt_x_path=[[bx8.x,bx8.y,pr20], [bx7.x,bx7.y,pr20], [bx6.x,bx6.y,pr20], [bx5.x,bx5.y,pr20], [bx4.x,bx4.y,pr20], [bx3.x,bx3.y,-pr20], [bx2.x,bx2.y,-pr20],[bx1.x,bx1.y,0]];
-  translate([0,0,base_h+belt_x_shift+6.5]) belt(GT2x10,belt_x_path);
+  translate([0,0,base_h+beltx_shift+6.5]) belt(GT2x10,belt_x_path);
   echo("X belt length",belt_length(GT2x10,belt_x_path));
 
   // Y axis
   // Y start anchor point
-  by1=[base_w/2-build_x/2+pos_x,carriage_y_real+gantry_belt_shift,base_h+belt_y_shift];
+  by1=[base_w/2-build_x/2+pos_x,carriage_y_real+gantry_belt_shift,base_h+belty_shift];
   translate(by1) cube([0.1,12,12]);
   // Y idler - gantry right
-  by2=[base_w-ext/2-belt_x_separation,carriage_y_real+gantry_belt_shift+pr20,base_h+belt_y_shift];
+  by2=[base_w-ext/2-belt_x_separation,carriage_y_real+gantry_belt_shift+pr20,base_h+belty_shift];
   translate(by2) pulley(GT2_10x20_plain_idler);
   // Y idler - inner rail-motor
-  by3=[base_w-ext/2-belt_x_separation,base_d,base_h+belt_y_shift];
+  by3=[base_w-ext/2-belt_x_separation,base_d,base_h+belty_shift];
   translate(by3) pulley(GT2_10x20_plain_idler);
   // Y motor
   pulley_motor_space=-7.5;
-  by4=[base_w-xy_motor_pos.x,xy_motor_pos.y,base_h+belt_y_shift];
+  by4=[base_w-xy_motor_pos.x,xy_motor_pos.y,base_h+belty_shift];
   translate([by4.x,by4.y,base_h+y_motor_z]) rotate([0,0,90]) NEMA(NEMA17M);
   translate([by4.x,by4.y,by4.z+pulley_motor_space]) pulley(GT2_10x20ob_pulley);
   // Y idler - outer rail-motor
-  by5=[base_w-ext/2,base_d+ext,base_h+belt_y_shift];
+  by5=[base_w-ext/2,base_d+ext,base_h+belty_shift];
   translate(by5) pulley(GT2_10x20_toothed_idler);
   // Y idler - front right
-  by6=[base_w-ext/2,ext/2,base_h+belt_y_shift];
+  by6=[base_w-ext/2,ext/2,base_h+belty_shift];
   translate(by6) pulley(GT2_10x20_toothed_idler);
   // Y idler - front left
-  by7=[ext/2,ext/2,base_h+belt_y_shift];
+  by7=[ext/2,ext/2,base_h+belty_shift];
   translate(by7) pulley(GT2_10x20_toothed_idler);
   // Y idler - gantry left
-  by8=[ext/2,carriage_y_real+gantry_belt_shift-pr20,base_h+belt_y_shift];
+  by8=[ext/2,carriage_y_real+gantry_belt_shift-pr20,base_h+belty_shift];
   translate(by8) pulley(GT2_10x20_toothed_idler);
 
   // Y belt
   belt_y_path=[[by1.x,by1.y,0], [by2.x,by2.y,-pr20], [by3.x,by3.y,-pr20], [by4.x,by4.y,pr20], [by5.x,by5.y,pr20], [by6.x,by6.y,pr20], [by7.x,by7.y,pr20], [by8.x,by8.y,pr20]];
-  translate([0,0,base_h+belt_y_shift+6.5]) belt(GT2x10,belt_y_path);
+  translate([0,0,base_h+belty_shift+6.5]) belt(GT2x10,belt_y_path);
   echo("Y belt length",belt_length(GT2x10,belt_y_path));
   
   // X gantry support
