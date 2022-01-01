@@ -47,7 +47,7 @@ bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: Linear rails positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: Linear rails positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry join for CF tube]
 
 /* [tweaks/hacks] */
 
@@ -83,8 +83,8 @@ y_rail_l=400;
 y_rails_from_front=2.5*ext;
 y_rail_carriage=MGN12H_carriage;
 x_rail_carriage=MGN12H_carriage;
-x_rail_l=base_w-2*ext; // 350
-//x_rail_l=375;
+//x_rail_l=base_w-2*ext; // 350
+x_rail_l=375;
 z_pulley_support=170; //distance from front to Z pulley support
 z_belt_h=48; // space from bottom of frame to Z belt
 pr20=pulley_pr(GT2x20ob_pulley); // radius of puller for belt calculations
@@ -925,26 +925,28 @@ module gantry_joint_l_vslot(pulx, puly){
   }
 
 }
+// Carbon fiber tube private variables
+cf_above_carriage=3.5; // height of cf above carriage
+cf_from_front=5; // distance from front of carriage
 module gantry_joint_l_cf(pulx, puly){
-  cf_h=3.5; // height of cf above carriage
-  cf_s=5; // distance from front of carriage
+  under_screw_pos=2*ext;
   // screws
   if ($preview) {
     // Y pulley
     m5_screw1=40;
-    translate([puly.x,puly.y,puly.z+15]) screw(M5_cap_screw,m5_screw1);
+    translate([puly.x,puly.y,puly.z+17]) screw(M5_cap_screw,m5_screw1);
     // X pulley
-    m5_screw2=40;
-    translate([pulx.x,pulx.y,m5_screw2+3]) screw(M5_cap_screw,m5_screw2);
-    // back 2020 mounting
-    m5_screw3=12;
-    translate([ext/2-2,carriage_length(y_rail_carriage)+m5_screw3-cf_s-cf_tube_size,ext/2+cf_h]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
-    // front 2020 mounting
+    m5_screw2=50;
+    translate([pulx.x,pulx.y,m5_screw2+7]) screw(M5_cap_screw,m5_screw2);
+    // back cf mounting
+    m5_screw3=20;
+    translate([ext/2-2,carriage_length(y_rail_carriage)+m5_screw3-cf_from_front-cf_tube_size,ext/2+cf_above_carriage]) rotate([-90,0,0]) screw(M5_cap_screw,m5_screw3);
+    // front cf mounting
     m5_screw4=10;
-    translate([ext/2,1,ext/2+cf_h]) rotate([90,0,0]) screw(M5_dome_screw,m5_screw4);
-    // bottom 2020 mount
+    translate([ext/2,1,ext/2+cf_above_carriage]) rotate([90,0,0]) screw(M5_dome_screw,m5_screw4);
+    // bottom cf mount
     m5_screw5=8;
-    translate([ext*2,cf_tube_size/2+cf_s,cf_h-2]) rotate([180,0,0]) screw(M5_dome_screw,m5_screw5);
+    translate([under_screw_pos,cf_tube_size/2+cf_from_front,cf_above_carriage-1.5]) rotate([180,0,0]) screw(M5_dome_screw,m5_screw5);
     // carriage inner mount
     m3_screw1=6;
     translate([ext,13,m3_screw1-3]) screw(M3_cs_cap_screw,m3_screw1);
@@ -956,23 +958,45 @@ module gantry_joint_l_cf(pulx, puly){
     translate([0,33,m3_screw2-3]) screw(M3_cap_screw,m3_screw2);
   }
 
-  // box
+  // mount
   rd=5;
-  box_h=puly.z;
-  translate([-(carriage_width(y_rail_carriage)-ext)/2,0,0]) {
-    //#cube([carriage_width(y_rail_carriage),carriage_length(y_rail_carriage),40]);
-    // lower part
-    difference(){
-      hull(){
-        translate([rd,rd,0]) cylinder(h=box_h,r=rd);
-        translate([rd,carriage_length(y_rail_carriage)-rd,0]) cylinder(h=box_h,r=rd);
-        translate([carriage_width(y_rail_carriage)-rd,carriage_length(y_rail_carriage)-rd,0]) cylinder(h=box_h,r=rd);
-        translate([carriage_width(y_rail_carriage)-rd+2,25,0]) cylinder(h=box_h,r=rd);
-        translate([carriage_width(y_rail_carriage)-1+2,0,0]) cube([1,1,box_h]);
+  box_h=cf_above_carriage+cf_tube_size;
+  x_offset=-(carriage_width(y_rail_carriage)-ext)/2;
+  difference(){
+    union(){
+      // main shape
+      translate([x_offset,0,0]) {
+        hull(){
+          translate([rd,rd,0]) cylinder(h=box_h,r=rd);
+          translate([rd,carriage_length(y_rail_carriage)-rd,0]) cylinder(h=box_h,r=rd);
+          translate([carriage_width(y_rail_carriage)-rd,carriage_length(y_rail_carriage)-rd,0]) cylinder(h=box_h,r=rd);
+          translate([carriage_width(y_rail_carriage)-rd+2,25,0]) cylinder(h=box_h,r=rd);
+          translate([carriage_width(y_rail_carriage)-1+2,0,0]) cube([1,1,box_h]);
+        }
+        // lower screw mount
+        translate([0,cf_from_front,0]) hull(){
+          translate([rd,rd,0]) cylinder(h=cf_above_carriage,r=rd);
+          translate([under_screw_pos+rd,rd,0]) cylinder(h=cf_above_carriage,r=rd);
+          translate([under_screw_pos+rd,cf_tube_size-rd,0]) cylinder(h=cf_above_carriage,r=rd);
+          translate([rd,cf_tube_size-rd,0]) cylinder(h=cf_above_carriage,r=rd);
+        }
       }
+      // upper part
+      translate([puly.x-3.5,0,box_h]) rotate([90,0,90]) linear_extrude(ext-7) polygon([ [0,0], [puly.y+6,0], [puly.y+6,puly.z-box_h-1], [puly.y-3.5,puly.z-box_h-1],[0,6.5] ]);
+      //spacer for Y idler
+      translate([puly.x,puly.y,puly.z-1]) pulley_spacer();
+      //spacer for X idler
+      translate([pulx.x,pulx.y,pulx.z-2]) pulley_spacer(2);
     }
-  }
+    // holes
 
+    // hole for cf tube
+    translate([x_offset,cf_from_front-printer_off,cf_above_carriage]) cube([carriage_width(y_rail_carriage)+2,cf_tube_size+2*printer_off,cf_tube_size+0.5]); // 0.5 for hanging bidge or rought surface above supports
+    //hole for mgn
+    translate([x_offset,cf_from_front+cf_tube_size/2-5,cf_above_carriage+cf_tube_size]) cube([carriage_width(y_rail_carriage),10,7]);
+    // hole for X pulley
+    translate([pulx.x,pulx.y,pulx.z-1]) cylinder(h=16,d=20);
+  }
 }
 module gantry_joint_l(pulx, puly){
   if (x_gantry_type==0) {
@@ -1099,13 +1123,13 @@ module gantry(){
       translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN12H_carriage,x_rail_l,carriage_pos_x);
     } else if (x_gantry_type==1 ) {
       // cf tube + MGN9
-      cf_len=base_w+7;;
+      cf_len=base_w+7;
       echo("CF tube length",cf_len);
-      translate([(base_w-cf_len)/2,5,3.5]) color([0.1,0.1,0.1]) difference(){
+      translate([(base_w-cf_len)/2,cf_from_front,cf_above_carriage]) color([0.1,0.1,0.1]) difference(){
         cube([cf_len,cf_tube_size,cf_tube_size]);
         translate([0,cf_tube_wall,cf_tube_wall]) cube([cf_len,cf_tube_size-2*cf_tube_wall,cf_tube_size-2*cf_tube_wall]);
       }
-      translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN9H_carriage,x_rail_l,carriage_pos_x);
+      translate([base_w/2,cf_tube_size/2+cf_from_front,cf_tube_size+cf_above_carriage]) rotate([0,0,0]) rail_assembly(MGN9H_carriage,x_rail_l,carriage_pos_x);
     }
     // gantry joints
     translate([0,0,0]) {
@@ -1835,6 +1859,7 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==36) translate([-30,100,0]) oldham_mid();
   if (render_parts==0 || render_parts==37) translate([0,150,0]) oldham_hi(1.5*ext);
   if (render_parts==0 || render_parts==38) translate([-40,150,0]) oldham_hi(2*ext);
+  if (ender_parts==39) translate([-40,200,0]) gantry_joint_l_cf();
 }
 
 if ($preview) {
