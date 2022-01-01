@@ -115,6 +115,19 @@ m5_hole=4.75; // hole for direct M5 screw without tapping
 m3_hole=2.75; // hole for direct M3 screw without tapping
 bed_z=base_h-2*ext-10-pos_z; // bed Z position
 
+// Carbon fiber tube private variables
+cf_above_carriage=3.5; // height of cf above carriage
+cf_from_front=5; // distance from front of carriage
+
+// oldham coupler
+oldham_w=ext*1.3; // width of oldham coupler
+oldham_d=ext*1.2; // depth of oldham coupler (without margin)
+oldham_lh=10.5; // height of low part
+oldham_mh=8; // height of middle part
+oldham_margin=2.0; // space between coupler and outer shape of printer
+oldham_w_h=5; // wedge height
+
+
 // Extra stuff not in NopSCADlib
 // 688RS ball bearings (8x16x5)
 BB688=["688", 8, 16, 5, "black", 1.4, 2.0];
@@ -926,9 +939,6 @@ module gantry_joint_l_vslot(pulx, puly){
   }
 
 }
-// Carbon fiber tube private variables
-cf_above_carriage=3.5; // height of cf above carriage
-cf_from_front=5; // distance from front of carriage
 module gantry_joint_l_cf(pulx, puly){
   under_screw_pos=2*ext;
   belt_pos=gantry_belt_shift+carriage_length(y_rail_carriage)/2;
@@ -1351,13 +1361,6 @@ module z_wheel_mount(back=0){
     translate([3*ext,-joiner_in_material,ext/2+back*ext/2]) rotate([-90,0,0]) joiner_hole(1.5*ext);
     translate([1.2*ext,-joiner_in_material,ext/2+back*ext/2]) rotate([-90,0,0]) joiner_hole(1.5*ext);  }
 }
-// oldham coupler
-oldham_w=ext*1.3; // width of oldham coupler
-oldham_d=ext*1.2; // depth of oldham coupler (without margin)
-oldham_lh=10.5; // height of low part
-oldham_mh=8; // height of middle part
-oldham_margin=2.0; // space between coupler and outer shape of printer
-oldham_w_h=5; // wedge height
 module oldham_wedge(off=0){
   oh=oldham_w_h+off; // height
   ow1=5+4*off; // base
