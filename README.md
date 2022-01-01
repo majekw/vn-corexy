@@ -18,6 +18,8 @@ GT2 belt lengts are also calculated.
 
 **WARNING: WORK IN PROGRESS**
 
+Forum thread (in Polish): https://reprapy.pl/viewtopic.php?f=10&t=7225
+
 # Requirements
 - OpenScad https://www.openscad.org/
 - NopSCADlib library https://github.com/nophead/NopSCADlib
@@ -28,7 +30,7 @@ GT2 belt lengts are also calculated.
 - bed frame wheels supports are temporary, will be changed in future
 
 # Copyright & license
-(C) 2020-2021 Marek Wodzinski <majek@w7i.pl>
+(C) 2020-2022 Marek Wodzinski <majek@w7i.pl>
 
 This work is licensed under Creative Commons Attribution-ShareAlike 4.0 International License.
 You should have received a copy of the license along with this work. 
