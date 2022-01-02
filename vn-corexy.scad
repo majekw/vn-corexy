@@ -47,7 +47,7 @@ bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joiner for CF tube, 40: Left top of gantry joiner for CF tube, 41: Right gantry joiner for CF tube, 42: Right top of gantry joiner for CF tube, 43: MGN9 on CF positioning tool]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joiner for CF tube, 40: Left top of gantry joiner for CF tube, 41: Right gantry joiner for CF tube, 42: Right top of gantry joiner for CF tube, 43: MGN9 on CF positioning tool, 44: Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount]
 
 /* [tweaks/hacks] */
 
@@ -99,7 +99,7 @@ gantry_belt_pos=gantry_belt_shift+carriage_length(y_rail_carriage)/2; // belt po
 // motors
 xy_motor_pos=[21+2*ext,base_d+22]; // X motor position, for Y motor is mirrored
 x_motor_z=beltx_shift-5; // X motor relative Z position
-y_motor_z=belty_shift-12; // Y motor relative Z position
+y_motor_z=belty_shift-5; // Y motor relative Z position
 xy_o_pulley_pos=[ext/2,base_d+ext]; // motor outer pulley position
 xy_i_pulley_pos=[ext/2+belt_x_separation,base_d]; // motor inner pulley position
 elec_support=135; // distance for electronic supports from edge of frame (just guess, should be adjusted for real hardware)
@@ -760,7 +760,7 @@ module motor_support_x(){
   translate([0,base_d-ext,base_h]) motor_support_x_up();
 }
 module motor_support_y_up(){
-  yadj=16; // motos position adjust range
+  yadj=16; // motor position adjust range
   mm_d=top_d-base_d+ext; // motor mount depth
   h_space=pulley_height(GT2_10x20_plain_idler)+(belty_shift-y_motor_z-3)+1;
   color(pp_color2) difference(){
@@ -768,14 +768,14 @@ module motor_support_y_up(){
       // main body
       mirror([1,0,0]) difference(){
         // main body
-        linear_extrude(y_motor_z-10) polygon([[ext,0],[0,ext],[0,mm_d],[ext,mm_d],[2*ext,ext],[2*ext,0]]);
-  
+        linear_extrude(h_space+8) polygon([[ext,0],[0,ext],[0,mm_d],[ext,mm_d],[2*ext,ext],[2*ext,0]]);
         //belt path
         hull(){
           translate([xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,0]) cylinder(h=h_space,d=22);
           translate([xy_motor_pos.x,xy_o_pulley_pos.y-base_d+ext,0]) cylinder(h=h_space,d=22);
           translate([ext/2,ext,0]) cylinder(h=h_space,d=22);
         }
+        // hole for inner pulley
         translate([xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,0]) cylinder(h=h_space,d=22);
       }
       // outer pulley spacer
@@ -794,38 +794,33 @@ module motor_support_y_up(){
     translate([base_w-xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,75-joiner_extr_depth]) rotate([180,0,0]) joiner_hole(10,60,true);
     // corner screw hole
     translate([base_w-ext/2,ext/2,35-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(37,35);
-    // base stair
-    translate([base_w-ext-printer_off,0,y_motor_z]) cube([ext+printer_off,3.5*ext,10]);
   }
 }
 module motor_support_y_down(){
   yadj=16; // motor position adjust range
   mm_d=top_d-base_d+ext; // motor mount depth
+  top_h=3; // thickness of top plate
   color(pp_color) difference(){
     union(){
       // right
-      translate([base_w-ext,0,0]) cube([ext,mm_d,y_motor_z+10]);
+      translate([base_w-ext,0,0]) cube([ext,mm_d,y_motor_z+top_h]);
       // front
       translate([base_w-5*ext,0,0]) cube([5*ext,ext,y_motor_z]);
       // top
-      translate([base_w-5*ext,0,y_motor_z]) cube([5*ext,mm_d,3]);
+      translate([base_w-5*ext,0,y_motor_z]) cube([5*ext,mm_d,top_h]);
       // back
       translate([base_w,mm_d-5.5,0]) rotate([90,0,180]) linear_extrude(5.5) polygon([[0,0],[ext,0],[5*ext,y_motor_z-10],[5*ext,y_motor_z],[0,y_motor_z]]);
       // v-slot left
       translate([base_w-ext/2,0,0]) rotate([-90,0,0]) vslot_groove(mm_d);
       // v-slot front
       translate([base_w-ext,ext/2,0]) rotate([-90,0,90]) vslot_groove(4*ext);
-      // outer pulley spacer
-      translate([base_w-xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,y_motor_z+3]) cylinder(h=belty_shift-y_motor_z-3,d2=7,d1=20);
-      // inner pulley spacer
-      translate([base_w-xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,y_motor_z+3]) cylinder(h=belty_shift-y_motor_z-3,d2=7,d1=20);
     }
     // corner screw hole
-    translate([base_w-ext/2,ext/2,50-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,50);
+    translate([base_w-ext/2,ext/2,50-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,50,print_upside=true);
     // left screw hole
-    translate([base_w-4.5*ext,ext/2,45-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,45);
+    translate([base_w-4.5*ext,ext/2,45-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(15,45,print_upside=true);
     // back screw hole
-    translate([base_w-ext/2,3*ext,70-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,70);
+    translate([base_w-ext/2,3*ext,70-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,70,print_upside=true);
     // middle front screw hole
     translate([base_w-1.5*ext,ext/2,70-joiner_extr_depth]) rotate([180,0,00]) joiner_hole(10,70);
     // motor mount holes
@@ -841,10 +836,18 @@ module motor_support_y_down(){
       }
     }
     // outer pulley hole
-    translate([base_w-xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,0]) cylinder(h=belty_shift,d=m5_hole);
+    translate([base_w-xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,-6]) cylinder(h=belty_shift+6,d=m5_hole);
     // inner pulley hole
     translate([base_w-xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,0]) cylinder(h=belty_shift,d=m5_hole);
+    // mount holes for Y end stop
+    translate([base_w-ext-1.5,0,ext]) rotate([-90,0,0]) cylinder(h=ext,d=m3_hole);
+    translate([base_w-ext-1.5,0,ext+20]) rotate([-90,0,0]) cylinder(h=ext,d=m3_hole);
+    // hole for endstop cable10x6
+    translate([base_w-ext-7,0,5]) cube([7,ext,11]);
   }
+}
+module motor_spacer_y(){
+  pulley_spacer(belty_shift-y_motor_z-3);
 }
 module motor_support_y(){
   if ($preview) {
@@ -871,6 +874,11 @@ module motor_support_y(){
   }
   translate([0,base_d-ext,base_h]) motor_support_y_down();
   translate([0,base_d-ext,base_h]) motor_support_y_up();
+
+  // outer pulley spacer
+  translate([base_w-xy_o_pulley_pos.x,xy_o_pulley_pos.y,base_h+y_motor_z+3]) motor_spacer_y();
+  // inner pulley spacer
+  translate([base_w-xy_i_pulley_pos.x,xy_i_pulley_pos.y,base_h+y_motor_z+3]) motor_spacer_y();
 }
 module motor_support_z(){
   mot_bot=z_belt_h-ext-5.5;
@@ -1152,8 +1160,9 @@ module gantry_joint_r_cf(){
   m5_screw5=8; // bottom
   m5_screw6=30; // top
   m3_screw1=6; // carriage short
-  m3_screw3=20; // carriage inner
   m3_screw2=20; // carriage outer
+  m3_screw3=20; // carriage inner
+  m3_screw4=8; // endstop
   m3_1=[20,12.7]; // inner front
   m3_2=[20,32.7]; // inner back
   m3_3=[0,12.7]; // outer front
@@ -1177,6 +1186,8 @@ module gantry_joint_r_cf(){
     translate([m3_4.x,m3_4.y,m3_screw2-3]) screw(M3_cap_screw,m3_screw2);
     // top mount
     translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) screw(M5_cap_screw,m5_screw6);
+    // endstop mount
+    #translate([ext-4,carriage_length(y_rail_carriage),10]) rotate([-90,0,0]) screw(M3_cs_cap_screw,m3_screw4);
   }
 
   // mount
@@ -1205,11 +1216,11 @@ module gantry_joint_r_cf(){
           }
         }
         // belt main path
-        translate([ext-6,0,box_h]) cube([6-x_offset,carriage_length(y_rail_carriage),16]);
+        translate([ext-6,0,box_h]) cube([6-x_offset,35,16]);
         // hole for X pulley
         translate([px_x,px_y,px_z-1]) cylinder(d=20,h=16);
         // hole for belt along tube
-        translate([-5,gantry_belt_pos-4,px_z-1]) cube([carriage_width(y_rail_carriage)+3,6,16]);
+        translate([-5,gantry_belt_pos-4,px_z-1]) cube([px_x-x_offset,6,16]);
         // space for X carriage
         translate([x_offset-2,0,box_h]) cube([3.9,32,20]);
       }
@@ -1245,7 +1256,7 @@ module gantry_joint_r_cf(){
     // M3 mouning screw - outer back
     translate([m3_2.x,m3_2.y,0]) {
       cylinder(d=3,h=m3_screw3-3);
-      translate([0,0,m3_screw3-3]) cylinder(d=6.5,h=8);
+      translate([0,0,m3_screw3-3]) cylinder(d=6.5,h=30);
     }
     // M3 mouning screw - outer front
     translate([m3_1.x,m3_1.y,0]) {
@@ -1259,6 +1270,10 @@ module gantry_joint_r_cf(){
     }
     // top M5 screw
     translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw6+5,cut_nut=false);
+    // endstop trigger mount
+    translate([ext-8-printer_off,carriage_length(y_rail_carriage)-2,5-printer_off]) cube([8+2*printer_off,2,12.6+2*printer_off]);
+    // endstop screw mount
+    translate([ext-4,carriage_length(y_rail_carriage)-2,10]) rotate([90,0,0]) cylinder(h=10,d=m3_hole);
   }
 }
 
@@ -1300,12 +1315,25 @@ module gantry_joint_r_cf_top(){
     translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw6+5,cut_nut=false);
   }
 }
+module y_endstop_trigger(){
+  color(pp_color2) translate([0,carriage_length(y_rail_carriage)-2,0])
+    difference(){
+      union(){
+        // trigger
+        translate([ext-8,0,16]) cube([8,14,1.6]);
+        // mount
+        translate([ext-8,0,5]) cube([8,2,12.6]);
+      }
+      translate([ext-4,0,10]) rotate([-90,0,0]) cylinder(d2=6.5,d1=3,h=2);
+    }
+}
 module gantry_joint_r(pulx, puly){
   if (x_gantry_type==0) {
     gantry_joint_r_vslot(pulx, puly);
   } else if (x_gantry_type==1) {
     gantry_joint_r_cf();
     gantry_joint_r_cf_top();
+    y_endstop_trigger();
   }
 }
 module gantry(){
@@ -1367,9 +1395,11 @@ module gantry(){
   translate(by3) pulley(GT2_10x20_plain_idler);
   // Y motor
   pulley_motor_space=-7.5;
-  by4=[base_w-xy_motor_pos.x,xy_motor_pos.y,base_h+belty_shift];
+  //by4=[base_w-xy_motor_pos.x,xy_motor_pos.y,base_h+belty_shift];
+  by4=[base_w-xy_motor_pos.x,xy_motor_pos.y,base_h+belty_shift-5];
   translate([by4.x,by4.y,base_h+y_motor_z]) rotate([0,0,90]) NEMA(NEMA17M);
-  translate([by4.x,by4.y,by4.z+pulley_motor_space]) pulley(GT2_10x20ob_pulley);
+  //translate([by4.x,by4.y,by4.z+pulley_motor_space]) pulley(GT2_10x20ob_pulley);
+  translate([by4.x,by4.y,by4.z+25.5]) rotate([0,180,0]) pulley(GT2_10x20ob_pulley);
   // Y idler - outer rail-motor
   by5=[base_w-ext/2,base_d+ext,base_h+belty_shift];
   translate(by5) pulley(GT2_10x20_toothed_idler);
@@ -2055,6 +2085,27 @@ module z_endstop_mount(){
     translate([ext/2,0.75*ext,h]) rotate([180,0,0]) joiner_hole(10,10);
   }
 }
+module y_endstop_mount(){
+  md=12;
+  my=11;
+  color(pp_color) difference(){
+    // main shape
+    translate([-md,my,-1]) linear_extrude(30) polygon([ [0,0], [md,0], [md,-my], [0,-2] ]);
+
+    // holes for sensor
+    translate([0,5.5,2.75]) rotate([0,-90,0]) cylinder(h=md,d=m3_hole);
+    translate([0,5.5,2.75+19.5]) rotate([0,-90,0]) cylinder(h=md,d=m3_hole);
+    // holes for motor mount
+    translate([-1.5-5,my-2,1.5]) rotate([0,-90,-90]){
+      slot(d=3+2*printer_off,h=2,l=5);
+      translate([0,0,-my+2])slot(d=6.5,h=my-2,l=5);
+    }
+    translate([-1.5-5,my-2,1.5+19.5]) rotate([0,-90,-90]){
+      slot(d=3+2*printer_off,h=2,l=5);
+      translate([0,0,-my+2])slot(d=6.5,h=my-2,l=5);
+    }
+  }
+}
 module electronics(){
   translate([0,base_d,0]){
     // PSU
@@ -2087,6 +2138,11 @@ module electronics(){
     translate([base_w-elec_support,-ext,ext*3]) rotate([90,0,0]) {
       translate([0,0,4]) optical_endstop();
       z_endstop_mount();
+    }
+    // Y end stop
+    translate([base_w-15,-ext-10,base_h+belty_shift-2-8.5]) {
+      translate([0,0,0]) rotate([0,90,0]) optical_endstop();
+      translate([0,0,-25]) y_endstop_mount();
     }
   }
 }
@@ -2149,6 +2205,9 @@ module draw_printable_parts(){
   if (render_parts==41) translate([0,0,0]) gantry_joint_r_cf();
   if (render_parts==42) translate([0,0,0]) gantry_joint_r_cf_top();
   if (render_parts==43) translate([0,0,0]) mgn9_mount_helper();
+  if (render_parts==44) translate([0,0,0]) y_endstop_trigger();
+  if (render_parts==45) translate([0,0,0]) motor_spacer_y();
+  if (render_parts==46) translate([0,0,0]) y_endstop_mount();
 }
 
 if ($preview) {
