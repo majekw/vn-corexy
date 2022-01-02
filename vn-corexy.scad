@@ -47,7 +47,7 @@ bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: Linear rails positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joiner for CF tube, 40: Left top of gantry joiner for CF tube, 41: Right gantry joiner for CF tube, 42: Right top of gantry joiner for CF tube]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joiner 1x1, 3: Joiner 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joiner, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joiner and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joiner for CF tube, 40: Left top of gantry joiner for CF tube, 41: Right gantry joiner for CF tube, 42: Right top of gantry joiner for CF tube, 43: MGN9 on CF positioning tool]
 
 /* [tweaks/hacks] */
 
@@ -1856,7 +1856,7 @@ module z_pulley_helper(){
     translate([-8.3/2,0,0]) cube([8.3,7.5,7.5]);
   }
 }
-module rail_mount_helper(){
+module mgn12_mount_helper(){
   mgn_x=12;
   mgn_y=8.20;
   wall=5;
@@ -1868,9 +1868,25 @@ module rail_mount_helper(){
     // hole for 2020
     translate([wall-printer_off,0,0]) cube([ext+2*printer_off,ext/2,th]);
     // hole for rail
-    translate([wall+ext/2-mgn_x/2-printer_off,ext/2,0]) cube([mgn_x+2*printer_off,mgn_y+printer_off,th]);
+    translate([wall+ext/2-mgn_x/2-printer_off,ext/2,0]) cube([mgn_x+2*printer_off,mgn_y+0.5,th]);
   }
 }
+module mgn9_mount_helper(){
+  mgn_x=9;
+  mgn_y=6.5;
+  wall=5;
+  th=ext/2;
+  difference(){
+    //main body
+    cube([ext+2*wall,ext/2+mgn_y+wall,th]);
+
+    // hole for CF tube
+    translate([wall-printer_off,0,0]) cube([cf_tube_size+2*printer_off,ext/2,th]);
+    // hole for rail
+    translate([wall+cf_tube_size/2-mgn_x/2-printer_off,ext/2,0]) cube([mgn_x+2*printer_off,mgn_y+0.5,th]);
+  }
+}
+
 module btt_skr_13(mot=0){
   // mot=1 - draw BTT-EXP-MOT module
   color([0.4,0,0]) {
@@ -2113,7 +2129,7 @@ module draw_printable_parts(){
   if (render_parts==0 || render_parts==21) translate([200,-40,0]) bed_to_t8(2*ext);
   if (render_parts==0 || render_parts==22) translate([250,-30,0]) z_endstop_mount();
   if (render_parts==0 || render_parts==23) translate([250,-60,0]) z_endstop_trigger();
-  if (render_parts==0 || render_parts==24) translate([250,0,0]) rail_mount_helper();
+  if (render_parts==0 || render_parts==24) translate([250,0,0]) mgn12_mount_helper();
   if (render_parts==0 || render_parts==25) translate([-140,-80,0]) motor_support_x_down();
   if (render_parts==0 || render_parts==26) translate([-200,-80,-40]) motor_support_x_up();
   if (render_parts==0 || render_parts==27) translate([-base_w-210,-80,0]) motor_support_y_down();
@@ -2131,8 +2147,8 @@ module draw_printable_parts(){
   if (render_parts==39) translate([0,0,0]) gantry_joint_l_cf();
   if (render_parts==40) translate([0,0,0]) gantry_joint_l_cf_top();
   if (render_parts==41) translate([0,0,0]) gantry_joint_r_cf();
-  //if (render_parts==42) translate([0,0,0]) gantry_joint_r_cf_top();
-
+  if (render_parts==42) translate([0,0,0]) gantry_joint_r_cf_top();
+  if (render_parts==43) translate([0,0,0]) mgn9_mount_helper();
 }
 
 if ($preview) {
