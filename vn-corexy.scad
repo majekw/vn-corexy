@@ -1262,12 +1262,50 @@ module gantry_joint_r_cf(){
   }
 }
 
+module gantry_joint_r_cf_top(){
+  px_x=ext/2; // x of Y pulley
+  py_x=px_x-belt_x_separation; // x of X pulley
+  px_y=gantry_belt_pos-pr20;
+  py_y=gantry_belt_pos+pr20;
+  px_z=beltx_shift-carriage_height(y_rail_carriage);
+  py_z=belty_shift-carriage_height(y_rail_carriage);
+  // screws
+  m5_screw1=35; // Y pulley
+  m5_screw2=50; // X pulley
+  m5_screw6=30; // top
+
+  box_h2=13+2+8;
+  color(pp_color2) difference(){
+    union(){
+      difference(){
+        hull(){
+          translate([py_x,py_y,py_z-1]) cylinder(d=15,h=box_h2);
+          translate([px_x,px_y,py_z-1]) cylinder(d=15,h=box_h2);
+          translate([py_x+3,5,py_z-1]) cylinder(d=11,h=box_h2);
+        }
+        // hole for Y idler
+        translate([py_x,py_y,py_z-1]) cylinder(d=20,h=15);
+        // belt path to gantry
+        translate([-5,gantry_belt_pos-3,py_z-1]) cube([30,6,15]);
+        // side belt path
+        translate([ext-6,0,py_z-1]) cube([6,40,15]);
+      }
+      translate([px_x,px_y,px_z+13]) pulley_spacer();
+      translate([py_x,py_y,py_z+13]) pulley_spacer();
+    }
+    // screw holes
+    translate([px_x,px_y,m5_screw2+7]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw2,print_upside=true);
+    translate([py_x,py_y,m5_screw1+22]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw1,print_upside=true);
+    // top M5 screw
+    translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw6+5,cut_nut=false);
+  }
+}
 module gantry_joint_r(pulx, puly){
   if (x_gantry_type==0) {
     gantry_joint_r_vslot(pulx, puly);
   } else if (x_gantry_type==1) {
     gantry_joint_r_cf();
-    //gantry_joint_r_cf_top();
+    gantry_joint_r_cf_top();
   }
 }
 module gantry(){
