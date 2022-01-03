@@ -155,6 +155,12 @@ VWHEEL_L = [ "V-wheel large", 24.32, 5, 16, 11.1, 20.50, 5.1, 19.40, 8.5 ];
 VWHEEL_S = [ "V-wheel small", 15.25, 5, 11, 8.90, 12.10, 6.1, 12.50, 7.0 ];
 VWHEEL = VWHEEL_L;
 
+/*
+$vpt=[ 219.26, 233.11, 232.33 ]; // viewport translate
+$vpr=[ 62.70, 0.00, 360*$t ]; // viewport rotation 67.20
+$vpd=1966.74; // viewport distance
+$vpf=22.50; // viewport fov
+*/
 module vn_logo(l_h){
   linear_extrude(l_h) import("vn.svg");
 }
@@ -1072,7 +1078,7 @@ module gantry_joint_l_cf(){
       translate([0,0,cf_above_carriage-2]) cylinder(d2=6.5,d1=3,h=2);
     }
     // top M5 screw
-    translate([py_x+3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw6+5,cut_nut=false);
+    translate([py_x+3,5,cf_above_carriage+cf_tube_size-3]) cylinder(h=m5_screw6,d=m5_hole);
   }
 }
 module gantry_joint_l_cf_top(){
@@ -1187,7 +1193,7 @@ module gantry_joint_r_cf(){
     // top mount
     translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) screw(M5_cap_screw,m5_screw6);
     // endstop mount
-    #translate([ext-4,carriage_length(y_rail_carriage),10]) rotate([-90,0,0]) screw(M3_cs_cap_screw,m3_screw4);
+    translate([ext-4,carriage_length(y_rail_carriage),10]) rotate([-90,0,0]) screw(M3_cs_cap_screw,m3_screw4);
   }
 
   // mount
@@ -1269,7 +1275,7 @@ module gantry_joint_r_cf(){
       translate([0,0,cf_above_carriage-2]) cylinder(d2=6.5,d1=3,h=2);
     }
     // top M5 screw
-    translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw6+5,cut_nut=false);
+    translate([px_x-3,5,cf_above_carriage+cf_tube_size-3]) cylinder(d=m5_hole,h=m5_screw6);
     // endstop trigger mount
     translate([ext-8-printer_off,carriage_length(y_rail_carriage)-2,5-printer_off]) cube([8+2*printer_off,2,12.6+2*printer_off]);
     // endstop screw mount
