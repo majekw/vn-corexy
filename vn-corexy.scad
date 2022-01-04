@@ -441,6 +441,11 @@ module printed_joints(){
   translate([ext,base_d/2,base_h-ext]) rotate([0,90,180]) joint1x1();
   translate([ext,base_d/2+ext,ext]) rotate([0,-90,0]) joint1x1();
   translate([0,base_d/2+ext,base_h-ext]) rotate([0,90,0]) joint1x1();
+  // right - filament support
+  translate([base_w,base_d/2,ext]) rotate([90,0,-90]) joint1x1();
+  translate([base_w,base_d/2,base_h-ext]) rotate([0,90,180]) joint1x1();
+  translate([base_w,base_d/2+ext,ext]) rotate([0,-90,0]) joint1x1();
+  translate([base_w-ext,base_d/2+ext,base_h-ext]) rotate([0,90,0]) joint1x1();
   // right
   translate([base_w,base_d-2*ext,ext]) rotate([90,0,-90]) joint2x2();
   translate([base_w,base_d-2*ext,base_h-ext]) rotate([0,90,180]) joint2x2();
@@ -494,8 +499,9 @@ module frame(){
   // back support for electronics (profile B)
   translate([elec_support,base_d-ext,ext]) ext2020(length_b);
   translate([base_w+ext-elec_support,base_d-ext,ext]) ext2020(length_b);
-  // left support for filament spool
+  // left/right support for filament spool
   translate([ext,base_d/2,ext]) ext2020(length_b);
+  translate([base_w,base_d/2,ext]) ext2020(length_b);
 
   length_d=base_d;
   echo(length_d=length_d);
