@@ -47,7 +47,7 @@ bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount]
+render_parts=0; // [0:All, 1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig]
 
 /* [tweaks/hacks] */
 
@@ -918,6 +918,20 @@ module motor_support_z(){
       translate([ext/2,ext/2+44,msl-joint_extr_depth]) rotate([180,0,0]) joint_hole(20,msl,true);
       translate([ext/2+44,ext/2+44,msl-joint_extr_depth]) rotate([180,0,0]) joint_hole(20,msl,true);
     }
+  }
+}
+module cf_m3_mount_jig(){
+  a=cf_tube_size-2*cf_tube_wall-2;
+  b=16;
+  difference(){
+    cube([a,a,b]);
+
+    // hole for M6 threaded rod
+    translate([a/2,a/2,0]) cylinder(h=b,d=5.2);
+    // hole for M3 nut
+    translate([a/2-2.82,0,b/2]) cube([5.45+0.2,4,b/2]);
+    // hole for washer
+    translate([a/2-4,0,b/2-1]) cube([8,1,b/2+1]);
   }
 }
 module gantry_joint_l_vslot(pulx, puly){
@@ -2223,6 +2237,7 @@ module draw_printable_parts(){
   if (render_parts==44) translate([0,0,0]) y_endstop_trigger();
   if (render_parts==45) translate([0,0,0]) motor_spacer_y();
   if (render_parts==46) translate([0,0,0]) y_endstop_mount();
+  if (render_parts==47) cf_m3_mount_jig();
 }
 
 if ($preview) {
