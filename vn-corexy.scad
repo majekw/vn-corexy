@@ -60,7 +60,7 @@ tnut_nut_scale=1.03;
 // make holes printable without supports
 bridge_support=true;
 // thickness of bridge layer if bridge_support is enabled
-bridge_thickness=0.25;
+bridge_thickness=0.20;
 
 // use upper ball bearings for T8 rods
 t8_upper_bearings=true;
@@ -1100,7 +1100,7 @@ module gantry_joint_l_cf_top(){
         hull(){
           translate([py_x,py_y,py_z-1]) cylinder(d=15,h=box_h2);
           translate([px_x,px_y,py_z-1]) cylinder(d=15,h=box_h2);
-          translate([py_x+3,5,py_z-1]) cylinder(d=11,h=box_h2);
+          translate([py_x+3,5,py_z-1]) cylinder(d=12,h=box_h2);
         }
         // hole for Y idler
         translate([py_x,py_y,py_z-1]) cylinder(d=20,h=15);
@@ -1116,7 +1116,7 @@ module gantry_joint_l_cf_top(){
     translate([px_x,px_y,m5_screw2+7]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw2,print_upside=true);
     translate([py_x,py_y,m5_screw1+22]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw1,print_upside=true);
     // top M5 screw
-    translate([py_x+3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw6+5,cut_nut=false);
+    translate([py_x+3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw6+5,cut_nut=false,print_upside=true);
   }
 }
 module gantry_joint_l(pulx, puly){
@@ -1302,12 +1302,12 @@ module gantry_joint_r_cf_top(){
         hull(){
           translate([py_x,py_y,py_z-1]) cylinder(d=15,h=box_h2);
           translate([px_x,px_y,py_z-1]) cylinder(d=15,h=box_h2);
-          translate([py_x+3,5,py_z-1]) cylinder(d=11,h=box_h2);
+          translate([py_x+3,5,py_z-1]) cylinder(d=12,h=box_h2);
         }
         // hole for Y idler
         translate([py_x,py_y,py_z-1]) cylinder(d=20,h=15);
         // belt path to gantry
-        translate([-5,gantry_belt_pos-3,py_z-1]) cube([30,6,15]);
+        translate([-5,gantry_belt_pos-3,py_z-1]) cube([30,7,15]);
         // side belt path
         translate([ext-6,0,py_z-1]) cube([6,40,15]);
       }
@@ -1318,7 +1318,7 @@ module gantry_joint_r_cf_top(){
     translate([px_x,px_y,m5_screw2+7]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw2,print_upside=true);
     translate([py_x,py_y,m5_screw1+22]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw1,print_upside=true);
     // top M5 screw
-    translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw6+5,cut_nut=false);
+    translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joiner_hole(10,screw_l=m5_screw6+5,cut_nut=false,print_upside=true);
   }
 }
 module y_endstop_trigger(){
