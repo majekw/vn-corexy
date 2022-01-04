@@ -2100,7 +2100,7 @@ module z_endstop_mount(){
 module y_endstop_mount(){
   md=12;
   my=11;
-  color(pp_color) difference(){
+  color(pp_color2) difference(){
     // main shape
     translate([-md,my,-1]) linear_extrude(30) polygon([ [0,0], [md,0], [md,-my], [0,-2] ]);
 
@@ -2116,6 +2116,9 @@ module y_endstop_mount(){
       slot(d=3+2*printer_off,h=2,l=5);
       translate([0,0,-my+2])slot(d=6.5,h=my-2,l=5);
     }
+    // hole for pcb elements legs
+    translate([-2,0,6.25]) cube([2,my,12]);
+
   }
 }
 module electronics(){
