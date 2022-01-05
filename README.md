@@ -22,7 +22,7 @@ Forum thread (in Polish): https://reprapy.pl/viewtopic.php?f=10&t=7225
 
 # Requirements
 - OpenScad https://www.openscad.org/
-- NopSCADlib library https://github.com/nophead/NopSCADlib
+- NopSCADlib library https://github.com/nophead/NopSCADlib (version 15.12.0)
 
 # Known issues
 - MGN12 carriage sticks 3.5mm out of frame

@@ -47,7 +47,7 @@ bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [0:All, 1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig]
+render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig]
 
 /* [tweaks/hacks] */
 
@@ -2183,52 +2183,52 @@ module draw_whole_printer(){
   electronics();
 }
 module draw_printable_parts(){
-  if (render_parts==0 || render_parts==1) translate([0,0,0]) tnut_m5();
-  if (render_parts==0 || render_parts==2) translate([10,0,0]) joint1x1();
-  if (render_parts==0 || render_parts==3) translate([40,0,0]) joint2x2();
-  if (render_parts==0 || render_parts==4) {
+  if (render_parts==1) translate([0,0,0]) tnut_m5();
+  if (render_parts==2) translate([10,0,0]) joint1x1();
+  if (render_parts==3) translate([40,0,0]) joint2x2();
+  if (render_parts==4) {
     //translate([-30,0,0]) psu_mount(45,12.5,1);
     translate([-55,0,0]) psu_mount(45,12.5,0);
     translate([-80,0,0]) psu_mount(35,12.5,1);
     translate([-105,0,0]) psu_mount(35,12.5,0);
   }
-  if (render_parts==0 || render_parts==5) translate([-30,30,0]) power_socket_mount();
-  if (render_parts==0 || render_parts==6) {
+  if (render_parts==5) translate([-30,30,0]) power_socket_mount();
+  if (render_parts==6) {
     translate([30,50,0]) rotate([-90,0,0]) control_board_mount(0);
     translate([30,75,0]) rotate([-90,0,0]) control_board_mount(1);
   }
-  if (render_parts==0 || render_parts==7) translate([100,0,0]) T8_clamp();
-  if (render_parts==0 || render_parts==8) translate([120,0,0]) T8_spacer();
-  if (render_parts==0 || render_parts==9) translate([100,50,0]) bb_support(0);
-  if (render_parts==0 || render_parts==10) translate([125,50,0]) bb_support(1);
-  if (render_parts==0 || render_parts==11) translate([140,0,0]) joint_front();
-  if (render_parts==0 || render_parts==12) translate([170,80,0]) z_pulley_support();
-  if (render_parts==0 || render_parts==13) translate([170,00,0]) motor_support_z();
-  if (render_parts==0 || render_parts==14) translate([-30,-25,0]) cable_tie(10);
-  if (render_parts==0 || render_parts==15) translate([100,-20,0]) z_pulley_helper();
-  if (render_parts==0 || render_parts==16) translate([120,-20,0]) z_wheel_mount(0);
-  if (render_parts==0 || render_parts==17) translate([120,-60,0]) z_wheel_mount(1);
-  if (render_parts==0 || render_parts==18) translate([0,-80,0]) joint_bed();
-  if (render_parts==0 || render_parts==19) translate([50,-80,0]) bed_support();
-  if (render_parts==0 || render_parts==20) translate([200,-90,0]) bed_to_t8(1.5*ext);
-  if (render_parts==0 || render_parts==21) translate([200,-40,0]) bed_to_t8(2*ext);
-  if (render_parts==0 || render_parts==22) translate([250,-30,0]) z_endstop_mount();
-  if (render_parts==0 || render_parts==23) translate([250,-60,0]) z_endstop_trigger();
-  if (render_parts==0 || render_parts==24) translate([250,0,0]) mgn12_mount_helper();
-  if (render_parts==0 || render_parts==25) translate([-140,-80,0]) motor_support_x_down();
-  if (render_parts==0 || render_parts==26) translate([-200,-80,-40]) motor_support_x_up();
-  if (render_parts==0 || render_parts==27) translate([-base_w-210,-80,0]) motor_support_y_down();
-  if (render_parts==0 || render_parts==28) translate([-base_w-320,-80,-40]) motor_support_y_up();
-  if (render_parts==0 || render_parts==29) translate([-310,0,0]) pulley_support_front_down(logo=1);
-  if (render_parts==0 || render_parts==30) translate([-110,0,0]) mirror([1,0,0]) pulley_support_front_down(logo=0);
-  if (render_parts==0 || render_parts==31) translate([-140,40,0]) pulley_spacer(1);
-  if (render_parts==0 || render_parts==32) translate([-140,50,0]) pulley_spacer(2);
-  if (render_parts==0 || render_parts==33) translate([-200,60,0]) pulley_support_front_up();
-  if (render_parts==0 || render_parts==34) translate([-210,60,0]) mirror([1,0,0]) pulley_support_front_up();
-  if (render_parts==0 || render_parts==35) translate([0,100,0]) oldham_low();
-  if (render_parts==0 || render_parts==36) translate([-30,100,0]) oldham_mid();
-  if (render_parts==0 || render_parts==37) translate([0,150,0]) oldham_hi(1.5*ext);
-  if (render_parts==0 || render_parts==38) translate([-40,150,0]) oldham_hi(2*ext);
+  if (render_parts==7) translate([100,0,0]) T8_clamp();
+  if (render_parts==8) translate([120,0,0]) T8_spacer();
+  if (render_parts==9) translate([100,50,0]) bb_support(0);
+  if (render_parts==10) translate([125,50,0]) bb_support(1);
+  if (render_parts==11) translate([140,0,0]) joint_front();
+  if (render_parts==12) translate([170,80,0]) z_pulley_support();
+  if (render_parts==13) translate([170,00,0]) motor_support_z();
+  if (render_parts==14) translate([-30,-25,0]) cable_tie(10);
+  if (render_parts==15) translate([100,-20,0]) z_pulley_helper();
+  if (render_parts==16) translate([120,-20,0]) z_wheel_mount(0);
+  if (render_parts==17) translate([120,-60,0]) z_wheel_mount(1);
+  if (render_parts==18) translate([0,-80,0]) joint_bed();
+  if (render_parts==19) translate([50,-80,0]) bed_support();
+  if (render_parts==20) translate([200,-90,0]) bed_to_t8(1.5*ext);
+  if (render_parts==21) translate([200,-40,0]) bed_to_t8(2*ext);
+  if (render_parts==22) translate([250,-30,0]) z_endstop_mount();
+  if (render_parts==23) translate([250,-60,0]) z_endstop_trigger();
+  if (render_parts==24) translate([250,0,0]) mgn12_mount_helper();
+  if (render_parts==25) translate([-140,-80,0]) motor_support_x_down();
+  if (render_parts==26) translate([-200,-80,-40]) motor_support_x_up();
+  if (render_parts==27) translate([-base_w-210,-80,0]) motor_support_y_down();
+  if (render_parts==28) translate([-base_w-320,-80,-40]) motor_support_y_up();
+  if (render_parts==29) translate([-310,0,0]) pulley_support_front_down(logo=1);
+  if (render_parts==30) translate([-110,0,0]) mirror([1,0,0]) pulley_support_front_down(logo=0);
+  if (render_parts==31) translate([-140,40,0]) pulley_spacer(1);
+  if (render_parts==32) translate([-140,50,0]) pulley_spacer(2);
+  if (render_parts==33) translate([-200,60,0]) pulley_support_front_up();
+  if (render_parts==34) translate([-210,60,0]) mirror([1,0,0]) pulley_support_front_up();
+  if (render_parts==35) translate([0,100,0]) oldham_low();
+  if (render_parts==36) translate([-30,100,0]) oldham_mid();
+  if (render_parts==37) translate([0,150,0]) oldham_hi(1.5*ext);
+  if (render_parts==38) translate([-40,150,0]) oldham_hi(2*ext);
   if (render_parts==39) translate([0,0,0]) gantry_joint_l_cf();
   if (render_parts==40) translate([0,0,0]) gantry_joint_l_cf_top();
   if (render_parts==41) translate([0,0,0]) gantry_joint_r_cf();
