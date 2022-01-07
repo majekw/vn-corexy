@@ -1,7 +1,7 @@
 # vn-corexy
 Very Narrow CoreXY 3D Printer
 
-![vn-corexy rendering](img/vn-corexy-20220103.png)
+![vn-corexy rendering](img/vn-corexy-animated-20220105.gif)
 
 vn-corexy is designed around 300x300 mm build plate with goal to be
 as compact as possible with focus on width. Current dimensions are
