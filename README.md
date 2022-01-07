@@ -16,13 +16,13 @@ There are also ECHO messages in console that can be used to prepare BOM,
 for example there are messages with all lengths of specific extrusion types,
 GT2 belt lengts are also calculated.
 
-**WARNING: WORK IN PROGRESS**
+**WARNING: THIS IS WORK IN PROGRESS**
 
 Forum thread (in Polish): https://reprapy.pl/viewtopic.php?f=10&t=7225
 
 # Requirements
 - OpenScad https://www.openscad.org/
-- NopSCADlib library https://github.com/nophead/NopSCADlib (version 15.12.0)
+- NopSCADlib library https://github.com/nophead/NopSCADlib (version 18.2.0)
 
 # Known issues
 - MGN12 carriage sticks 3.5mm out of frame

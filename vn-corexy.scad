@@ -134,6 +134,8 @@ oldham_w_h=5; // wedge height
 fpc_z=20+30; // FPC connector mount Z relative to top of frame
 fpc_x=base_w-42; // X position of PFC connector on Y motor
 
+// optical endstop holes
+optical_endstop_holes=[[2.75,5.1],[2.75+19,5.1]];
 
 // Extra stuff not in NopSCADlib
 // 688RS ball bearings (8x16x5)
@@ -603,7 +605,7 @@ module extruder_bowden_type(){
   // motor
   translate([0,0,30]) rotate([90,45,0]) nema14_round();
   // X endstop
-  translate([3.5,28.5,60]) rotate([-90,0,-90]) optical_endstop();
+  translate([3.5,28.5,60]) rotate([-90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
   translate([0,hot_y-17,hot_z-48]) rotate([90,0,0]) omerod_sensor();
 
@@ -621,9 +623,6 @@ module extruder_bowden_type(){
   // FPC board
   translate([0,41,fpc_z-carriage_height(MGN12H_carriage)-20+2.5]) rotate([-90,0,0]) screw(M3_cap_screw,8);
   translate([0,41,fpc_z-carriage_height(MGN12H_carriage)+20-2.5]) rotate([-90,0,0]) screw(M3_cap_screw,8);
-  // X endstop
-  translate([8.5,26,55]) rotate([0,90,0]) screw(M3_cap_screw,8);
-  translate([8.5,26-19.5,55]) rotate([0,90,0]) screw(M3_cap_screw,8);
 }
 module fpc30_pcb(){
   pcb_w=26;
@@ -2227,7 +2226,7 @@ module cable_tie(sl=joint_screw_len){
     }
   }
 }
-module optical_endstop(){
+module optical_endstop(screws=false){
   difference(){
     union(){
       // pcb
@@ -2242,9 +2241,12 @@ module optical_endstop(){
       translate([30,5.1,0]) rotate([180,0,-90]) jst_xh_header(jst_xh_header,3);
     }
     // holes
-    translate([2.75,5.1,0]) cylinder(h=5,d=3.2);
-    translate([2.75+19,5.1,0]) cylinder(h=5,d=3.2);
+    for (i=[0:1])
+      translate([optical_endstop_holes[i].x,optical_endstop_holes[i].y,0]) cylinder(h=5,d=3.2);
   }
+  if (screws)
+    for (i=[0:1])
+      translate([optical_endstop_holes[i].x,optical_endstop_holes[i].y,1.5+3.20]) screw(M3_cap_screw,8);  
 }
 module z_endstop_mount(){
   scr_len=10;
@@ -2258,8 +2260,8 @@ module z_endstop_mount(){
     translate([6.25,0,2]) cube([12,10.2,2]);
 
     // holes for M3
-    translate([2.75,5.1,0]) cylinder(h=5,d=m3_hole);
-    translate([2.75+19,5.1,0]) cylinder(h=5,d=m3_hole);
+    for (i=[0:1])
+      translate([optical_endstop_holes[i].x,optical_endstop_holes[i].y,0]) cylinder(h=5,d=m3_hole);
     // hole for mounting screw
     translate([ext/2,0.75*ext,h]) rotate([180,0,0]) joint_hole(10,10);
   }
@@ -2272,8 +2274,8 @@ module y_endstop_mount(){
     translate([-md,my,-1]) linear_extrude(30) polygon([ [0,0], [md,0], [md,-my], [0,-2] ]);
 
     // holes for sensor
-    translate([0,5.5,2.75]) rotate([0,-90,0]) cylinder(h=md,d=m3_hole);
-    translate([0,5.5,2.75+19.5]) rotate([0,-90,0]) cylinder(h=md,d=m3_hole);
+    for (i=[0:1])
+      translate([0,my-optical_endstop_holes[i].y-0.4,optical_endstop_holes[i].x]) rotate([0,-90,0]) cylinder(h=md,d=m3_hole);
     // holes for motor mount
     translate([-1.5-5,my-2,1.5]) rotate([0,-90,-90]){
       slot(d=3+2*printer_off,h=2,l=5);
@@ -2318,12 +2320,12 @@ module electronics(){
 
     // Z end stop
     translate([base_w-elec_support,-ext,ext*3]) rotate([90,0,0]) {
-      translate([0,0,4]) optical_endstop();
+      translate([0,0,4]) optical_endstop(screws=true);
       z_endstop_mount();
     }
     // Y end stop
     translate([base_w-15,-ext-10,base_h+belty_shift-2-8.5]) {
-      translate([0,0,0]) rotate([0,90,0]) optical_endstop();
+      translate([0,0,0]) rotate([0,90,0]) optical_endstop(screws=true);
       translate([0,0,-25]) y_endstop_mount();
     }
     // FPC mount
