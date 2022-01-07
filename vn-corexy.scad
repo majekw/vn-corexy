@@ -137,6 +137,9 @@ fpc_x=base_w-42; // X position of PFC connector on Y motor
 // optical endstop holes
 optical_endstop_holes=[[2.75,5.1],[2.75+19,5.1]];
 
+// handy rails vars
+MGN9_holes=[[-8,-7.5],[-8,7.5],[8,-7.5],[8,7.5]];
+
 // Extra stuff not in NopSCADlib
 // 688RS ball bearings (8x16x5)
 BB688=["688", 8, 16, 5, "black", 1.4, 2.0];
@@ -588,10 +591,36 @@ module omerod_sensor(){
   // capacitor
   translate([-1.7,-oh/2+3,0]) color("grey") cylinder(d=5.1,h=8.15);
 }
+module fpc30_pcb(screw_l=8){
+  pcb_w=26;
+  pcb_d=40;
+  translate([-pcb_w/2,-pcb_d/2,0]) {
+    difference(){
+      color("green") cube([pcb_w,pcb_d,1.5]);
+
+      //holes
+      translate([9,2.5,0]) cylinder(h=1.5,d=3.25);
+      translate([9,2.5+34.8,0]) cylinder(h=1.5,d=3.25);
+    }
+    translate([21,pcb_d/2,0]) rotate([0,0,90]) pin_header(2p54header, 15, 2);
+    translate([3,pcb_d/2,1.5]) rotate([0,0,90]) flat_flex([[30,1.25], [37,1.5,2.5], [30,4.0,2.5], [36,0,2.5]]);
+
+    // FPC board screws
+    translate([9,2.5,1.5]) screw(M3_cap_screw,screw_l);
+    translate([9,2.5+34.8,1.5]) screw(M3_cap_screw,screw_l);
+  }
+}
 module extruder_bowden_type(){
+  // coordinated relative to:
+  // X: center of X carriage
+  // Y: from start of Y carriage
+  // Z: from top of Y carriage
+
+  z_zero=cf_above_carriage+cf_tube_size+carriage_height(MGN12H_carriage);
+  // hotend position
   hot_y=-20;
   hot_z=-10;
-  // E3d
+  // E3D
   translate([0,hot_y,hot_z]) rotate([0,0,-90]) hot_end(E3Dv6, 1.75, bowden = true,resistor_wire_rotate = [0,0,0], naked = true);
   // hotend cooling fan
   translate([0,hot_y-19,hot_z-19]) rotate([90,0,0]) fan(fan40x11);
@@ -610,34 +639,19 @@ module extruder_bowden_type(){
   translate([0,hot_y-17,hot_z-48]) rotate([90,0,0]) omerod_sensor();
 
   // screws
-  // rear fan
+  // rear fan screw
   translate([17.5-1.5,32,-10]) rotate([0,90,0]) {
     screw(M3_cap_screw,35);
     translate([0,0,-34.5]) nut(M3_nut);
   }
-  // front fan
+  // front fan screw
   translate([17.5-1.5,32-35.25,-10]) rotate([0,90,0]) {
     screw(M3_cap_screw,35);
     translate([0,0,-34.5]) nut(M3_nut);
   }
-  // FPC board
-  translate([0,41,fpc_z-carriage_height(MGN12H_carriage)-20+2.5]) rotate([-90,0,0]) screw(M3_cap_screw,8);
-  translate([0,41,fpc_z-carriage_height(MGN12H_carriage)+20-2.5]) rotate([-90,0,0]) screw(M3_cap_screw,8);
-}
-module fpc30_pcb(){
-  pcb_w=26;
-  pcb_d=40;
-  translate([-pcb_w/2,-pcb_d/2,0]) {
-    difference(){
-      color("green") cube([pcb_w,pcb_d,1.5]);
-
-      //holes
-      translate([9,2.5,0]) cylinder(h=1.5,d=3.25);
-      translate([9,2.5+34.8,0]) cylinder(h=1.5,d=3.25);
-    }
-    translate([21,pcb_d/2,0]) rotate([0,0,90]) pin_header(2p54header, 15, 2);
-    translate([3,pcb_d/2,1.5]) rotate([0,0,90]) flat_flex([[30,1.25], [37,1.5,2.5], [30,4.0,2.5], [36,0,2.5]]);
-  }
+  // MGN9 screws
+  for (i=[0:3])
+    translate([MGN9_holes[i].x,MGN9_holes[i].y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+26]) screw(M3_cs_cap_screw,6);
 }
 module extruder_mount_base_mgn9(){
   plate_w=36;
@@ -936,8 +950,6 @@ module motor_support_y_up(){
       translate([-xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,h_space-1]) cylinder(h=1,d=7);
       // inner pulley spacer
       translate([-xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,h_space-1]) cylinder(h=1,d=7);
-      // mount for FPC board
-      //translate([-2.6*ext,0,0]) cube([0.6*ext,ext/2,h_space+8]);
     }
 
      // back screw hole
@@ -1032,9 +1044,6 @@ module motor_support_y(){
     translate([base_w-4.5*ext,base_d-ext/2,base_h+m5_screw5-5]) screw(M5_cap_screw,m5_screw5);
     // motor screws
     translate([base_w-xy_motor_pos.x,xy_motor_pos.y,base_h+y_motor_z+3]) NEMA_screw_positions(NEMA17M) screw(M3_cap_screw,8);
-    // FPC screws
-    translate([fpc_x-4,base_d-ext-1.5,base_h+fpc_z-17.5]) rotate([90,0,0]) screw(M3_cap_screw,8);
-    translate([fpc_x-4,base_d-ext-1.5,base_h+fpc_z-17.5+34.8]) rotate([90,0,0]) screw(M3_cap_screw,8);
   }
   translate([0,base_d-ext,base_h]) motor_support_y_down();
   translate([0,base_d-ext,base_h]) motor_support_y_up();
@@ -1607,12 +1616,14 @@ module gantry(){
       translate([base_w/2,ext*0.5+5,ext+3.5]) rotate([0,0,0]) rail_assembly(MGN12H_carriage,x_rail_l,carriage_pos_x);
     } else if (x_gantry_type==1 ) {
       // cf tube + MGN9
-      cf_len=base_w+7;
+      // CF tube
+      cf_len=base_w+carriage_width(MGN12H_carriage)-20;
       echo("CF tube length",cf_len);
       translate([(base_w-cf_len)/2,cf_from_front,cf_above_carriage]) color([0.1,0.1,0.1]) difference(){
         cube([cf_len,cf_tube_size,cf_tube_size]);
         translate([0,cf_tube_wall,cf_tube_wall]) cube([cf_len,cf_tube_size-2*cf_tube_wall,cf_tube_size-2*cf_tube_wall]);
       }
+      // MGN9 rail
       translate([base_w/2,cf_tube_size/2+cf_from_front,cf_tube_size+cf_above_carriage]) rotate([0,0,0]) rail_assembly(MGN9H_carriage,x_rail_l,carriage_pos_x);
     }
     // gantry joints
