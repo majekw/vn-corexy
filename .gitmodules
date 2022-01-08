@@ -1,0 +1,3 @@
+[submodule "Sailfin-Extruder"]
+	path = Sailfin-Extruder
+	url = https://github.com/CroXY3D/Sailfin-Extruder

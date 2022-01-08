@@ -22,8 +22,8 @@ build_z=310;
 /* [hotend] */
 hotend_w=50;
 hotend_d=70;
-hotend_type=1; // [0:with BMG extruder, 1: bowden type]
-hotend_nozzle=67-hotend_type*30; //distance from gantry to nozzle
+hotend_type=1; // [0:with BMG extruder, 1: with Sailfin extruder]
+hotend_nozzle=67-hotend_type*17; //distance from gantry to nozzle
 /* [frame] */
 // extrusions family size
 ext=20;
@@ -540,6 +540,32 @@ module bmg_extruder(){
   bmg_side_points=[[0,0],[20,0],[20,26],[16,54],[4,54],[0,26]];
   translate([20,-29,-3]) rotate([95,0,90]) color(bmg_color) linear_extrude(height=5, center=true) polygon(bmg_side_points);
 }
+module sailfin_extruder(part=0,clr="#00aaff"){
+  // Zero at bottom of filament output
+  // bounding box: x=-17.7:23.7
+  //#translate([-17.7,-14.4,0]) cube([41.4,27.6,47.3]);
+
+  // imported parts
+  translate([-4.4,13.2,15]) rotate([0,-90,90]) color(clr){
+    if ((part==0)||(part==1)) import("Sailfin-Extruder/STL/Front.stl");
+    if ((part==0)||(part==2)) rotate([0,90,90]) import("Sailfin-Extruder/STL/Lever.stl");
+    if ((part==0)||(part==3)) import("Sailfin-Extruder/STL/Mid.stl");
+    if ((part==0)||(part==4)) import("Sailfin-Extruder/STL/Rear.stl");
+  }
+
+  if ($preview) {
+    //screws
+    // right mount
+    translate([19,-2.9,7.1]) rotate([0,0,0]) screw(M3_cap_screw,10);
+    // left mount
+    translate([-14,-2.9,7.1]) rotate([0,0,0]) screw(M3_cap_screw,10);
+    // main gear
+    translate([-4.4,10,15.0]) rotate([90,0,0]) color("gray"){
+      cylinder(h=3,d=26);
+      translate([0,0,-3]) cylinder(h=27,d=7);
+    }
+  }
+}
 module extruder_with_bmg(){
   translate([0,-36,-4]) rotate([0,0,90]) hot_end(E3Dv6, 1.75, bowden = false,resistor_wire_rotate = [0,0,0], naked = false);
   translate([-6,-12,8]) {
@@ -610,15 +636,15 @@ module fpc30_pcb(screw_l=8){
     translate([9,2.5+34.8,1.5]) screw(M3_cap_screw,screw_l);
   }
 }
-module extruder_bowden_type(){
-  // coordinated relative to:
+module extruder_with_sailfin(){
+  // coordinates relative to:
   // X: center of X carriage
   // Y: from start of Y carriage
   // Z: from top of Y carriage
 
   z_zero=cf_above_carriage+cf_tube_size+carriage_height(MGN12H_carriage);
   // hotend position
-  hot_y=-20;
+  hot_y=-35;
   hot_z=-10;
   // E3D
   translate([0,hot_y,hot_z]) rotate([0,0,-90]) hot_end(E3Dv6, 1.75, bowden = true,resistor_wire_rotate = [0,0,0], naked = true);
@@ -632,7 +658,7 @@ module extruder_bowden_type(){
   // fpc socket board
   translate([4,40,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
   // motor
-  translate([0,0,30]) rotate([90,45,0]) nema14_round();
+  translate([5.5,hot_y+33,hot_z+36.5]) rotate([90,50,0]) nema14_round();
   // X endstop
   translate([3.5,28.5,60]) rotate([-90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
@@ -652,6 +678,8 @@ module extruder_bowden_type(){
   // MGN9 screws
   for (i=[0:3])
     translate([MGN9_holes[i].x,MGN9_holes[i].y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+26]) screw(M3_cs_cap_screw,6);
+  // Sailfin extruder
+  translate([0,hot_y,hot_z+10]) sailfin_extruder(clr=pp_color2);
 }
 module extruder_mount_base_mgn9(){
   plate_w=36;
@@ -699,7 +727,7 @@ module extruder(){
   } else
   if (hotend_type==1) {
     extruder_mount_base_mgn9();
-    extruder_bowden_type();
+    extruder_with_sailfin();
   }
 }
 module pulley_spacer(h=1) {
