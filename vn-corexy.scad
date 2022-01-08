@@ -167,7 +167,7 @@ VWHEEL = VWHEEL_L;
 /*
 $vpt=[ 219.26, 233.11, 232.33 ]; // viewport translate
 $vpr=[ 62.70, 0.00, 360*$t ]; // viewport rotation 67.20
-$vpd=1966.74; // viewport distance
+$vpd=1770.74; // viewport distance
 $vpf=22.50; // viewport fov
 */
 module vn_logo(l_h){
@@ -691,7 +691,7 @@ module extruder_mount_base_mgn9(){
         // back plate
         translate([0,plate_d-4,-5]) cube([plate_w,4,plate_h]);
         // mgn mount
-        #translate([0,0,3.6+20+carriage_height(MGN9H_carriage)]) cube([plate_w,plate_d,2.5]); // or 4.5
+        translate([0,0,3.6+20+carriage_height(MGN9H_carriage)]) cube([plate_w,plate_d,2.5]); // or 4.5
         // bottom plate
         translate([0,-11,-2-3]) cube([plate_w,plate_d+11,3]);
       }
