@@ -165,7 +165,7 @@ VWHEEL_S = [ "V-wheel small", 15.25, 5, 11, 8.90, 12.10, 6.1, 12.50, 7.0 ];
 VWHEEL = VWHEEL_L;
 
 /*
-$vpt=[ 219.26, 233.11, 232.33 ]; // viewport translate
+$vpt=[ 195, 260, 230 ]; // viewport translate
 $vpr=[ 62.70, 0.00, 360*$t ]; // viewport rotation 67.20
 $vpd=1770.74; // viewport distance
 $vpf=22.50; // viewport fov
