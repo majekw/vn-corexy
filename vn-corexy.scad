@@ -47,7 +47,7 @@ bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig]
+render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9]
 
 /* [tweaks/hacks] */
 
@@ -645,9 +645,9 @@ module extruder_with_sailfin(){
   z_zero=cf_above_carriage+cf_tube_size+carriage_height(MGN12H_carriage);
   // hotend position
   hot_y=-35;
-  hot_z=-10;
+  hot_z=-4;
   // E3D
-  translate([0,hot_y,hot_z]) rotate([0,0,-90]) hot_end(E3Dv6, 1.75, bowden = true,resistor_wire_rotate = [0,0,0], naked = true);
+  translate([0,hot_y,hot_z]) rotate([0,0,-90]) hot_end(E3Dv6, 1.75, bowden = false,resistor_wire_rotate = [0,0,0], naked = true);
   // hotend cooling fan
   translate([0,hot_y-19,hot_z-19]) rotate([90,0,0]) fan(fan40x11);
   // part cooling fans
@@ -658,11 +658,13 @@ module extruder_with_sailfin(){
   // fpc socket board
   translate([4,40,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
   // motor
-  translate([5.5,hot_y+33,hot_z+36.5]) rotate([90,50,0]) nema14_round();
+  translate([5.5,hot_y+33,26.5]) rotate([90,50,0]) nema14_round();
   // X endstop
   translate([3.5,28.5,62]) rotate([-90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
   translate([0,hot_y-17,hot_z-48]) rotate([90,0,0]) omerod_sensor();
+  // Sailfin extruder
+  translate([0,hot_y,0]) sailfin_extruder(clr=pp_color2);
 
   // screws
   // rear fan screw
@@ -677,30 +679,31 @@ module extruder_with_sailfin(){
   }
   // MGN9 screws
   for (i=[0:3])
-    translate([MGN9_holes[i].x,MGN9_holes[i].y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+26]) screw(M3_cs_cap_screw,6);
-  // Sailfin extruder
-  translate([0,hot_y,hot_z+10]) sailfin_extruder(clr=pp_color2);
+    translate([MGN9_holes[i].x,MGN9_holes[i].y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20+2.5]) screw(M3_cs_cap_screw,6);
 }
 module extruder_mount_base_mgn9(){
   plate_w=36;
   plate_h=67;
-  plate_d=gantry_belt_pos-cf_from_front-2.5; // 2.5=2xbeld thickness
+  plate_d=gantry_belt_pos-cf_from_front-2.5; // 2.5=2xbelt thickness
+  mgn9plate_z=cf_above_carriage+20+carriage_height(MGN9H_carriage);
   color(pp_color2) difference(){
     union(){
       translate([-plate_w/2,cf_from_front,0]){
         // back plate
         translate([0,plate_d-4,-5]) cube([plate_w,4,plate_h]);
         // mgn mount
-        translate([0,0,3.6+20+carriage_height(MGN9H_carriage)]) cube([plate_w,plate_d,2.5]); // or 4.5
+        translate([0,-1,mgn9plate_z]) cube([plate_w,plate_d,2.5]); // or 4.5
         // bottom plate
         translate([0,-11,-2-3]) cube([plate_w,plate_d+11,3]);
       }
       // reinforcements
       translate([0,plate_d+1,-2]) rotate([90,0,-90]) triangle(h=plate_w,a=3);
-      translate([0,plate_d+1,3.6+20+carriage_height(MGN9H_carriage)+2.5]) rotate([90,0,-90]) triangle(h=plate_w,a=3);
-      translate([0,plate_d+1,3.6+20+carriage_height(MGN9H_carriage)]) rotate([-90,0,-90]) triangle(h=plate_w,a=3);
-      // X endstop mount
-      translate([-1.5,cf_from_front,3.6+20+carriage_height(MGN9H_carriage)+2.5]) cube([3,plate_d,26]);
+      translate([0,plate_d+1,mgn9plate_z+2.5]) rotate([90,0,-90]) triangle(h=plate_w,a=3);
+      translate([0,plate_d+1,mgn9plate_z]) rotate([-90,0,-90]) triangle(h=plate_w,a=3);
+      // X endstop mount plate
+      translate([-1.5,cf_from_front-1,mgn9plate_z+2.5]) cube([3,plate_d,26]);
+      translate([1.5,cf_from_front-1,mgn9plate_z+2.5+16]) cube([2,6,10]);
+      translate([1.5,cf_from_front+plate_d-10,mgn9plate_z+2.5+16]) cube([2,6,10]);
       //fan back mounts
       hull(){
         translate([13,32,-10]) rotate([0,90,0]) cylinder(h=3,d=7);
@@ -713,11 +716,11 @@ module extruder_mount_base_mgn9(){
       // fan front mounts
       translate([-13-1.5,-6,-5]) rotate([0,90,0]) triangle(h=3,a=13);
       translate([13+1.5,-6,-5]) rotate([0,90,0]) triangle(h=3,a=13);
-      // front bottom mouning
-      translate([plate_w/2-3.5,-6,-5+3.5]) rotate([-90,0,0]) cylinder(d=7,h=10);
-      translate([-plate_w/2+3.5,-6,-5+3.5]) rotate([-90,0,0]) cylinder(d=7,h=10);
+      // front bottom mounting
+      translate([plate_w/2-3.5,-6,-5+3.5]) rotate([-90,0,0]) cylinder(d=7,h=9);
+      translate([-plate_w/2+3.5,-6,-5+3.5]) rotate([-90,0,0]) cylinder(d=7,h=9);
       // belt mount
-      translate([-15,gantry_belt_pos-2.5,beltx_shift-22]) cube([30,5,44]);
+      translate([-15,gantry_belt_pos-2.5,beltx_shift-22]) cube([30,5,46]);
       // lowet zip tie mount
       translate([-5,gantry_belt_pos-2.5,0]) cube([10,5,16]);
     }
@@ -725,6 +728,8 @@ module extruder_mount_base_mgn9(){
 
     // lower cable hole
     translate([0,35,-3]) rotate([45,0,0]) translate([-10,-15,0]) cube([20,30,3]);
+    // upper cable hole
+    translate([-2,43,58]) rotate([0,0,0]) translate([-10,-15,0]) cube([10,10,2.5]);
     // lowet zip tie hole
     translate([-5,gantry_belt_pos-2.5,4]) cube([10,3,5]);
     // belt mount vertical hole
@@ -732,6 +737,27 @@ module extruder_mount_base_mgn9(){
     // belt mount holes
     translate([-plate_w/2,gantry_belt_pos-2.5,beltx_shift-12]) cube([plate_w,2.5,11]);
     translate([-plate_w/2,gantry_belt_pos-2.5,belty_shift-12]) cube([plate_w,2.5,11]);
+     // X endstop screw holes
+    for (i=[0:1])
+      translate([7,28.5-optical_endstop_holes[i].x,-optical_endstop_holes[i].y+62]) rotate([0,-90,0]) cylinder(h=10,d=m3_hole);
+    // zip tie holes behind endstop
+    translate([-1.5,25,48]) rotate([0,0,0]) cube([3,3,3]);
+    translate([-1.5,25,39]) rotate([0,0,0]) cube([3,3,3]);
+    translate([-1.5,15.5,48]) rotate([0,0,0]) cube([3,3,3]);
+    translate([-1.5,15.5,39]) rotate([0,0,0]) cube([3,3,3]);
+    translate([-1.5,6,48]) rotate([0,0,0]) cube([3,3,3]);
+    translate([-1.5,6,39]) rotate([0,0,0]) cube([3,3,3]);
+    // holes for MGN9 screwa
+    for (i=[0:3])
+      translate([MGN9_holes[i].x,MGN9_holes[i].y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20]) {
+        translate([0,0,0.5]) cylinder(d2=6.5,d1=3,h=2);
+        cylinder(d=3,h=0.5);
+      }
+    // FPC holes
+    translate([4+9-13,40-2,20+1.5]) rotate([90,0,0]) {
+      cylinder(h=10,d=m3_hole);
+      translate([0,34.8,0]) cylinder(h=10,d=m3_hole);
+    }
   }
 }
 module extruder(){
@@ -1390,7 +1416,7 @@ module gantry_joint_r_cf(){
   m3_screw1=6; // carriage short
   m3_screw2=20; // carriage outer
   m3_screw3=20; // carriage inner
-  m3_screw4=8; // endstop
+  m3_screw4=8; // endstops
   m3_1=[20,12.7]; // inner front
   m3_2=[20,32.7]; // inner back
   m3_3=[0,12.7]; // outer front
@@ -1414,8 +1440,10 @@ module gantry_joint_r_cf(){
     translate([m3_4.x,m3_4.y,m3_screw2-3]) screw(M3_cap_screw,m3_screw2);
     // top mount
     translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) screw(M5_cap_screw,m5_screw6);
-    // endstop mount
+    // Y endstop mount
     translate([ext-4,carriage_length(y_rail_carriage),10]) rotate([-90,0,0]) screw(M3_cs_cap_screw,m3_screw4);
+    // X endstop mount
+    translate([-2,23,57]) rotate([0,-90,0]) screw(M3_cs_cap_screw,m3_screw4);
   }
 
   // mount
@@ -2458,6 +2486,7 @@ module draw_printable_parts(){
   if (render_parts==45) translate([0,0,0]) motor_spacer_y();
   if (render_parts==46) translate([0,0,0]) y_endstop_mount();
   if (render_parts==47) cf_m3_mount_jig();
+  if (render_parts==48) extruder_mount_base_mgn9();
 }
 
 if ($preview) {
