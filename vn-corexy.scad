@@ -131,7 +131,7 @@ oldham_margin=2.0; // space between coupler and outer shape of printer
 oldham_w_h=5; // wedge height
 
 // FPC board
-fpc_z=20+30; // FPC connector mount Z relative to top of frame
+fpc_z=20+31.5; // FPC connector mount Z relative to top of frame
 fpc_x=base_w-42; // X position of PFC connector on Y motor
 
 // optical endstop holes
@@ -651,7 +651,7 @@ module extruder_with_sailfin(){
   // hotend cooling fan
   translate([0,hot_y-19,hot_z-19]) rotate([90,0,0]) fan(fan40x11);
   // part cooling fans
-  translate([0,-5,-47]) rotate([90,0,90]) {
+  translate([0,-5,-48]) rotate([90,0,90]) {
     blower(PE4020);
     translate([40,0,0]) rotate([0,180,0]) blower(PE4020);
   }
@@ -660,7 +660,7 @@ module extruder_with_sailfin(){
   // motor
   translate([5.5,hot_y+33,hot_z+36.5]) rotate([90,50,0]) nema14_round();
   // X endstop
-  translate([3.5,28.5,60]) rotate([-90,0,-90]) optical_endstop(screws=true);
+  translate([3.5,28.5,62]) rotate([-90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
   translate([0,hot_y-17,hot_z-48]) rotate([90,0,0]) omerod_sensor();
 
@@ -683,7 +683,7 @@ module extruder_with_sailfin(){
 }
 module extruder_mount_base_mgn9(){
   plate_w=36;
-  plate_h=65;
+  plate_h=67;
   plate_d=gantry_belt_pos-cf_from_front-2.5; // 2.5=2xbeld thickness
   color(pp_color2) difference(){
     union(){
@@ -700,15 +700,15 @@ module extruder_mount_base_mgn9(){
       translate([0,plate_d+1,3.6+20+carriage_height(MGN9H_carriage)+2.5]) rotate([90,0,-90]) triangle(h=plate_w,a=3);
       translate([0,plate_d+1,3.6+20+carriage_height(MGN9H_carriage)]) rotate([-90,0,-90]) triangle(h=plate_w,a=3);
       // X endstop mount
-      translate([-1.5,cf_from_front,3.6+20+carriage_height(MGN9H_carriage)+2.5]) cube([3,plate_d,24]);
+      translate([-1.5,cf_from_front,3.6+20+carriage_height(MGN9H_carriage)+2.5]) cube([3,plate_d,26]);
       //fan back mounts
       hull(){
         translate([13,32,-10]) rotate([0,90,0]) cylinder(h=3,d=7);
-        translate([13,29,-4]) rotate([0,90,0]) cylinder(h=3,d=7);
+        translate([13,30,-4]) rotate([0,90,0]) cylinder(h=3,d=7);
       }
       hull(){
         translate([-13,32,-10]) rotate([0,-90,0]) cylinder(h=3,d=7);
-        translate([-13,29,-4]) rotate([0,-90,0]) cylinder(h=3,d=7);
+        translate([-13,30,-4]) rotate([0,-90,0]) cylinder(h=3,d=7);
       }
       // fan front mounts
       translate([-13-1.5,-6,-5]) rotate([0,90,0]) triangle(h=3,a=13);
@@ -718,7 +718,20 @@ module extruder_mount_base_mgn9(){
       translate([-plate_w/2+3.5,-6,-5+3.5]) rotate([-90,0,0]) cylinder(d=7,h=10);
       // belt mount
       translate([-15,gantry_belt_pos-2.5,beltx_shift-22]) cube([30,5,44]);
+      // lowet zip tie mount
+      translate([-5,gantry_belt_pos-2.5,0]) cube([10,5,16]);
     }
+    // HOLES
+
+    // lower cable hole
+    translate([0,35,-3]) rotate([45,0,0]) translate([-10,-15,0]) cube([20,30,3]);
+    // lowet zip tie hole
+    translate([-5,gantry_belt_pos-2.5,4]) cube([10,3,5]);
+    // belt mount vertical hole
+    translate([-5,gantry_belt_pos-2.5,beltx_shift-15]) cube([10,5,31]);
+    // belt mount holes
+    translate([-plate_w/2,gantry_belt_pos-2.5,beltx_shift-12]) cube([plate_w,2.5,11]);
+    translate([-plate_w/2,gantry_belt_pos-2.5,belty_shift-12]) cube([plate_w,2.5,11]);
   }
 }
 module extruder(){
@@ -1528,18 +1541,24 @@ module gantry_joint_r_cf_top(){
     translate([py_x,py_y,m5_screw1+22]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw1,print_upside=true);
     // top M5 screw
     translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw6+5,cut_nut=false,print_upside=true);
+    // X endstop trigger mount
+    translate([-2,14.5,61-9]) {
+      cube([2,14.6,11]);
+      translate([2,8.5,4+1]) rotate([0,90,0]) cylinder(h=12,d=m3_hole);
+    }
   }
 }
-module y_endstop_trigger(){
-  color(pp_color2) translate([0,carriage_length(y_rail_carriage)-2,0])
+module xy_endstop_trigger(){
+  color(pp_color2)
     difference(){
       union(){
         // trigger
-        translate([ext-8,0,16]) cube([8,14,1.6]);
+        translate([0,0,11]) cube([8,14,1.6]);
         // mount
-        translate([ext-8,0,5]) cube([8,2,12.6]);
+        translate([0,0,0]) cube([8,2,12.6]);
       }
-      translate([ext-4,0,10]) rotate([-90,0,0]) cylinder(d2=6.5,d1=3,h=2);
+      // screw hole
+      translate([4,0,5]) rotate([-90,0,0]) cylinder(d2=6.5,d1=3,h=2);
     }
 }
 module gantry_joint_r(pulx, puly){
@@ -1548,7 +1567,10 @@ module gantry_joint_r(pulx, puly){
   } else if (x_gantry_type==1) {
     gantry_joint_r_cf();
     gantry_joint_r_cf_top();
-    y_endstop_trigger();
+    // Y trigger
+    translate([12,carriage_length(y_rail_carriage)-2,5]) xy_endstop_trigger();
+    // X trigger
+    translate([0,28,53]) rotate([0,-90,90]) xy_endstop_trigger();
   }
 }
 module gantry(){
@@ -1656,7 +1678,9 @@ module gantry(){
     }
     // gantry joints
     translate([0,0,0]) {
+      // left
       gantry_joint_l([bx2.x,bx2.y-real_y,bx2.z-g_shift_z],[by8.x,by8.y-real_y,by8.z-g_shift_z]);
+      // right
       translate([base_w-ext,0,0]) gantry_joint_r([bx8.x-(base_w-ext),bx8.y-real_y,bx8.z-g_shift_z],[by2.x-(base_w-ext),by2.y-real_y,by2.z-g_shift_z]);
     }
     // Extruder and mount
@@ -2430,7 +2454,7 @@ module draw_printable_parts(){
   if (render_parts==41) translate([0,0,0]) gantry_joint_r_cf();
   if (render_parts==42) translate([0,0,0]) gantry_joint_r_cf_top();
   if (render_parts==43) translate([0,0,0]) mgn9_mount_helper();
-  if (render_parts==44) translate([0,0,0]) y_endstop_trigger();
+  if (render_parts==44) translate([0,0,0]) xy_endstop_trigger();
   if (render_parts==45) translate([0,0,0]) motor_spacer_y();
   if (render_parts==46) translate([0,0,0]) y_endstop_mount();
   if (render_parts==47) cf_m3_mount_jig();
