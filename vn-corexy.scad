@@ -163,7 +163,8 @@ large_rocker   = ["large_rocker", "Some large rocker found in drawer", 22, 28, 2
 VWHEEL_L = [ "V-wheel large", 24.32, 5, 16, 11.1, 20.50, 5.1, 19.40, 8.5 ];
 VWHEEL_S = [ "V-wheel small", 15.25, 5, 11, 8.90, 12.10, 6.1, 12.50, 7.0 ];
 VWHEEL = VWHEEL_L;
-
+// blower - Pengda other type
+PE4020C = ["PE4020C", "Blower Pengda Technology 4020 - custom", 40, 40, 19.3, 27.5, M3_cap_screw, 22, [21.5, 20], 3.1, [[37.7,2.60],[2.60,37.8],[37.7,37.8]], 29.3, 17,  1.5, 1.2, 1.3, 12.9];
 /*
 $vpt=[ 195, 260, 230 ]; // viewport translate
 $vpr=[ 62.70, 0.00, 360*$t ]; // viewport rotation 67.20
@@ -192,6 +193,12 @@ module vslot_wheel(wheel){
 }
 module triangle(a,h){
   translate([0,0,-h/2]) linear_extrude(h) polygon([[0,0], [a,0], [0,a]]);
+}
+module round_corner(r,h){
+  difference(){
+    cube([r,r,h]);
+    translate([r,r,0]) cylinder(r=r,h=h);
+  }
 }
 module vtriangle(){
     polygon([[-vtr/2,0],[vtr/2,0],[0,vtr/2]]);
@@ -557,8 +564,10 @@ module sailfin_extruder(part=0,clr="#00aaff"){
     //screws
     // right mount
     translate([19,-2.9,7.1]) rotate([0,0,0]) screw(M3_cap_screw,10);
+    //translate([16.1,-13,4.5]) rotate([90,0,0]) screw(M3_cap_screw,35);
     // left mount
     translate([-14,-2.9,7.1]) rotate([0,0,0]) screw(M3_cap_screw,10);
+    //translate([-14.3,-6,3.4]) rotate([90,0,0]) screw(M3_cap_screw,30);
     // main gear
     translate([-4.4,10,15.0]) rotate([90,0,0]) color("gray"){
       cylinder(h=3,d=26);
@@ -636,6 +645,59 @@ module fpc30_pcb(screw_l=8){
     translate([9,2.5+34.8,1.5]) screw(M3_cap_screw,screw_l);
   }
 }
+module blower_to_v6(blower_type=PE4020C){
+  v6_d=22.3;
+  v6_h=26;
+  shroud_d=40;
+  shroud_h=36;
+  shroud_z_shift=1;
+  color(pp_color) difference(){
+    union(){
+      // main shape
+      hull(){
+        // front
+        translate([-11.15,-10,-13+7]) rotate([-90,0,0]) cube([23.1,26+7,0.1]);
+        // back
+        hull(){
+          translate([-shroud_d/2+2.5,13,shroud_h/2-25-2.5+shroud_z_shift]) rotate([90,0,0]) cylinder(h=0.1,d=5);
+          translate([-shroud_d/2+2.5,13,-shroud_h/2-25+2.5+shroud_z_shift]) rotate([90,0,0]) cylinder(h=0.1,d=5);
+          translate([shroud_d/2-2.5,13,-shroud_h/2-25+2.5+shroud_z_shift]) rotate([90,0,0]) cylinder(h=0.1,d=5);
+          translate([shroud_d/2-2.5,13,shroud_h/2-25-2.5+shroud_z_shift]) rotate([90,0,0]) cylinder(h=0.1,d=5);
+        }
+      }
+      // blower mounts
+      translate([20,33-13,-4]) rotate([-90,0,180])
+        for (p=blower_screw_holes(blower_type))
+          translate([p.x,p.y,0]) cylinder(h=7+7,d=5);
+    }
+
+    // main air hole
+    hull(){
+      translate([-v6_d/2,0,-14]) rotate([-90,0,0]) cube([v6_d,v6_h-2,0.1]);
+      translate([-1.5,13,-24]) rotate([-90,0,0]) cylinder(d=28,h=0.1);
+    }
+    // hole for V6
+    translate([0,0,-39-6]) cylinder(h=v6_h+0.3+6,d=v6_d+2*printer_off);
+    translate([0,0,-6-7]) cylinder(d=16+2*printer_off,h=7);
+    // bottom hole
+    translate([0,-7.2,-39-6]) cylinder(d=36,h=6);
+    // screw holes
+    translate([20,33-13,-4]) rotate([-90,0,180])
+      for (p=blower_screw_holes(blower_type)) {
+        // holes for M3
+        translate([p.x,p.y,0]) cylinder(h=7+7,d=3.1);
+        // holes for head of M3
+        translate([p.x,p.y,14]) cylinder(h=10,d=6);
+      }
+    // air inlet
+    translate([-v6_d/2+1,-10,-v6_h-13]) cube([v6_d-2,5,v6_h]);
+  }
+  // screws
+  if ($preview){
+    for (p=blower_screw_holes(blower_type))
+      translate([20,33-13,-4]) rotate([-90,0,180]) translate([p.x,p.y,14]) screw(M3_cap_screw,30);
+  }
+}
 module extruder_with_sailfin(){
   // coordinates relative to:
   // X: center of X carriage
@@ -644,16 +706,18 @@ module extruder_with_sailfin(){
 
   z_zero=cf_above_carriage+cf_tube_size+carriage_height(MGN12H_carriage);
   // hotend position
-  hot_y=-35;
+  hot_y=-43;
   hot_z=-4;
   // E3D
-  translate([0,hot_y,hot_z]) rotate([0,0,-90]) hot_end(E3Dv6, 1.75, bowden = false,resistor_wire_rotate = [0,0,0], naked = true);
+  translate([0,hot_y,hot_z]) rotate([0,0,180]) hot_end(E3Dv6, 1.75, bowden = false,resistor_wire_rotate = [0,0,0], naked = true);
   // hotend cooling fan
-  translate([0,hot_y-19,hot_z-19]) rotate([90,0,0]) fan(fan40x11);
+  translate([20,hot_y+33,hot_z-5]) rotate([-90,0,180]) blower(PE4020C);
+  // cooling fan shroud
+  translate([0,hot_y,hot_z]) blower_to_v6();
   // part cooling fans
   translate([0,-5,-48]) rotate([90,0,90]) {
-    blower(PE4020);
-    translate([40,0,0]) rotate([0,180,0]) blower(PE4020);
+    blower(PE4020C);
+    translate([40,0,0]) rotate([0,180,0]) blower(PE4020C);
   }
   // fpc socket board
   translate([4,40,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
@@ -662,9 +726,9 @@ module extruder_with_sailfin(){
   // X endstop
   translate([3.5,28.5,62]) rotate([-90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
-  translate([0,hot_y-17,hot_z-48]) rotate([90,0,0]) omerod_sensor();
+  translate([0,hot_y-19,hot_z-49]) rotate([90,0,0]) omerod_sensor(); // 3.5mm from block
   // Sailfin extruder
-  translate([0,hot_y,0]) sailfin_extruder(clr=pp_color2);
+  translate([0,hot_y,0]) rotate([0,0,0]) sailfin_extruder(clr=pp_color2);
 
   // screws
   // rear fan screw
@@ -850,6 +914,8 @@ module pulley_support_front_up(){
     }
     // hole for M3 allen key
     translate([ext/2,ext*2.5+12.5,0]) cylinder(h=fh,d=5);
+    // rounded corner
+    round_corner(r=10,h=fh);
   }
 }
 module pulley_support_front(side=0,logo=0){
