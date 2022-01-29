@@ -689,7 +689,7 @@ module blower_to_v6(blower_type=PE4020C){
       translate([-1.5,13,-24]) rotate([-90,0,0]) cylinder(d=28,h=0.1);
     }
     // hole for V6
-    translate([0,0,-39-6]) cylinder(h=v6_h+0.3+6,d=v6_d+2*printer_off);
+    translate([0,0,-39-6]) cylinder(h=v6_h+0.3+6+printer_off,d=v6_d+2*printer_off);
     translate([0,0,-6-7]) cylinder(d=16+2*printer_off,h=7);
     // bottom hole
     translate([0,12.8-40/2,-39-6]) cylinder(d=40,h=6);
@@ -704,7 +704,7 @@ module blower_to_v6(blower_type=PE4020C){
     // air inlet
     translate([-v6_d/2+1,-10.1,-v6_h-13]) cube([v6_d-2,5.1,v6_h]);
     // space for V6 top mount
-    translate([-12,-10-0.1,-7.5]) cube([24,20,2]);
+    translate([-13,-10-0.1,-7.5]) cube([26,22,2]);
     // sensor mount screw holes
     translate([-13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=m2_hole);
     translate([13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=m2_hole);
@@ -733,14 +733,14 @@ module extruder_with_sailfin(){
   }
   // fpc socket board
   translate([4,40,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
-  // motor
-  translate([5.5,hot_y+33,26.5]) rotate([90,50,0]) nema14_round();
   // X endstop
   translate([3.5,28.5,62]) rotate([-90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
   translate([0,hot_y-19,hot_z-49]) rotate([90,0,0]) omerod_sensor(); // 3.5mm from block
   // Sailfin extruder
-  translate([0,hot_y,0]) rotate([0,0,0]) sailfin_extruder(clr=pp_color2);
+  translate([0,hot_y,2]) rotate([0,0,0]) sailfin_extruder(clr=pp_color2);
+  // motor
+  translate([5.5,hot_y+33,28.5]) rotate([90,50,0]) nema14_round();
 
   // screws
   // rear fan screw
