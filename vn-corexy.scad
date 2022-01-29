@@ -47,7 +47,7 @@ bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9]
+render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer]
 
 /* [tweaks/hacks] */
 
@@ -116,6 +116,7 @@ t8_frame_dist=2.5; // distance from frame to start of T8 screw
 t8_bb_offset=1.5; // space from start of T8 to ball bearing
 m5_hole=4.75; // hole for direct M5 screw without tapping
 m3_hole=2.75; // hole for direct M3 screw without tapping
+m2_hole=1.7; // hole for direct M2 screw without tapping
 bed_z=base_h-2*ext-10-pos_z; // bed Z position
 
 // Carbon fiber tube private variables
@@ -165,6 +166,7 @@ VWHEEL_S = [ "V-wheel small", 15.25, 5, 11, 8.90, 12.10, 6.1, 12.50, 7.0 ];
 VWHEEL = VWHEEL_L;
 // blower - Pengda other type
 PE4020C = ["PE4020C", "Blower Pengda Technology 4020 - custom", 40, 40, 19.3, 27.5, M3_cap_screw, 22, [21.5, 20], 3.1, [[37.7,2.60],[2.60,37.8],[37.7,37.8]], 29.3, 17,  1.5, 1.2, 1.3, 12.9];
+hotend_blower=PE4020C;
 /*
 $vpt=[ 195, 260, 230 ]; // viewport translate
 $vpr=[ 62.70, 0.00, 360*$t ]; // viewport rotation 67.20
@@ -645,6 +647,13 @@ module fpc30_pcb(screw_l=8){
     translate([9,2.5+34.8,1.5]) screw(M3_cap_screw,screw_l);
   }
 }
+module blower_spacer(){
+  bs_h=blower_depth(hotend_blower)-blower_lug(hotend_blower);
+  color(pp_color2) difference(){
+    cylinder(d=6,h=bs_h);
+    cylinder(d=3+2*printer_off,h=bs_h);
+  }
+}
 module blower_to_v6(blower_type=PE4020C){
   v6_d=22.3;
   v6_h=26;
@@ -656,7 +665,7 @@ module blower_to_v6(blower_type=PE4020C){
       // main shape
       hull(){
         // front
-        translate([-11.15,-10,-13+7]) rotate([-90,0,0]) cube([23.1,26+7,0.1]);
+        translate([-10.5,-10,-13+7]) rotate([-90,0,0]) cube([21,26+7,0.1]);
         // back
         hull(){
           translate([-shroud_d/2+2.5,13,shroud_h/2-25-2.5+shroud_z_shift]) rotate([90,0,0]) cylinder(h=0.1,d=5);
@@ -666,12 +675,15 @@ module blower_to_v6(blower_type=PE4020C){
         }
       }
       // blower mounts
-      translate([20,33-13,-4]) rotate([-90,0,180])
+      translate([20,33-13-7,-4]) rotate([-90,0,180])
         for (p=blower_screw_holes(blower_type))
-          translate([p.x,p.y,0]) cylinder(h=7+7,d=5);
+          translate([p.x,p.y,0]) cylinder(h=7,d=6);
+      // sensor mount
+      translate([-13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=4);
+      translate([13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=4);
     }
 
-    // main air hole
+    // main air hole from blower
     hull(){
       translate([-v6_d/2,0,-14]) rotate([-90,0,0]) cube([v6_d,v6_h-2,0.1]);
       translate([-1.5,13,-24]) rotate([-90,0,0]) cylinder(d=28,h=0.1);
@@ -680,22 +692,22 @@ module blower_to_v6(blower_type=PE4020C){
     translate([0,0,-39-6]) cylinder(h=v6_h+0.3+6,d=v6_d+2*printer_off);
     translate([0,0,-6-7]) cylinder(d=16+2*printer_off,h=7);
     // bottom hole
-    translate([0,-7.2,-39-6]) cylinder(d=36,h=6);
+    translate([0,12.8-40/2,-39-6]) cylinder(d=40,h=6);
     // screw holes
     translate([20,33-13,-4]) rotate([-90,0,180])
       for (p=blower_screw_holes(blower_type)) {
         // holes for M3
-        translate([p.x,p.y,0]) cylinder(h=7+7,d=3.1);
+        translate([p.x,p.y,7]) cylinder(h=7,d=3+2*printer_off);
         // holes for head of M3
         translate([p.x,p.y,14]) cylinder(h=10,d=6);
       }
     // air inlet
-    translate([-v6_d/2+1,-10,-v6_h-13]) cube([v6_d-2,5,v6_h]);
-  }
-  // screws
-  if ($preview){
-    for (p=blower_screw_holes(blower_type))
-      translate([20,33-13,-4]) rotate([-90,0,180]) translate([p.x,p.y,14]) screw(M3_cap_screw,30);
+    translate([-v6_d/2+1,-10.1,-v6_h-13]) cube([v6_d-2,5.1,v6_h]);
+    // space for V6 top mount
+    translate([-12,-10-0.1,-7.5]) cube([24,20,2]);
+    // sensor mount screw holes
+    translate([-13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=m2_hole);
+    translate([13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=m2_hole);
   }
 }
 module extruder_with_sailfin(){
@@ -711,7 +723,7 @@ module extruder_with_sailfin(){
   // E3D
   translate([0,hot_y,hot_z]) rotate([0,0,180]) hot_end(E3Dv6, 1.75, bowden = false,resistor_wire_rotate = [0,0,0], naked = true);
   // hotend cooling fan
-  translate([20,hot_y+33,hot_z-5]) rotate([-90,0,180]) blower(PE4020C);
+  translate([20,hot_y+33-(20-blower_depth(hotend_blower)),hot_z-4.0]) rotate([-90,0,180]) blower(hotend_blower);
   // cooling fan shroud
   translate([0,hot_y,hot_z]) blower_to_v6();
   // part cooling fans
@@ -744,6 +756,14 @@ module extruder_with_sailfin(){
   // MGN9 screws
   for (i=[0:3])
     translate([MGN9_holes[i].x,MGN9_holes[i].y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20+2.5]) screw(M3_cs_cap_screw,6);
+  // hotend blower screws and spacers
+  for (p=blower_screw_holes(hotend_blower)) {
+    translate([20,33-13+hot_y,-4+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) screw(M3_cap_screw,30);
+    translate([20,33.3+hot_y,-4+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) blower_spacer();
+  }
+  // sensor screws to shroud
+  translate([-13,-21+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
+  translate([13,-21+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
 }
 module extruder_mount_base_mgn9(){
   plate_w=36;
@@ -2553,6 +2573,8 @@ module draw_printable_parts(){
   if (render_parts==46) translate([0,0,0]) y_endstop_mount();
   if (render_parts==47) cf_m3_mount_jig();
   if (render_parts==48) extruder_mount_base_mgn9();
+  if (render_parts==49) blower_to_v6();
+  if (render_parts==50) blower_spacer();
 }
 
 if ($preview) {
