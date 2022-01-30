@@ -123,6 +123,8 @@ bed_z=base_h-2*ext-10-pos_z; // bed Z position
 cf_above_carriage=3.5; // height of cf above carriage
 cf_from_front=5; // distance from front of carriage
 
+hotend_carriage_w=36;
+
 // oldham coupler
 oldham_w=ext*1.3; // width of oldham coupler
 oldham_d=ext*1.2; // depth of oldham coupler (without margin)
@@ -623,8 +625,10 @@ module omerod_sensor(){
     translate([-9.25,oh/2-2.65,0]) cylinder(h=1.5,d=3);
     translate([9.25,oh/2-2.65,0]) cylinder(h=1.5,d=3);
   }
-  // socket
-  translate([-2.4,oh/2-2.65,0]) rotate([0,0,0]) pin_header(2p54header, 3, 1);
+  // socket original
+  //translate([-2.4,oh/2-2.65,0]) rotate([0,0,0]) pin_header(2p54header, 3, 1);
+  // socket right angle
+  translate([-2.4,oh/2-2.65,1.5]) rotate([0,0,180]) pin_header(2p54header, 3, 1, right_angle = true);
   // capacitor
   translate([-1.7,-oh/2+3,0]) color("grey") cylinder(d=5.1,h=8.15);
 }
@@ -710,6 +714,22 @@ module blower_to_v6(blower_type=PE4020C){
     translate([13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=m2_hole);
   }
 }
+module hotend_mount_mgn9(){
+  // coordinates relative to:
+  // X: center of X carriage
+  // Y: from start of Y carriage
+  // Z: from top of Y carriage
+  #color(pp_color2) difference(){
+    union(){
+      // back plate
+      translate([-hotend_carriage_w/2,-3-6,-49]) cube([hotend_carriage_w,3,88]);
+      // carriage mount
+      translate([-hotend_carriage_w/2,-6,36]) cube([hotend_carriage_w,31.5,3]);
+      // v6/extruder plate
+      translate([-hotend_carriage_w/2,-6-3-45,-10+2]) cube([hotend_carriage_w,45,10]);
+    }
+  }
+}
 module extruder_with_sailfin(){
   // coordinates relative to:
   // X: center of X carriage
@@ -762,28 +782,28 @@ module extruder_with_sailfin(){
     translate([20,33.3+hot_y,-4+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) blower_spacer();
   }
   // sensor screws to shroud
-  translate([-13,-21+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
-  translate([13,-21+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
+  translate([-13,-21.5+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
+  translate([13,-21.5+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
 }
 module extruder_mount_base_mgn9(){
-  plate_w=36;
+  //plate_w=36;
   plate_h=67;
   plate_d=gantry_belt_pos-cf_from_front-2.5; // 2.5=2xbelt thickness
   mgn9plate_z=cf_above_carriage+20+carriage_height(MGN9H_carriage);
   color(pp_color2) difference(){
     union(){
-      translate([-plate_w/2,cf_from_front,0]){
+      translate([-hotend_carriage_w/2,cf_from_front,0]){
         // back plate
-        translate([0,plate_d-4,-5]) cube([plate_w,4,plate_h]);
+        translate([0,plate_d-4,-5]) cube([hotend_carriage_w,4,plate_h]);
         // mgn mount
-        translate([0,-1,mgn9plate_z]) cube([plate_w,plate_d,2.5]); // or 4.5
+        translate([0,-1,mgn9plate_z]) cube([hotend_carriage_w,plate_d,2.5]); // or 4.5
         // bottom plate
-        translate([0,-11,-2-3]) cube([plate_w,plate_d+11,3]);
+        translate([0,-11,-2-3]) cube([hotend_carriage_w,plate_d+11,3]);
       }
       // reinforcements
-      translate([0,plate_d+1,-2]) rotate([90,0,-90]) triangle(h=plate_w,a=3);
-      translate([0,plate_d+1,mgn9plate_z+2.5]) rotate([90,0,-90]) triangle(h=plate_w,a=3);
-      translate([0,plate_d+1,mgn9plate_z]) rotate([-90,0,-90]) triangle(h=plate_w,a=3);
+      translate([0,plate_d+1,-2]) rotate([90,0,-90]) triangle(h=hotend_carriage_w,a=3);
+      translate([0,plate_d+1,mgn9plate_z+2.5]) rotate([90,0,-90]) triangle(h=hotend_carriage_w,a=3);
+      translate([0,plate_d+1,mgn9plate_z]) rotate([-90,0,-90]) triangle(h=hotend_carriage_w,a=3);
       // X endstop mount plate
       translate([-1.5,cf_from_front-1,mgn9plate_z+2.5]) cube([3,plate_d,26]);
       translate([1.5,cf_from_front-1,mgn9plate_z+2.5+16]) cube([2,6,10]);
@@ -801,8 +821,8 @@ module extruder_mount_base_mgn9(){
       translate([-13-1.5,-6,-5]) rotate([0,90,0]) triangle(h=3,a=13);
       translate([13+1.5,-6,-5]) rotate([0,90,0]) triangle(h=3,a=13);
       // front bottom mounting
-      translate([plate_w/2-3.5,-6,-5+3.5]) rotate([-90,0,0]) cylinder(d=7,h=9);
-      translate([-plate_w/2+3.5,-6,-5+3.5]) rotate([-90,0,0]) cylinder(d=7,h=9);
+      translate([hotend_carriage_w/2-3.5,-6,-5+3.5]) rotate([-90,0,0]) cylinder(d=7,h=9);
+      translate([-hotend_carriage_w/2+3.5,-6,-5+3.5]) rotate([-90,0,0]) cylinder(d=7,h=9);
       // belt mount
       translate([-15,gantry_belt_pos-2.5,beltx_shift-22]) cube([30,5,46]);
       // lowet zip tie mount
@@ -819,8 +839,8 @@ module extruder_mount_base_mgn9(){
     // belt mount vertical hole
     translate([-5,gantry_belt_pos-2.5,beltx_shift-15]) cube([10,5,31]);
     // belt mount holes
-    translate([-plate_w/2,gantry_belt_pos-2.5,beltx_shift-12]) cube([plate_w,2.5,11]);
-    translate([-plate_w/2,gantry_belt_pos-2.5,belty_shift-12]) cube([plate_w,2.5,11]);
+    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,beltx_shift-12]) cube([hotend_carriage_w,2.5,11]);
+    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,belty_shift-12]) cube([hotend_carriage_w,2.5,11]);
      // X endstop screw holes
     for (i=[0:1])
       translate([7,28.5-optical_endstop_holes[i].x,-optical_endstop_holes[i].y+62]) rotate([0,-90,0]) cylinder(h=10,d=m3_hole);
@@ -850,6 +870,7 @@ module extruder(){
   } else
   if (hotend_type==1) {
     extruder_mount_base_mgn9();
+    hotend_mount_mgn9();
     extruder_with_sailfin();
   }
 }
