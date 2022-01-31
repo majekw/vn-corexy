@@ -117,6 +117,7 @@ t8_bb_offset=1.5; // space from start of T8 to ball bearing
 m5_hole=4.75; // hole for direct M5 screw without tapping
 m3_hole=2.75; // hole for direct M3 screw without tapping
 m2_hole=1.7; // hole for direct M2 screw without tapping
+m3_insert=3.8; // hole for M3 heat insert
 bed_z=base_h-2*ext-10-pos_z; // bed Z position
 
 // Carbon fiber tube private variables
@@ -551,17 +552,17 @@ module bmg_extruder(){
   bmg_side_points=[[0,0],[20,0],[20,26],[16,54],[4,54],[0,26]];
   translate([20,-29,-3]) rotate([95,0,90]) color(bmg_color) linear_extrude(height=5, center=true) polygon(bmg_side_points);
 }
-module sailfin_extruder(part=0,clr="#00aaff"){
+module sailfin_extruder(part=0,color1="#00aaff",color2="00ffaa"){
   // Zero at bottom of filament output
   // bounding box: x=-17.7:23.7
   //#translate([-17.7,-14.4,0]) cube([41.4,27.6,47.3]);
 
   // imported parts
-  translate([-4.4,13.2,15]) rotate([0,-90,90]) color(clr){
-    if ((part==0)||(part==1)) import("Sailfin-Extruder/STL/Front.stl");
-    if ((part==0)||(part==2)) rotate([0,90,90]) import("Sailfin-Extruder/STL/Lever.stl");
-    if ((part==0)||(part==3)) import("Sailfin-Extruder/STL/Mid.stl");
-    if ((part==0)||(part==4)) import("Sailfin-Extruder/STL/Rear.stl");
+  translate([-4.4,13.2,15]) rotate([0,-90,90]) {
+    if ((part==0)||(part==1)) color(color1) import("Sailfin-Extruder/STL/Front.stl");
+    if ((part==0)||(part==2)) color(color2) rotate([0,90,90]) import("Sailfin-Extruder/STL/Lever.stl");
+    if ((part==0)||(part==3)) color(color1) import("Sailfin-Extruder/STL/Mid.stl");
+    if ((part==0)||(part==4)) color(color1) import("Sailfin-Extruder/STL/Rear.stl");
   }
 
   if ($preview) {
@@ -572,6 +573,44 @@ module sailfin_extruder(part=0,clr="#00aaff"){
     // left mount
     translate([-14,-2.9,7.1]) rotate([0,0,0]) screw(M3_cap_screw,10);
     //translate([-14.3,-6,3.4]) rotate([90,0,0]) screw(M3_cap_screw,30);
+    // main gear
+    translate([-4.4,10,15.0]) rotate([90,0,0]) color("gray"){
+      cylinder(h=3,d=26);
+      translate([0,0,-3]) cylinder(h=27,d=7);
+    }
+  }
+}
+module mrf_extruder(part=0,color1="#00aaff",color2="#00ffaa"){
+  // Zero at bottom of filament output
+  // bounding box: x=-17.7:23.7
+  //#translate([-17.7,-14.4,0]) cube([41.4,27.6,47.3]);
+
+  // imported parts
+  if ((part==0)||(part==1)) color(color1) translate([121.7,132.8,76.4]) rotate([90,0,0]) import("MRF/3.stl"); // front
+  if ((part==0)||(part==2)) color(color2) translate([155.4,108.2,22.1]) rotate([-90,0,90]) import("MRF/4.stl"); // lever
+  if ((part==0)||(part==3)) color(color1) translate([-4.5,150.6,86.5]) rotate([90,-90,0]) import("MRF/2.stl"); // mid
+  if ((part==0)||(part==4)) color(color1) translate([-59.8,158.6,94]) rotate([90,-90,0]) import("MRF/1.stl"); // rear
+  if ((part==0)||(part==5)) color(color2) translate([-33.0,-155.9,-99.6]) rotate([-90,90,0])import("MRF/5.stl"); // lock
+
+  if ($preview) {
+    //screws
+    // right mount
+    translate([20,-2.7,6.6]) rotate([0,0,0]) screw(M3_cap_screw,10);
+    // left mount
+    translate([-14,-2.7,7.6]) rotate([0,0,0]) screw(M3_cap_screw,10);
+    // front left
+    translate([-4.5,-14.7,5.2]) rotate([90,0,0]) screw(M3_cap_screw,20);
+    // front right
+    translate([15.9,-14.7,4.5]) rotate([90,0,0]) screw(M3_cap_screw,30);
+    // lever (back)
+    translate([7.5,14.5,3.5]) rotate([-90,0,0]) screw(M3_cap_screw,30);
+    // front center
+    translate([0,-14.7,24.3]) rotate([90,0,0]) screw(M3_cap_screw,10);
+    // lock
+    translate([0,-14.7,38.6]) rotate([90,0,0]) screw(M3_cap_screw,10);
+    // left rear
+    translate([-15.0,14.5,3.5]) rotate([-90,0,0]) screw(M3_cap_screw,14);
+
     // main gear
     translate([-4.4,10,15.0]) rotate([90,0,0]) color("gray"){
       cylinder(h=3,d=26);
@@ -719,15 +758,31 @@ module hotend_mount_mgn9(){
   // X: center of X carriage
   // Y: from start of Y carriage
   // Z: from top of Y carriage
-  #color(pp_color2) difference(){
+  color(pp_color) difference(){
     union(){
-      // back plate
-      translate([-hotend_carriage_w/2,-3-6,-49]) cube([hotend_carriage_w,3,88]);
+      // lower back plate
+      translate([-hotend_carriage_w/2,-3-6,-49]) cube([hotend_carriage_w,3,61]);
+      // upper back plate
+      translate([-hotend_carriage_w/2,-3-6+4,14]) cube([hotend_carriage_w,3,25.5]);
+      // connection between upper and lower back plate
+      translate([0,-7,14]) rotate([0,90,0]) triangle(h=hotend_carriage_w,a=5);
+      translate([0,-4,12]) rotate([0,-90,180]) triangle(h=hotend_carriage_w,a=5);
       // carriage mount
-      translate([-hotend_carriage_w/2,-6,36]) cube([hotend_carriage_w,31.5,3]);
+      translate([-hotend_carriage_w/2,-2,36]) cube([hotend_carriage_w,27.5,3.5]);
       // v6/extruder plate
-      translate([-hotend_carriage_w/2,-6-3-45,-10+2]) cube([hotend_carriage_w,45,10]);
+      translate([-hotend_carriage_w/2,-6-45-3,-10+2]) cube([hotend_carriage_w+2,45+3,10]);
     }
+
+    // holes
+
+    // fan holes
+    for (i=[0:3])
+      translate([-9+i*7,-29,-10+2-0.05]) cube([6.2,17,10.1]);
+    // lower front cable hole
+    translate([0,-7,0]) rotate([-45,0,0]) translate([-10,-15,0]) cube([20,30,7]);
+    // hotend back plate screws to carriage
+    translate([-14,-6,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
+    translate([14,-6,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
   }
 }
 module extruder_with_sailfin(){
@@ -752,30 +807,32 @@ module extruder_with_sailfin(){
     translate([40,0,0]) rotate([0,180,0]) blower(PE4020C);
   }
   // fpc socket board
-  translate([4,40,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
+  //translate([4,40,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
   // X endstop
   translate([3.5,28.5,62]) rotate([-90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
   translate([0,hot_y-19,hot_z-49]) rotate([90,0,0]) omerod_sensor(); // 3.5mm from block
   // Sailfin extruder
-  translate([0,hot_y,2]) rotate([0,0,0]) sailfin_extruder(clr=pp_color2);
+  translate([0,hot_y,2]) rotate([0,0,0]) sailfin_extruder(color1=pp_color2,color2=pp_color);
+  // MRF extruder
+  //translate([0,hot_y,2]) rotate([0,0,0]) mrf_extruder(color1=pp_color2,color2=pp_color);
   // motor
   translate([5.5,hot_y+33,28.5]) rotate([90,50,0]) nema14_round();
 
   // screws
-  // rear fan screw
-  translate([17.5-1.5,32,-10]) rotate([0,90,0]) {
-    screw(M3_cap_screw,35);
-    translate([0,0,-34.5]) nut(M3_nut);
-  }
-  // front fan screw
-  translate([17.5-1.5,32-35.25,-10]) rotate([0,90,0]) {
-    screw(M3_cap_screw,35);
-    translate([0,0,-34.5]) nut(M3_nut);
+  // part cooling fan screws
+  for (i=[1,2]) {
+    p=blower_screw_holes(PE4020C)[i];
+    translate([16,p.x-5,p.y-48]) rotate([90,0,90]) {
+      screw(M3_cap_screw,35);
+      translate([0,0,-34.5]) nut(M3_nut);
+    }
   }
   // MGN9 screws
-  for (i=[0:3])
-    translate([MGN9_holes[i].x,MGN9_holes[i].y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20+2.5]) screw(M3_cs_cap_screw,6);
+  for (c=MGN9_holes) {
+    //translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20+2.5]) screw(M3_cs_cap_screw,6);
+    translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20+6]) screw(M3_cap_screw,10);
+  }
   // hotend blower screws and spacers
   for (p=blower_screw_holes(hotend_blower)) {
     translate([20,33-13+hot_y,-4+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) screw(M3_cap_screw,30);
@@ -784,9 +841,11 @@ module extruder_with_sailfin(){
   // sensor screws to shroud
   translate([-13,-21.5+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
   translate([13,-21.5+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
+  // hotend back plate screws to carriage
+  translate([-14,-9,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
+  translate([14,-9,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
 }
 module extruder_mount_base_mgn9(){
-  //plate_w=36;
   plate_h=67;
   plate_d=gantry_belt_pos-cf_from_front-2.5; // 2.5=2xbelt thickness
   mgn9plate_z=cf_above_carriage+20+carriage_height(MGN9H_carriage);
@@ -799,9 +858,12 @@ module extruder_mount_base_mgn9(){
         translate([0,-1,mgn9plate_z]) cube([hotend_carriage_w,plate_d,2.5]); // or 4.5
         // bottom plate
         translate([0,-11,-2-3]) cube([hotend_carriage_w,plate_d+11,3]);
+        // hotend mount
+        translate([0,-11,-2]) cube([hotend_carriage_w,5,11.5]);
       }
       // reinforcements
       translate([0,plate_d+1,-2]) rotate([90,0,-90]) triangle(h=hotend_carriage_w,a=3);
+      translate([0,-1,-2]) rotate([0,-90,0]) triangle(h=hotend_carriage_w,a=7);
       translate([0,plate_d+1,mgn9plate_z+2.5]) rotate([90,0,-90]) triangle(h=hotend_carriage_w,a=3);
       translate([0,plate_d+1,mgn9plate_z]) rotate([-90,0,-90]) triangle(h=hotend_carriage_w,a=3);
       // X endstop mount plate
@@ -820,9 +882,6 @@ module extruder_mount_base_mgn9(){
       // fan front mounts
       translate([-13-1.5,-6,-5]) rotate([0,90,0]) triangle(h=3,a=13);
       translate([13+1.5,-6,-5]) rotate([0,90,0]) triangle(h=3,a=13);
-      // front bottom mounting
-      translate([hotend_carriage_w/2-3.5,-6,-5+3.5]) rotate([-90,0,0]) cylinder(d=7,h=9);
-      translate([-hotend_carriage_w/2+3.5,-6,-5+3.5]) rotate([-90,0,0]) cylinder(d=7,h=9);
       // belt mount
       translate([-15,gantry_belt_pos-2.5,beltx_shift-22]) cube([30,5,46]);
       // lowet zip tie mount
@@ -830,17 +889,19 @@ module extruder_mount_base_mgn9(){
     }
     // HOLES
 
-    // lower cable hole
+    // lower back cable hole
     translate([0,35,-3]) rotate([45,0,0]) translate([-10,-15,0]) cube([20,30,3]);
+    // lower front cable hole
+    translate([0,-7,0]) rotate([-45,0,0]) translate([-10,-15,0]) cube([20,30,7]);
     // upper cable hole
     translate([-2,43,58]) rotate([0,0,0]) translate([-10,-15,0]) cube([10,10,2.5]);
-    // lowet zip tie hole
+    // lower zip tie hole
     translate([-5,gantry_belt_pos-2.5,4]) cube([10,3,5]);
     // belt mount vertical hole
-    translate([-5,gantry_belt_pos-2.5,beltx_shift-15]) cube([10,5,31]);
+    translate([-5,gantry_belt_pos-2.5-0.5,beltx_shift-15]) cube([10,5.5,31]);
     // belt mount holes
-    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,beltx_shift-12]) cube([hotend_carriage_w,2.5,11]);
-    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,belty_shift-12]) cube([hotend_carriage_w,2.5,11]);
+    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5-0.5,beltx_shift-12]) cube([hotend_carriage_w,2.5,11]);
+    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5-0.5,belty_shift-12]) cube([hotend_carriage_w,2.5,11]);
      // X endstop screw holes
     for (i=[0:1])
       translate([7,28.5-optical_endstop_holes[i].x,-optical_endstop_holes[i].y+62]) rotate([0,-90,0]) cylinder(h=10,d=m3_hole);
@@ -851,9 +912,9 @@ module extruder_mount_base_mgn9(){
     translate([-1.5,15.5,39]) rotate([0,0,0]) cube([3,3,3]);
     translate([-1.5,6,48]) rotate([0,0,0]) cube([3,3,3]);
     translate([-1.5,6,39]) rotate([0,0,0]) cube([3,3,3]);
-    // holes for MGN9 screwa
-    for (i=[0:3])
-      translate([MGN9_holes[i].x,MGN9_holes[i].y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20]) {
+    // holes for MGN9 screws
+    for (c=MGN9_holes)
+      translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20]) {
         translate([0,0,0.5]) cylinder(d2=6.5,d1=3,h=2);
         cylinder(d=3,h=0.5);
       }
@@ -861,6 +922,14 @@ module extruder_mount_base_mgn9(){
     translate([4+9-13,40-2,20+1.5]) rotate([90,0,0]) {
       cylinder(h=10,d=m3_hole);
       translate([0,34.8,0]) cylinder(h=10,d=m3_hole);
+    }
+    // hotend back plate inserts
+    translate([-14,-1,5]) rotate([90,0,0]) cylinder(h=5,d=m3_insert);
+    translate([14,-1,5]) rotate([90,0,0]) cylinder(h=5,d=m3_insert);
+    // part cooling fan screws
+    for (i=[1,2]) {
+      p=blower_screw_holes(PE4020C)[i];
+      translate([-20,p.x-5,p.y-48]) rotate([90,0,90]) cylinder(d=3+2*printer_off,h=40);
     }
   }
 }
