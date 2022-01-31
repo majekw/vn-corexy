@@ -23,6 +23,9 @@ Forum thread (in Polish): https://reprapy.pl/viewtopic.php?f=10&t=7225
 # Requirements
 - OpenScad https://www.openscad.org/
 - NopSCADlib library https://github.com/nophead/NopSCADlib (version 18.2.0)
+- for Sailfin extruder checkout Sailfin-Extruder/ git submodule
+- for MRF extruder, download stl files from https://www.thingiverse.com/thing:5149028
+  and put them into MRF/ directory
 
 # Known issues
 - MGN12 carriage sticks 3.5mm out of frame
