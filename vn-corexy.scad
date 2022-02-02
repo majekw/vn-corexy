@@ -562,7 +562,7 @@ module sailfin_extruder(part=0,color1="#00aaff",color2="00ffaa"){
     if ((part==0)||(part==1)) color(color1) import("Sailfin-Extruder/STL/Front.stl");
     if ((part==0)||(part==2)) color(color2) rotate([0,90,90]) import("Sailfin-Extruder/STL/Lever.stl");
     if ((part==0)||(part==3)) color(color1) import("Sailfin-Extruder/STL/Mid.stl");
-    if ((part==0)||(part==4)) color(color1) import("Sailfin-Extruder/STL/Rear.stl");
+    if ((part==0)||(part==4)) color(color1) translate([0,0,-1]) scale([1,1,1.143]) import("Sailfin-Extruder/STL/Rear.stl");
   }
 
   if ($preview) {
@@ -807,7 +807,7 @@ module extruder_with_sailfin(){
     translate([40,0,0]) rotate([0,180,0]) blower(PE4020C);
   }
   // fpc socket board
-  //translate([4,40,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
+  translate([4,40,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
   // X endstop
   translate([3.5,28.5,62]) rotate([-90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
@@ -817,7 +817,7 @@ module extruder_with_sailfin(){
   // MRF extruder
   //translate([0,hot_y,2]) rotate([0,0,0]) mrf_extruder(color1=pp_color2,color2=pp_color);
   // motor
-  translate([5.5,hot_y+33,28.5]) rotate([90,50,0]) nema14_round();
+  translate([5.5,hot_y+33+1,28.5]) rotate([90,50,0]) nema14_round();
 
   // screws
   // part cooling fan screws
@@ -2497,7 +2497,7 @@ module optical_endstop(screws=false){
   difference(){
     union(){
       // pcb
-      color("green") cube([33.3,10.2,1.5]);
+      color("#a00000") cube([33.3,10.2,1.5]);
       // photo elements
       color("#0f0f0f") translate([0,1.95,1.5]) {
         cube([25.1,6.30,3.20]);
