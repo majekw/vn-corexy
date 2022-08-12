@@ -718,7 +718,7 @@ module blower_to_v6(blower_type=PE4020C){
         }
       }
       // blower mounts
-      translate([20,33-13-7,-4]) rotate([-90,0,180])
+      translate([20,33-13-7,-4.5]) rotate([-90,0,180])
         for (p=blower_screw_holes(blower_type))
           translate([p.x,p.y,0]) cylinder(h=7,d=6);
       // sensor mount
@@ -728,8 +728,8 @@ module blower_to_v6(blower_type=PE4020C){
 
     // main air hole from blower
     hull(){
-      translate([-v6_d/2,0,-14]) rotate([-90,0,0]) cube([v6_d,v6_h-2,0.1]);
-      translate([-1.5,13,-24]) rotate([-90,0,0]) cylinder(d=28,h=0.1);
+      translate([-v6_d/2,0,-14]) rotate([-90,0,0]) cube([v6_d,v6_h-1,0.1]);
+      translate([-1.5,13,-24.5]) rotate([-90,0,0]) cylinder(d=29,h=0.1);
     }
     // hole for V6
     translate([0,0,-39-6]) cylinder(h=v6_h+0.3+6+printer_off,d=v6_d+2*printer_off);
@@ -737,7 +737,7 @@ module blower_to_v6(blower_type=PE4020C){
     // bottom hole
     translate([0,12.8-40/2,-39-6]) cylinder(d=40,h=6);
     // screw holes
-    translate([20,33-13,-4]) rotate([-90,0,180])
+    translate([20,33-13,-4.5]) rotate([-90,0,180])
       for (p=blower_screw_holes(blower_type)) {
         // holes for M3
         translate([p.x,p.y,7]) cylinder(h=7,d=3+2*printer_off);
@@ -745,7 +745,11 @@ module blower_to_v6(blower_type=PE4020C){
         translate([p.x,p.y,14]) cylinder(h=10,d=6);
       }
     // air inlet
-    translate([-v6_d/2+1,-10.1,-v6_h-13]) cube([v6_d-2,5.1,v6_h]);
+    //translate([-v6_d/2+1,-10.1,-v6_h-13]) cube([v6_d-2,5.1,v6_h]);
+    translate([-v6_d/2+1,-10.1,-v6_h-13]) hull() {
+      rotate([90,0,0]) linear_extrude(0.1) polygon([[0,0], [v6_d-2,0], [v6_d-2-3,v6_h], [3,v6_h]]);
+      translate([0,5,0]) cube([v6_d-2,0.1,v6_h]);
+    }
     // space for V6 top mount
     translate([-13,-10-0.1,-7.5]) cube([26,22,2]);
     // sensor mount screw holes
@@ -798,7 +802,7 @@ module extruder_with_sailfin(){
   // E3D
   translate([0,hot_y,hot_z]) rotate([0,0,180]) hot_end(E3Dv6, 1.75, bowden = false,resistor_wire_rotate = [0,0,0], naked = true);
   // hotend cooling fan
-  translate([20,hot_y+33-(20-blower_depth(hotend_blower)),hot_z-4.0]) rotate([-90,0,180]) blower(hotend_blower);
+  translate([20,hot_y+33-(20-blower_depth(hotend_blower)),hot_z-4.5]) rotate([-90,0,180]) blower(hotend_blower);
   // cooling fan shroud
   translate([0,hot_y,hot_z]) blower_to_v6();
   // part cooling fans
@@ -835,8 +839,8 @@ module extruder_with_sailfin(){
   }
   // hotend blower screws and spacers
   for (p=blower_screw_holes(hotend_blower)) {
-    translate([20,33-13+hot_y,-4+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) screw(M3_cap_screw,30);
-    translate([20,33.3+hot_y,-4+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) blower_spacer();
+    translate([20,33-13+hot_y,-4.5+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) screw(M3_cap_screw,30);
+    translate([20,33.3+hot_y,-4.5+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) blower_spacer();
   }
   // sensor screws to shroud
   translate([-13,-21.5+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
