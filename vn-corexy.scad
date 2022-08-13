@@ -157,7 +157,7 @@ GT2_10x20_plain_idler=["GT2_10x20_plain_idler_13mm", "GT2", 0, 12.0, GT2x10, 10.
 GT2_10x20ob_pulley=["GT2_10x20ob_pulley", "GT2OB", 20, 12.22, GT2x10, 10.9, 16, 7.0, 5, 16.0, 1.5, 6, 3.25, M3_grub_screw, 2];
 // NEMA 17 23mm (pancake)
 NEMA17S23 = ["NEMA17S", 42.3, 23, 53.6/2, 25, 11, 2, 5, 24, 31, [8, 8]];
-XY_MOTOR = NEMA17_40;
+XY_MOTOR = NEMA17_47;
 Z_MOTOR = NEMA17_40;
 // V-SLOT
 V2020  = [ "V2020", 20, 20,  4.2, 3, 7.8, 6.25, 11.0, 1.8, 1.5, 1 ];
