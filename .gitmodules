@@ -1,3 +1,6 @@
 [submodule "Sailfin-Extruder"]
 	path = Sailfin-Extruder
 	url = https://github.com/CroXY3D/Sailfin-Extruder
+[submodule "Moli-Extruder"]
+	path = Moli-Extruder
+	url = https://github.com/VICLER/Moli-Extruder.git

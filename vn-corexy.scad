@@ -620,6 +620,32 @@ module mrf_extruder(part=0,color1="#00aaff",color2="#00ffaa"){
     }
   }
 }
+module moli_extruder(part=0,color1="#00aaff",color2="#00ffaa"){
+  // Zero at bottom of filament output
+
+  // imported parts
+  translate([0,7.8,29]) rotate([0,0,0]) {
+    if ((part==0)||(part==1)) color(color1) import("Moli-Extruder/STL/BMG Shaft/MoliExtruder_top.stl");
+    if ((part==0)||(part==2)) color(color2) import("Moli-Extruder/STL/BMG Shaft/MoliExtruder_arm.stl");
+    if ((part==0)||(part==3)) color(color2) import("Moli-Extruder/STL/BMG Shaft/MoliExtruder_middle.stl");
+    if ((part==0)||(part==4)) color(color1) import("Moli-Extruder/STL/BMG Shaft/MoliExtruder_bottom.stl");
+  }
+
+  if ($preview) {
+    //screws
+    // right mount
+    translate([15,3.6,3.1]) rotate([90,0,0]) screw(M3_cap_screw,10);
+    //translate([16.1,-13,4.5]) rotate([90,0,0]) screw(M3_cap_screw,35);
+    // left mount
+    translate([-16.0,3.6,3.1]) rotate([90,0,0]) screw(M3_cap_screw,10);
+    //translate([-14.3,-6,3.4]) rotate([90,0,0]) screw(M3_cap_screw,30);
+    // main gear
+    translate([-4.4,10,15.0]) rotate([90,0,0]) color("gray"){
+      cylinder(h=3,d=26);
+      translate([0,0,-3]) cylinder(h=27,d=7);
+    }
+  }
+}
 module extruder_with_bmg(){
   translate([0,-36,-4]) rotate([0,0,90]) hot_end(E3Dv6, 1.75, bowden = false,resistor_wire_rotate = [0,0,0], naked = false);
   translate([-6,-12,8]) {
@@ -819,11 +845,15 @@ module extruder_with_sailfin(){
   // omerod sensor
   translate([0,hot_y-19,hot_z-49]) rotate([90,0,0]) omerod_sensor(); // 3.5mm from block
   // Sailfin extruder
-  translate([0,hot_y,2]) rotate([0,0,0]) sailfin_extruder(color1=pp_color2,color2=pp_color);
+  //translate([0,hot_y,2]) rotate([0,0,0]) sailfin_extruder(color1=pp_color2,color2=pp_color);
   // MRF extruder
   //translate([0,hot_y,2]) rotate([0,0,0]) mrf_extruder(color1=pp_color2,color2=pp_color);
-  // motor
-  translate([5.5,hot_y+33+1,28.5]) rotate([90,50,0]) nema14_round();
+  // motor for Sailfin/MRF
+  //translate([5.5,hot_y+33+1,28.5]) rotate([90,50,0]) nema14_round();
+  // Moli extruder
+  translate([0,hot_y,2]) rotate([0,0,0]) moli_extruder(color1=pp_color2,color2=pp_color);
+  // motor for Moli
+  translate([0,hot_y+33,32]) rotate([90,48,0]) nema14_round();
 
   // screws
   // part cooling fan screws

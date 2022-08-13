@@ -24,6 +24,7 @@ Forum thread (in Polish): https://reprapy.pl/viewtopic.php?f=10&t=7225
 - OpenScad https://www.openscad.org/
 - NopSCADlib library https://github.com/nophead/NopSCADlib (version 20.10.3)
 - for Sailfin extruder checkout Sailfin-Extruder/ git submodule
+- for Moli extruder checkout Moli-Extruder/ git submodule
 - for MRF extruder, download stl files from https://www.thingiverse.com/thing:5149028
   and put them into MRF/ directory
 
