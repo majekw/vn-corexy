@@ -22,14 +22,14 @@ Forum thread (in Polish): https://reprapy.pl/viewtopic.php?f=10&t=7225
 
 # Requirements
 - OpenScad https://www.openscad.org/
-- NopSCADlib library https://github.com/nophead/NopSCADlib (version 18.2.0)
+- NopSCADlib library https://github.com/nophead/NopSCADlib (version 20.10.3)
 - for Sailfin extruder checkout Sailfin-Extruder/ git submodule
 - for MRF extruder, download stl files from https://www.thingiverse.com/thing:5149028
   and put them into MRF/ directory
 
 # Known issues
 - MGN12 carriage sticks 3.5mm out of frame
-- bed frame should be 10mm shorter to use 4 the same wheel supports
+- bed frame could be 10mm shorter to use 4 the same wheel supports
 - bed frame wheels supports are temporary, will be changed in future
 
 # Copyright & license

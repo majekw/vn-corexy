@@ -146,7 +146,7 @@ MGN9_holes=[[-8,-7.5],[-8,7.5],[8,-7.5],[8,7.5]];
 
 // Extra stuff not in NopSCADlib
 // 688RS ball bearings (8x16x5)
-BB688=["688", 8, 16, 5, "black", 1.4, 2.0];
+BB688=["688", 8, 16, 5, "black", 1.4, 2.0, 0, 0];
 T8_BB=BB688;
 // GT2 10mm belt
 GT2x10=["GT", 2.0, 10, 1.38, 0.75, 0.254];
@@ -157,6 +157,8 @@ GT2_10x20_plain_idler=["GT2_10x20_plain_idler_13mm", "GT2", 0, 12.0, GT2x10, 10.
 GT2_10x20ob_pulley=["GT2_10x20ob_pulley", "GT2OB", 20, 12.22, GT2x10, 10.9, 16, 7.0, 5, 16.0, 1.5, 6, 3.25, M3_grub_screw, 2];
 // NEMA 17 23mm (pancake)
 NEMA17S23 = ["NEMA17S", 42.3, 23, 53.6/2, 25, 11, 2, 5, 24, 31, [8, 8]];
+XY_MOTOR = NEMA17_40;
+Z_MOTOR = NEMA17_40;
 // V-SLOT
 V2020  = [ "V2020", 20, 20,  4.2, 3, 7.8, 6.25, 11.0, 1.8, 1.5, 1 ];
 V2040  = [ "V2040", 20, 40,  4.2, 3, 7.8, 6.25, 11.0, 1.8, 1.5, 1 ];
@@ -1095,7 +1097,7 @@ module motor_support_x_down(){
     // motor mount holes
     translate([xy_motor_pos.x,xy_motor_pos.y-base_d+ext,x_motor_z]){
       // slots for screws
-      NEMA_screw_positions(NEMA17M) hull(){
+      NEMA_screw_positions(XY_MOTOR) hull(){
         translate([-yadj/2,0,0]) cylinder(h=3,d=3.2);
         translate([yadj/2,0,0]) cylinder(h=3,d=3.2);
       }
@@ -1169,7 +1171,7 @@ module motor_support_x(){
     m5_screw5=35;
     translate([4.5*ext,base_d-ext/2,base_h+m5_screw5-5]) screw(M5_cap_screw,m5_screw5);
     // motor screws
-    translate([xy_motor_pos.x,xy_motor_pos.y,base_h+x_motor_z+3]) NEMA_screw_positions(NEMA17M) screw(M3_cap_screw,8);
+    translate([xy_motor_pos.x,xy_motor_pos.y,base_h+x_motor_z+3]) NEMA_screw_positions(XY_MOTOR) screw(M3_cap_screw,8);
   }
   translate([0,base_d-ext,base_h]) motor_support_x_down();
   translate([0,base_d-ext,base_h]) motor_support_x_up();
@@ -1244,7 +1246,7 @@ module motor_support_y_down(){
     // motor mount holes
     translate([base_w-xy_motor_pos.x,xy_motor_pos.y-base_d+ext,y_motor_z]){
       // slots for screws
-      NEMA_screw_positions(NEMA17M) hull(){
+      NEMA_screw_positions(XY_MOTOR) hull(){
         translate([-yadj/2,0,0]) cylinder(h=3,d=3.2);
         translate([yadj/2,0,0]) cylinder(h=3,d=3.2);
       }
@@ -1290,7 +1292,7 @@ module motor_support_y(){
     m5_screw5=45;
     translate([base_w-4.5*ext,base_d-ext/2,base_h+m5_screw5-5]) screw(M5_cap_screw,m5_screw5);
     // motor screws
-    translate([base_w-xy_motor_pos.x,xy_motor_pos.y,base_h+y_motor_z+3]) NEMA_screw_positions(NEMA17M) screw(M3_cap_screw,8);
+    translate([base_w-xy_motor_pos.x,xy_motor_pos.y,base_h+y_motor_z+3]) NEMA_screw_positions(XY_MOTOR) screw(M3_cap_screw,8);
   }
   translate([0,base_d-ext,base_h]) motor_support_y_down();
   translate([0,base_d-ext,base_h]) motor_support_y_up();
@@ -1315,7 +1317,7 @@ module motor_support_z(){
       // motor body
       translate([ext,0,0]) cube([44,44,mot_bot]);
       // motor screw holes
-      translate([ext+22,22,mot_bot]) NEMA_screw_positions(NEMA17M) cylinder(h=3,d=3.2);
+      translate([ext+22,22,mot_bot]) NEMA_screw_positions(Z_MOTOR) cylinder(h=3,d=3.2);
       // shaft motor hole
       translate([ext+22,22,mot_bot]) cylinder(h=3,d=22.5);
       // side triangle
@@ -1808,7 +1810,7 @@ module gantry(){
   translate(bx3) pulley(GT2_10x20_plain_idler);
   // X motor
   bx4=[xy_motor_pos.x,xy_motor_pos.y,base_h+beltx_shift-5];
-  translate(bx4) rotate([0,0,-90]) NEMA(NEMA17M);
+  translate(bx4) rotate([0,0,-90]) NEMA(XY_MOTOR);
   translate([bx4.x,bx4.y,bx4.z+25.5]) rotate([0,180,0]) pulley(GT2_10x20ob_pulley);
   // X idler - outer rail-motor
   bx5=[ext/2,base_d+ext,base_h+beltx_shift];
@@ -1842,7 +1844,7 @@ module gantry(){
   pulley_motor_space=-7.5;
   //by4=[base_w-xy_motor_pos.x,xy_motor_pos.y,base_h+belty_shift];
   by4=[base_w-xy_motor_pos.x,xy_motor_pos.y,base_h+belty_shift-5];
-  translate([by4.x,by4.y,base_h+y_motor_z]) rotate([0,0,90]) NEMA(NEMA17M);
+  translate([by4.x,by4.y,base_h+y_motor_z]) rotate([0,0,90]) NEMA(XY_MOTOR);
   //translate([by4.x,by4.y,by4.z+pulley_motor_space]) pulley(GT2_10x20ob_pulley);
   translate([by4.x,by4.y,by4.z+25.5]) rotate([0,180,0]) pulley(GT2_10x20ob_pulley);
   // Y idler - outer rail-motor
@@ -2302,7 +2304,7 @@ module z_axis(){
   // Z motor
   p4=[ext+22, z_pulley_support-22-ext/2, z_belt_h-5.5];
   translate(p4) rotate([0,0,0]) union(){
-    NEMA(NEMA17M);
+    NEMA(Z_MOTOR);
     translate([0,0,19]) rotate([0,180,0]) pulley(GT2x20ob_pulley);
   }
   // Z motor mount
