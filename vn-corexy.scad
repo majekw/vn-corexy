@@ -68,6 +68,9 @@ t8_upper_bearings=true;
 // correction for offset on overextrusion or slicer problems impacting on XY dimensions
 printer_off=0.10; // [0:0.01:0.2]
 
+// hide FPC boards and FFC cables
+hide_ffc=false;
+
 
 // internal stuff starts here
 /* [Hidden] */
@@ -821,7 +824,7 @@ module hotend_mount_mgn9(){
       // carriage mount
       translate([-hotend_carriage_w/2,-2,36]) cube([hotend_carriage_w,27.5,3.5]);
       // v6/extruder plate
-      translate([-hotend_carriage_w/2-2,-6-45-3,-10+2]) cube([hotend_carriage_w+4,45+3,10]);
+      translate([-hotend_carriage_w/2-2,-6-45-3,-10+2]) cube([hotend_carriage_w+4,45+3,8]);
     }
 
     // holes
@@ -858,7 +861,8 @@ module extruder_with_sailfin(){
     translate([40,0,0]) rotate([0,180,0]) blower(PE4020C);
   }
   // fpc socket board
-  translate([4,40,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
+  if (!hide_ffc)
+    translate([4,40,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
   // X endstop
   translate([3.5,28.5,62]) rotate([-90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
@@ -1956,10 +1960,11 @@ module gantry(){
   motor_support_y();
 
   // FFC cables
-  translate([0,0,base_h+36]) rotate([0,0,90]) {
-    fcc_cable(350,30,[132+pos_y,-40-pos_x],[139+pos_y,-base_w+30]);
-    fcc_cable(450,30,[141+pos_y,-base_w+30],[base_d-23,-base_w+50]);
-  }
+  if (!hide_ffc)
+    translate([0,0,base_h+36]) rotate([0,0,90]) {
+      fcc_cable(350,30,[132+pos_y,-40-pos_x],[139+pos_y,-base_w+30]);
+      fcc_cable(450,30,[141+pos_y,-base_w+30],[base_d-23,-base_w+50]);
+    }
 }
 module build_plate(){
   // build plate
