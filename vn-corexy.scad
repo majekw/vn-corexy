@@ -547,6 +547,25 @@ module frame(){
   if (printed_corners) printed_joints();
 }
 
+module fcc_cable(length, height, p1, p2){
+  thick=0.1;
+  d=abs(p1.x-p2.x);
+  lr=PI*d/2;
+  lm=length-lr;
+  ld=p2.y-p1.y;
+  l1=lm/2+ld/2;
+  l2=lm/2-ld/2;
+
+  color("#f0f0f0") union(){
+    // half circle
+    translate([p1.x+d/2,p1.y+l1,0]) rotate_extrude(angle=180,convexity=2) translate([d/2,0,0]) square([thick,height]);
+    // left
+    translate([p1.x-thick,p1.y,0]) cube([thick,l1,height]);
+    // right
+    translate([p2.x,p2.y,0]) cube([thick,l2,height]);
+  }
+
+}
 module bmg_extruder(){
   bmg_color=[0.2, 0.2, 0.2];
   bmg_points=[[0,0],[42,0],[42,53],[19,53],[0,38]];
@@ -802,7 +821,7 @@ module hotend_mount_mgn9(){
       // carriage mount
       translate([-hotend_carriage_w/2,-2,36]) cube([hotend_carriage_w,27.5,3.5]);
       // v6/extruder plate
-      translate([-hotend_carriage_w/2,-6-45-3,-10+2]) cube([hotend_carriage_w+2,45+3,10]);
+      translate([-hotend_carriage_w/2-2,-6-45-3,-10+2]) cube([hotend_carriage_w+4,45+3,10]);
     }
 
     // holes
@@ -1936,6 +1955,11 @@ module gantry(){
   // Y motor support
   motor_support_y();
 
+  // FFC cables
+  translate([0,0,base_h+36]) rotate([0,0,90]) {
+    fcc_cable(350,30,[132+pos_y,-40-pos_x],[139+pos_y,-base_w+30]);
+    fcc_cable(450,30,[141+pos_y,-base_w+30],[base_d-23,-base_w+50]);
+  }
 }
 module build_plate(){
   // build plate
