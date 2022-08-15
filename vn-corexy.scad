@@ -1000,7 +1000,7 @@ module extruder_mount_base_mgn9(){
     translate([-15,gantry_belt_pos-2.5+6.6,beltx_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.6);
     translate([-15,gantry_belt_pos-2.5+6.6,belty_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.6);
     // locking hole
-    translate([7,gantry_belt_pos-3.5,beltx_shift-16]) cube([8,2.5,40]);
+    translate([7,gantry_belt_pos-3.5,beltx_shift-16]) cube([8,3.5,40]);
 
      // X endstop screw holes
     for (i=[0:1])
@@ -1039,7 +1039,7 @@ module extruder(){
   } else
   if (hotend_type==1) {
     extruder_mount_base_mgn9();
-    translate([7,gantry_belt_pos-3.5,beltx_shift-16]) belt_lock();
+    translate([7,gantry_belt_pos-3.5,beltx_shift-16+50]) belt_lock();
     hotend_mount_mgn9();
     extruder_with_sailfin();
   }
@@ -1048,13 +1048,13 @@ module belt_lock(){
   color(pp_color)
     intersection(){
       difference(){
-        cube([8,2.5,43]);
+        cube([8,3.5,43]);
 
-        gt2_tooths(4,30,1.6);
-        translate([0,0.5,-1]) rotate([25,0,0]) cube([8,2,4]);
-        translate([2,0,40]) cube([4,2.5,1]);
+        gt2_tooths(4,30,1.4);
+        translate([0,0.5,-1]) rotate([30,0,0]) cube([8,2,6]);
+        translate([2,0,40]) cube([4,3.5,1]);
       }
-      translate([0.15,0,0]) cube([7.7,2.4,45]);
+      translate([0.25,0.1,0]) cube([7.5,3.3,45]);
     }
 }
 module pulley_spacer(h=1) {
