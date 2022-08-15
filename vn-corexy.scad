@@ -47,7 +47,7 @@ bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer]
+render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock]
 
 /* [tweaks/hacks] */
 
@@ -182,14 +182,14 @@ $vpd=1770.74; // viewport distance
 $vpf=22.50; // viewport fov
 */
 module gt2_tooths(tooths,h=10,depth=1.38){
-  translate([1,depth-1.38,0]) linear_extrude(height=h)
+  translate([1,depth-1.381,0]) linear_extrude(height=h)
     union(){
       for (i=[0:tooths-1]){
         translate([i*2,0]) gt2_tooth();
       }
       // thicker base if required
       if (depth!=1.38){
-        translate([-1,1.38-depth]) square([tooths*2,depth-0.75]);
+        translate([-1.01,1.38-depth]) square([tooths*2+0.02,depth-0.75]);
       }
     }
 }
@@ -1039,9 +1039,23 @@ module extruder(){
   } else
   if (hotend_type==1) {
     extruder_mount_base_mgn9();
+    translate([7,gantry_belt_pos-3.5,beltx_shift-16]) belt_lock();
     hotend_mount_mgn9();
     extruder_with_sailfin();
   }
+}
+module belt_lock(){
+  color(pp_color)
+    intersection(){
+      difference(){
+        cube([8,2.5,43]);
+
+        gt2_tooths(4,30,1.6);
+        translate([0,0.5,-1]) rotate([25,0,0]) cube([8,2,4]);
+        translate([2,0,40]) cube([4,2.5,1]);
+      }
+      translate([0.15,0,0]) cube([7.7,2.4,45]);
+    }
 }
 module pulley_spacer(h=1) {
   color(pp_color2) difference(){
@@ -2771,6 +2785,7 @@ module draw_printable_parts(){
   if (render_parts==48) extruder_mount_base_mgn9();
   if (render_parts==49) blower_to_v6();
   if (render_parts==50) blower_spacer();
+  if (render_parts==51) belt_lock();
 }
 
 if ($preview) {
