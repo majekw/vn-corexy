@@ -181,6 +181,41 @@ $vpr=[ 62.70, 0.00, 360*$t ]; // viewport rotation 67.20
 $vpd=1770.74; // viewport distance
 $vpf=22.50; // viewport fov
 */
+module gt2_tooths(tooths,h=10,depth=1.38){
+  translate([1,depth-1.38,0]) linear_extrude(height=h)
+    union(){
+      for (i=[0:tooths-1]){
+        translate([i*2,0]) gt2_tooth();
+      }
+      // thicker base if required
+      if (depth!=1.38){
+        translate([-1,1.38-depth]) square([tooths*2,depth-0.75]);
+      }
+    }
+}
+module gt2_tooth(){
+  xr1=0.737;
+  difference(){
+    union(){
+      // tip
+      translate([0,1.38-0.555]) circle(r=0.555);
+      // sides
+      intersection(){
+        translate([0.4,0.63]) circle(r=1);
+        translate([-0.4,0.63]) circle(r=1);
+        translate([-1,0]) square([2,1.1]);
+      }
+      // near base
+      translate([-xr1,0]) square([2*xr1,0.63+0.15]);
+      // base
+      translate([-1.01,0]) square([2.02,0.63]);
+    }
+    // tooth base round
+    translate([xr1,0.63+0.15]) circle(r=0.15);
+    translate([-xr1,0.63+0.15]) circle(r=0.15);
+  }
+}
+
 module vn_logo(l_h){
   linear_extrude(l_h) import("vn.svg");
 }
@@ -931,18 +966,18 @@ module extruder_mount_base_mgn9(){
       translate([1.5,cf_from_front+plate_d-10,mgn9plate_z+2.5+16]) cube([2,6,10]);
       //fan back mounts
       hull(){
-        translate([13,32,-10]) rotate([0,90,0]) cylinder(h=3,d=7);
+        translate([13,32.5,-10]) rotate([0,90,0]) cylinder(h=3,d=7);
         translate([13,30,-4]) rotate([0,90,0]) cylinder(h=3,d=7);
       }
       hull(){
-        translate([-13,32,-10]) rotate([0,-90,0]) cylinder(h=3,d=7);
+        translate([-13,32.5,-10]) rotate([0,-90,0]) cylinder(h=3,d=7);
         translate([-13,30,-4]) rotate([0,-90,0]) cylinder(h=3,d=7);
       }
       // fan front mounts
       translate([-13-1.5,-6,-5]) rotate([0,90,0]) triangle(h=3,a=13);
       translate([13+1.5,-6,-5]) rotate([0,90,0]) triangle(h=3,a=13);
       // belt mount
-      translate([-15,gantry_belt_pos-2.5,beltx_shift-22]) cube([30,5,46]);
+      translate([-15,gantry_belt_pos-2.5,beltx_shift-22]) cube([30+3,6.5,46]);
       // lowet zip tie mount
       translate([-5,gantry_belt_pos-2.5,0]) cube([10,5,16]);
     }
@@ -953,14 +988,20 @@ module extruder_mount_base_mgn9(){
     // lower front cable hole
     translate([0,-7,0]) rotate([-45,0,0]) translate([-10,-15,0]) cube([20,30,7]);
     // upper cable hole
-    translate([-2,43,58]) rotate([0,0,0]) translate([-10,-15,0]) cube([10,10,2.5]);
+    translate([-3,43,58]) rotate([0,0,0]) translate([-10,-15,0]) cube([11,12,2.5]);
     // lower zip tie hole
     translate([-5,gantry_belt_pos-2.5,4]) cube([10,3,5]);
     // belt mount vertical hole
-    translate([-5,gantry_belt_pos-2.5-0.5,beltx_shift-15]) cube([10,5.5,31]);
+    translate([-5,gantry_belt_pos-2.5,beltx_shift-14]) cube([10,6.5,30]);
     // belt mount holes
-    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5-0.5,beltx_shift-12]) cube([hotend_carriage_w,2.5,11]);
-    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5-0.5,belty_shift-12]) cube([hotend_carriage_w,2.5,11]);
+    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,beltx_shift-12]) cube([hotend_carriage_w,2.5,11]);
+    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,belty_shift-12]) cube([hotend_carriage_w,2.5,11]);
+    // belt tracks
+    translate([-15,gantry_belt_pos-2.5+6.6,beltx_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.6);
+    translate([-15,gantry_belt_pos-2.5+6.6,belty_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.6);
+    // locking hole
+    translate([7,gantry_belt_pos-3.5,beltx_shift-16]) cube([8,2.5,40]);
+
      // X endstop screw holes
     for (i=[0:1])
       translate([7,28.5-optical_endstop_holes[i].x,-optical_endstop_holes[i].y+62]) rotate([0,-90,0]) cylinder(h=10,d=m3_hole);
@@ -978,9 +1019,9 @@ module extruder_mount_base_mgn9(){
         cylinder(d=3,h=0.5);
       }
     // FPC holes
-    translate([4+9-13,40-2,20+1.5]) rotate([90,0,0]) {
-      cylinder(h=10,d=m3_hole);
-      translate([0,34.8,0]) cylinder(h=10,d=m3_hole);
+    translate([4+9-13,40-0.5,20+1.5]) rotate([90,0,0]) {
+      cylinder(h=11.5,d=m3_hole);
+      translate([0,34.8,0]) cylinder(h=11.5,d=m3_hole);
     }
     // hotend back plate inserts
     translate([-14,-1,5]) rotate([90,0,0]) cylinder(h=5,d=m3_insert);
