@@ -1039,7 +1039,7 @@ module extruder(){
   } else
   if (hotend_type==1) {
     extruder_mount_base_mgn9();
-    translate([7,gantry_belt_pos-3.5,beltx_shift-16+50]) belt_lock();
+    translate([7,gantry_belt_pos-3.5,beltx_shift-16]) belt_lock();
     hotend_mount_mgn9();
     extruder_with_sailfin();
   }
@@ -1836,13 +1836,26 @@ module gantry_joint_r_cf_top(){
   m5_screw6=30; // top
 
   box_h2=13+2+8;
+  ffc_dy=49;
+
   color(pp_color2) difference(){
     union(){
       difference(){
-        hull(){
-          translate([py_x,py_y,py_z-1]) cylinder(d=15,h=box_h2);
-          translate([px_x,px_y,py_z-1]) cylinder(d=15,h=box_h2);
-          translate([py_x+3,5,py_z-1]) cylinder(d=12,h=box_h2);
+        union(){
+          hull(){
+            translate([py_x,py_y,py_z-1]) cylinder(d=15,h=box_h2);
+            translate([px_x,px_y,py_z-1]) cylinder(d=15,h=box_h2);
+            translate([py_x+3,5,py_z-1]) cylinder(d=12,h=box_h2);
+          }
+          // FFC cable holder
+          translate([-40,ffc_dy,fpc_z-31]) cube([20,2.4,36]);
+          hull(){
+            hh=7.5;
+            translate([-40,ffc_dy+1.2,fpc_z+3]) cylinder(d=2.4,h=hh);
+            translate([-10,ffc_dy+1.2,fpc_z+3]) cylinder(d=2.4,h=hh);
+            translate([0,ffc_dy-5,fpc_z+3]) cylinder(d=2.4,h=hh);
+            translate([3.5,ffc_dy-1,fpc_z+3]) cylinder(d=2.4,h=hh);
+          }
         }
         // hole for Y idler
         translate([py_x,py_y,py_z-1]) cylinder(d=20,h=15);
@@ -1850,6 +1863,8 @@ module gantry_joint_r_cf_top(){
         translate([-5,gantry_belt_pos-3,py_z-1]) cube([30,7,15]);
         // side belt path
         translate([ext-6,0,py_z-1]) cube([6,40,15]);
+        // hole for FFC cable
+        translate([-43,ffc_dy+0.8,fpc_z-29]) cube([40,0.8,32]);
       }
       translate([px_x,px_y,px_z+13]) pulley_spacer();
       translate([py_x,py_y,py_z+13]) pulley_spacer();
@@ -2017,8 +2032,8 @@ module gantry(){
   // FFC cables
   if (!hide_ffc)
     translate([0,0,base_h+36]) rotate([0,0,90]) {
-      fcc_cable(350,30,[132+pos_y,-40-pos_x],[139+pos_y,-base_w+30]);
-      fcc_cable(450,30,[141+pos_y,-base_w+30],[base_d-23,-base_w+50]);
+      fcc_cable(350,31,[132+pos_y,-40-pos_x],[139+pos_y,-base_w+35]);
+      fcc_cable(450,31,[141+pos_y,-base_w+35],[base_d-23,-base_w+50]);
     }
 }
 module build_plate(){
