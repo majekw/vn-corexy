@@ -22,7 +22,7 @@ build_z=310;
 /* [hotend] */
 hotend_w=50;
 hotend_d=70;
-hotend_type=1; // [0:with BMG extruder, 1: with Sailfin extruder]
+hotend_type=2; // [0:with BMG extruder, 1: with Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder]
 hotend_nozzle=67-hotend_type*17; //distance from gantry to nozzle
 /* [frame] */
 // extrusions family size
@@ -75,6 +75,7 @@ hide_ffc=false;
 // internal stuff starts here
 /* [Hidden] */
 include <NopSCADlib/lib.scad>
+use <TBG-Lite.scad>
 
 // calculated
 base_w=2*ext+max(build_x+hotend_w,build_plate_w+x_margin); // frame width
@@ -903,15 +904,29 @@ module extruder_with_sailfin(){
   // omerod sensor
   translate([0,hot_y-19,hot_z-49]) rotate([90,0,0]) omerod_sensor(); // 3.5mm from block
   // Sailfin extruder
-  //translate([0,hot_y,2]) rotate([0,0,0]) sailfin_extruder(color1=pp_color2,color2=pp_color);
+  if (hotend_type==1) {
+    translate([0,hot_y,2]) rotate([0,0,0]) sailfin_extruder(color1=pp_color2,color2=pp_color);
+  }
   // MRF extruder
-  //translate([0,hot_y,2]) rotate([0,0,0]) mrf_extruder(color1=pp_color2,color2=pp_color);
+  if (hotend_type==4) {
+    translate([0,hot_y,2]) rotate([0,0,0]) mrf_extruder(color1=pp_color2,color2=pp_color);
+  }
   // motor for Sailfin/MRF
-  //translate([5.5,hot_y+33+1,28.5]) rotate([90,50,0]) nema14_round();
+  if ((hotend_type==1) || (hotend_type==4)) {
+    translate([5.5,hot_y+33+1,28.5]) rotate([90,50,0]) nema14_round();
+  }
   // Moli extruder
-  translate([0,hot_y,2]) rotate([0,0,0]) moli_extruder(color1=pp_color2,color2=pp_color);
-  // motor for Moli
-  translate([0,hot_y+33,32]) rotate([90,48,0]) nema14_round();
+  if (hotend_type==3) {
+    translate([0,hot_y,2]) rotate([0,0,0]) moli_extruder(color1=pp_color2,color2=pp_color);
+    // motor for Moli
+    translate([0,hot_y+33,32]) rotate([90,48,0]) nema14_round();
+  }
+  // TBG Lite
+  if (hotend_type==2) {
+    translate([0,hot_y,0]) TBG_lite();
+    // motor for TBG
+    translate([-TBG_w()/2+19.9,hot_y+33,21.1]) rotate([90,-47,0]) nema14_round();
+  }
 
   // screws
   // part cooling fan screws
@@ -1037,7 +1052,7 @@ module extruder(){
   if (hotend_type==0) {
     translate([0,-18,10]) extruder_with_bmg();
   } else
-  if (hotend_type==1) {
+  if (hotend_type>=1) {
     extruder_mount_base_mgn9();
     translate([7,gantry_belt_pos-3.5,beltx_shift-16]) belt_lock();
     hotend_mount_mgn9();
