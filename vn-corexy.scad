@@ -22,7 +22,7 @@ build_z=310;
 /* [hotend] */
 hotend_w=50;
 hotend_d=70;
-hotend_type=2; // [0:with BMG extruder, 1: with Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder]
+hotend_type=2; // [0:with BMG extruder, 1: with Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder, 5: bowden]
 hotend_nozzle=67-hotend_type*17; //distance from gantry to nozzle
 /* [frame] */
 // extrusions family size
@@ -160,7 +160,7 @@ GT2_10x20_toothed_idler=["GT2_10x20_toothed_idler_13mm", "GT2", 20, 12.22, GT2x1
 GT2_10x20_plain_idler=["GT2_10x20_plain_idler_13mm", "GT2", 0, 12.0, GT2x10, 10.9, 18, 0, 5, 18.0, 1.05, 0, 0, false, 0];
 GT2_10x20ob_pulley=["GT2_10x20ob_pulley", "GT2OB", 20, 12.22, GT2x10, 10.9, 16, 7.0, 5, 16.0, 1.5, 6, 3.25, M3_grub_screw, 2];
 // NEMA 17 23mm (pancake)
-NEMA17S23 = ["NEMA17S", 42.3, 23, 53.6/2, 25, 11, 2, 5, 24, 31, [8, 8]];
+NEMA17S23 = ["NEMA17S", 42.3, 23, 53.6/2, 25, 11, 2, 5, 24, 31, [8, 8], 3, false, false, 0, 0];
 XY_MOTOR = NEMA17_47;
 Z_MOTOR = NEMA17_40;
 // V-SLOT
