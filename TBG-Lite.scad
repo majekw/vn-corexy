@@ -31,6 +31,8 @@ module TBG_lite(){
     union(){
       // body
       color("#404040") rotate([90,0,0]) translate([0,0,-22.50+8.50]) linear_extrude(22.50) polygon(TBG_body());
+      // gear shroud
+      color("#404040") translate([0,22.5-8.50-2.20,34.15]) rotate([90,0,0]) cylinder(d=26,h=7.5);
       // back plate
       color("#404040") rotate([90,0,0]) translate([0,0,-22.50+8.50]) linear_extrude(4) polygon(TBG_backplate());
       // lever
