@@ -128,6 +128,9 @@ bed_z=base_h-2*ext-10-pos_z; // bed Z position
 cf_above_carriage=3.5; // height of cf above carriage
 cf_from_front=5; // distance from front of carriage
 
+// hotend position
+hot_y=-44;
+hot_z=-4;
 hotend_carriage_w=36;
 
 // oldham coupler
@@ -216,7 +219,6 @@ module gt2_tooth(){
     translate([-xr1,0.63+0.15]) circle(r=0.15);
   }
 }
-
 module vn_logo(l_h){
   linear_extrude(l_h) import("vn.svg");
 }
@@ -249,14 +251,12 @@ module round_corner(r,h){
 module vtriangle(){
     polygon([[-vtr/2,0],[vtr/2,0],[0,vtr/2]]);
 }
-
 module vslot_groove(length, depth=1.5){
   scale([vslot_groove_scale,1,1]) linear_extrude(length) intersection(){
     vtriangle();
     translate([-vtr/2,0,0]) square([vtr,depth]);
   }
 }
-
 module vslot2020(type, length, center = true, cornerHole = false) {
   //! Draw the specified extrusion
   color(grey(20))
@@ -585,7 +585,6 @@ module frame(){
   // printed joints
   if (printed_corners) printed_joints();
 }
-
 module fcc_cable(length, height, p1, p2){
   thick=0.1;
   d=abs(p1.x-p2.x);
@@ -843,6 +842,14 @@ module blower_to_v6(blower_type=PE4020C){
     translate([13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=m2_hole);
   }
 }
+module v6_hole(){
+  union(){
+    // inner groove
+    translate([0,0,-2-4-printer_off]) cylinder(h=6.01+printer_off,d=12+2*printer_off);
+    // top groove
+    cylinder(h=4.01,d=16+2*printer_off);
+  }
+}
 module hotend_mount_mgn9(){
   // coordinates relative to:
   // X: center of X carriage
@@ -851,16 +858,22 @@ module hotend_mount_mgn9(){
   color(pp_color) difference(){
     union(){
       // lower back plate
-      translate([-hotend_carriage_w/2,-3-6,-49]) cube([hotend_carriage_w,3,61]);
+      translate([-hotend_carriage_w/2-2,-3-6,-49]) cube([hotend_carriage_w+4,3,61]);
       // upper back plate
       translate([-hotend_carriage_w/2,-3-6+4,14]) cube([hotend_carriage_w,3,25.5]);
       // connection between upper and lower back plate
       translate([0,-7,14]) rotate([0,90,0]) triangle(h=hotend_carriage_w,a=5);
-      translate([0,-4,12]) rotate([0,-90,180]) triangle(h=hotend_carriage_w,a=5);
+      translate([0,-4,12]) rotate([0,-90,180]) triangle(h=hotend_carriage_w+4,a=5);
       // carriage mount
       translate([-hotend_carriage_w/2,-2,36]) cube([hotend_carriage_w,27.5,3.5]);
       // v6/extruder plate
-      translate([-hotend_carriage_w/2-2,-6-45-3,-10+2]) cube([hotend_carriage_w+4,45+3,8]);
+      translate([-hotend_carriage_w/2-2,hot_y,-10+2]) cube([hotend_carriage_w+4,-hot_y-6,8]);
+      // V6 mount
+      zg=25;
+      translate([0,hot_y,hot_z-6]) intersection(){
+        cylinder(h=2,d=zg);
+        translate([-zg/2,0,0]) cube([zg,zg/2,2]);
+      }
     }
 
     // holes
@@ -869,24 +882,28 @@ module hotend_mount_mgn9(){
     for (i=[0:3])
       translate([-9+i*7,-29,-10+2-0.05]) cube([6.2,17,10.1]);
     // lower front cable hole
-    translate([0,-7,0]) rotate([-45,0,0]) translate([-10,-15,0]) cube([20,30,7]);
+    translate([0,-9,0]) rotate([-45,0,0]) translate([-10,-15,0]) cube([20,30,8]);
     // hotend back plate screws to carriage
     translate([-14,-6,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
     translate([14,-6,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
+    // V6 hole
+    translate([0,hot_y,hot_z]) v6_hole();
+    // front holes for M3 inserts for V6 lock
+    translate([-9,hot_y,-7]) rotate([-90,0,0]) cylinder(h=8,d=m3_insert);
+    translate([9,hot_y,-7]) rotate([-90,0,0]) cylinder(h=8,d=m3_insert);
+    // cable hole
+    translate([-18,hot_y,-6]) cube([5,30,6.01]);
   }
 }
-module extruder_with_sailfin(){
+module extruder_with_nema14(){
   // coordinates relative to:
   // X: center of X carriage
   // Y: from start of Y carriage
   // Z: from top of Y carriage
 
   z_zero=cf_above_carriage+cf_tube_size+carriage_height(MGN12H_carriage);
-  // hotend position
-  hot_y=-43;
-  hot_z=-4;
   // E3D
-  translate([0,hot_y,hot_z]) rotate([0,0,180]) hot_end(E3Dv6, 1.75, bowden = false,resistor_wire_rotate = [0,0,0], naked = true);
+  translate([0,hot_y,hot_z]) rotate([0,0,180]) hot_end(E3Dv6, 1.75, bowden = (hotend_type==5),resistor_wire_rotate = [0,0,0], naked = true);
   // hotend cooling fan
   translate([20,hot_y+33-(20-blower_depth(hotend_blower)),hot_z-4.5]) rotate([-90,0,180]) blower(hotend_blower);
   // cooling fan shroud
@@ -905,21 +922,21 @@ module extruder_with_sailfin(){
   translate([0,hot_y-19,hot_z-49]) rotate([90,0,0]) omerod_sensor(); // 3.5mm from block
   // Sailfin extruder
   if (hotend_type==1) {
-    translate([0,hot_y,2]) rotate([0,0,0]) sailfin_extruder(color1=pp_color2,color2=pp_color);
+    translate([0,hot_y,0]) rotate([0,0,0]) sailfin_extruder(color1=pp_color2,color2=pp_color);
   }
   // MRF extruder
   if (hotend_type==4) {
-    translate([0,hot_y,2]) rotate([0,0,0]) mrf_extruder(color1=pp_color2,color2=pp_color);
+    translate([0,hot_y,0]) rotate([0,0,0]) mrf_extruder(color1=pp_color2,color2=pp_color);
   }
   // motor for Sailfin/MRF
   if ((hotend_type==1) || (hotend_type==4)) {
-    translate([5.5,hot_y+33+1,28.5]) rotate([90,50,0]) nema14_round();
+    translate([5.5,hot_y+33+1,26.5]) rotate([90,50,0]) nema14_round();
   }
   // Moli extruder
   if (hotend_type==3) {
-    translate([0,hot_y,2]) rotate([0,0,0]) moli_extruder(color1=pp_color2,color2=pp_color);
+    translate([0,hot_y,0]) rotate([0,0,0]) moli_extruder(color1=pp_color2,color2=pp_color);
     // motor for Moli
-    translate([0,hot_y+33,32]) rotate([90,48,0]) nema14_round();
+    translate([0,hot_y+33,30]) rotate([90,48,0]) nema14_round();
   }
   // TBG Lite
   if (hotend_type==2) {
@@ -927,6 +944,8 @@ module extruder_with_sailfin(){
     // motor for TBG
     translate([-TBG_w()/2+19.9,hot_y+33,21.1]) rotate([90,-47,0]) nema14_round();
   }
+  // filament
+  #translate([0,hot_y,hot_z]) cylinder(h=100,d=1.75);
 
   // screws
   // part cooling fan screws
@@ -1056,7 +1075,7 @@ module extruder(){
     extruder_mount_base_mgn9();
     translate([7,gantry_belt_pos-3.5,beltx_shift-16]) belt_lock();
     hotend_mount_mgn9();
-    extruder_with_sailfin();
+    extruder_with_nema14();
   }
 }
 module belt_lock(){
@@ -1856,7 +1875,6 @@ module gantry_joint_r_cf(){
     translate([ext-4,carriage_length(y_rail_carriage)-2,10]) rotate([90,0,0]) cylinder(h=10,d=m3_hole);
   }
 }
-
 module gantry_joint_r_cf_top(){
   px_x=ext/2; // x of Y pulley
   py_x=px_x-belt_x_separation; // x of X pulley
@@ -2534,7 +2552,6 @@ module mgn9_mount_helper(){
     translate([wall+cf_tube_size/2-mgn_x/2-printer_off,ext/2,0]) cube([mgn_x+2*printer_off,mgn_y+0.5,th]);
   }
 }
-
 module btt_skr_13(mot=0){
   // mot=1 - draw BTT-EXP-MOT module
   color([0.4,0,0]) {
@@ -2772,7 +2789,6 @@ module electronics(){
     translate([fpc_x,-20,base_h+fpc_z]) rotate([90,0,0]) fpc30_pcb();
   }
 }
-
 module draw_whole_printer(){
   frame();
   gantry();
