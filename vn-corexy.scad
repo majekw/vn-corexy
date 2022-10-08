@@ -866,6 +866,13 @@ module v6_clamp(){
           }
         }
       }
+      // Sailfin mounts
+      if (hotend_type==1) {
+        intersection(){
+          translate([19,-2.9+hot_y,hot_z-4]) cylinder(h=8,d=7);
+          translate([-20,hot_y-11,hot_z-4]) cube([43,11,8]);
+        }
+      }
     }
 
     // HOLES
@@ -875,21 +882,28 @@ module v6_clamp(){
     // mount holes
     for (i=[-9,9]){
       translate([i,hot_y,-7]) rotate([90,0,0]) cylinder(h=11,d=3.2);
-      translate([i,hot_y-11,-7]) rotate([-90,0,0]) cylinder(h=3,d=6);
+      //translate([i,hot_y-11,-7]) rotate([-90,0,0]) cylinder(h=3,d=6);
     }
-    // cable to hotend hole
-    translate([-18,hot_y-9,-8.01]) cube([5,10,7]);
+    // cable to hotend hole (not with Sailfin - mount screw is in this place)
+    if (hotend_type!=1) {
+      translate([-18,hot_y-9,-8.01]) cube([5,10,7]);
+    }
     // TBG holes
     if (hotend_type==2) {
       for (i=[0,1]) {
         translate([TBG_holes_front()[i].x,hot_y-11,hot_z+4+TBG_holes_front()[i].z]) rotate([-90,0,0]) cylinder(h=2.5,d=3.2);
       }
     }
+    // Sailfin holes
+    if (hotend_type==1) {
+      translate([19,-2.9+hot_y,hot_z-4]) cylinder(h=8,d=m3_insert);
+      translate([-14,-2.9+hot_y,hot_z-4]) cylinder(h=8,d=m3_insert);
+    }
   }
   if ($preview){
     // mounting screws
     for (i=[-9,9]) {
-      translate([i,hot_y-11+3,-7]) rotate([90,0,0]) screw(M3_cap_screw,12);
+      translate([i,hot_y-11,-7]) rotate([90,0,0]) screw(M3_cap_screw,16);
     }
     // screws for TBG
     if (hotend_type==2) {
@@ -908,9 +922,9 @@ module hotend_mount_mgn9(){
       // lower back plate
       translate([-hotend_carriage_w/2-2,-3-6,-49]) cube([hotend_carriage_w+4,3,61]);
       // upper back plate
-      translate([-hotend_carriage_w/2,-3-6+4,14]) cube([hotend_carriage_w,3,25.5]);
+      translate([-hotend_carriage_w/2-2,-3-6+4,14]) cube([hotend_carriage_w+4,3,25.5]);
       // connection between upper and lower back plate
-      translate([0,-7,14]) rotate([0,90,0]) triangle(h=hotend_carriage_w,a=5);
+      translate([0,-7,14]) rotate([0,90,0]) triangle(h=hotend_carriage_w+4,a=5);
       translate([0,-4,12]) rotate([0,-90,180]) triangle(h=hotend_carriage_w+4,a=5);
       // carriage mount
       translate([-hotend_carriage_w/2,-2,36]) cube([hotend_carriage_w,27.5,3.5]);
@@ -951,7 +965,7 @@ module hotend_mount_mgn9(){
     translate([-18,hot_y,-6]) cube([5,30,6.01]);
     // holes for MGN9 screws
     for (c=MGN9_holes)
-      #translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+22.5]) cylinder(d=3.2,h=3.5);
+      translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+22.5]) cylinder(d=3.2,h=3.5);
     // slot
     translate([-2,3,36]) cube([4,22.5,3.5]);
     // fan cable
