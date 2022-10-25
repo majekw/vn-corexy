@@ -710,34 +710,34 @@ module extruder_with_bmg(){
     translate([0,-1,0])bmg_extruder();
   }
 }
-module nema14_round(){
+module nema14_round(depth=20){
   hole_distance=43.84;
   color("gray") {
     // bottom
-    cylinder(h=4.3,d=36.5);
+    translate([0,0,-depth]) cylinder(h=4.3,d=36.2);
     // top
     difference(){
       union(){
-        translate([0,0,16]) cylinder(h=4,d=36.5);
+        translate([0,0,-4]) cylinder(h=4,d=36.2);
         hull(){
           m=51;
-          translate([-hole_distance/2,0,18]) cylinder(h=2,d=m-hole_distance);
-          translate([hole_distance/2,0,18]) cylinder(h=2,d=m-hole_distance);
-          translate([0,13,18]) cylinder(h=2,d=7);
-          translate([0,-13,18]) cylinder(h=2,d=7);
+          translate([-hole_distance/2,0,-2]) cylinder(h=2,d=m-hole_distance);
+          translate([hole_distance/2,0,-2]) cylinder(h=2,d=m-hole_distance);
+          translate([0,13,-2]) cylinder(h=2,d=7);
+          translate([0,-13,-2]) cylinder(h=2,d=7);
         }
       }
-      translate([-hole_distance/2,0,18]) cylinder(h=2,d=2.6);
-      translate([hole_distance/2,0,18]) cylinder(h=2,d=2.6);
+      translate([-hole_distance/2,0,-2]) cylinder(h=2,d=2.6);
+      translate([hole_distance/2,0,-2]) cylinder(h=2,d=2.6);
     }
     // raised part
-    translate([0,0,20]) cylinder(h=1.4,d=16);
+    cylinder(h=1.5,d=16);
     // shaft
-    translate([0,0,20]) cylinder(d=2.5,h=5.5);
+    cylinder(d=2.5,h=6);
     // gear
-    translate([0,0,22]) cylinder(h=4,d=6);
+    translate([0,0,2]) cylinder(h=4,d=6);
   }
-  translate([0,0,4]) color("black") cylinder(h=12,d=34.9);
+  translate([0,0,4-depth]) color("black") cylinder(h=depth-8,d=34.9);
 }
 module omerod_sensor(){
   ow=24.2;
@@ -1012,19 +1012,19 @@ module extruder_with_nema14(){
   }
   // motor for Sailfin/MRF
   if ((hotend_type==1) || (hotend_type==4)) {
-    translate([5.5,hot_y+33+1,26.5]) rotate([90,50,0]) nema14_round();
+    translate([5.5,hot_y+13+1,26.5]) rotate([90,50,0]) nema14_round();
   }
   // Moli extruder
   if (hotend_type==3) {
     translate([0,hot_y,0]) rotate([0,0,0]) moli_extruder(color1=pp_color2,color2=pp_color);
     // motor for Moli
-    translate([0,hot_y+33,30]) rotate([90,48,0]) nema14_round();
+    translate([0,hot_y+13,30]) rotate([90,48,0]) nema14_round();
   }
   // TBG Lite
   if (hotend_type==2) {
     translate([0,hot_y,0]) TBG_lite();
     // motor for TBG
-    translate([-TBG_w()/2+19.9,hot_y+33,21.1]) rotate([90,-47,0]) nema14_round();
+    translate([-TBG_w()/2+19.9,hot_y+13,21.1]) rotate([90,-47,0]) nema14_round(17.4);
   }
   // filament
   #translate([0,hot_y,hot_z]) cylinder(h=100,d=1.75);
