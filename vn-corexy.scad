@@ -999,7 +999,7 @@ module extruder_with_nema14(){
   if (!hide_ffc)
     translate([4,40,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
   // X endstop
-  translate([3.5,28.5,62]) rotate([-90,0,-90]) optical_endstop(screws=true);
+  translate([-3.5,28.5,62-10.2]) rotate([90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
   translate([0,hot_y-19,hot_z-49]) rotate([90,0,0]) omerod_sensor(); // 3.5mm from block
   // Sailfin extruder
@@ -1078,8 +1078,8 @@ module extruder_mount_base_mgn9(){
       translate([0,plate_d+1,mgn9plate_z]) rotate([-90,0,-90]) triangle(h=hotend_carriage_w,a=3);
       // X endstop mount plate
       translate([-1.5,cf_from_front-1,mgn9plate_z+2.5]) cube([3,plate_d,26]);
-      translate([1.5,cf_from_front-1,mgn9plate_z+2.5+16]) cube([2,6,10]);
-      translate([1.5,cf_from_front+plate_d-10,mgn9plate_z+2.5+16]) cube([2,6,10]);
+      translate([-1.5-2,cf_from_front-1,mgn9plate_z+2.5+16]) cube([2,6,10]);
+      translate([-1.5-2,cf_from_front+plate_d-10,mgn9plate_z+2.5+16]) cube([2,6,10]);
       //fan back mounts
       hull(){
         translate([13,32.5,-6]) rotate([0,90,0]) cylinder(h=3,d=7);
@@ -1120,7 +1120,7 @@ module extruder_mount_base_mgn9(){
 
      // X endstop screw holes
     for (i=[0:1])
-      translate([7,28.5-optical_endstop_holes[i].x,-optical_endstop_holes[i].y+62]) rotate([0,-90,0]) cylinder(h=10,d=m3_hole);
+      translate([6.5,28.5-optical_endstop_holes[i].x,-optical_endstop_holes[i].y+62]) rotate([0,-90,0]) cylinder(h=10,d=m3_hole);
     // zip tie holes behind endstop
     translate([-1.5,25,48]) rotate([0,0,0]) cube([3,3,3]);
     translate([-1.5,25,39]) rotate([0,0,0]) cube([3,3,3]);
@@ -1650,6 +1650,7 @@ module gantry_joint_l_cf(){
   m3_screw1=6; // carriage short
   m3_screw3=20; // carriage inner
   m3_screw2=25; // carriage outer
+  m3_screw4=8; // endstops
   m3_1=[20,12.7]; // inner front
   m3_2=[20,32.7]; // inner back
   m3_3=[0,12.7]; // outer front
@@ -1673,6 +1674,8 @@ module gantry_joint_l_cf(){
     translate([m3_4.x,m3_4.y,m3_screw2-3]) screw(M3_cap_screw,m3_screw2);
     // top mount
     translate([py_x+3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) screw(M5_cap_screw,m5_screw6);
+    // X endstop mount
+    translate([2+20,23,57]) rotate([0,90,0]) screw(M3_cs_cap_screw,m3_screw4);
   }
 
   // mount
@@ -1791,6 +1794,11 @@ module gantry_joint_l_cf_top(){
     translate([py_x,py_y,m5_screw1+22]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw1,print_upside=true);
     // top M5 screw
     translate([py_x+3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw6+5,cut_nut=false,print_upside=true);
+    // X endstop trigger mount
+    translate([20,14.5,61-9]) {
+      cube([2,14.6,11]);
+      translate([-12,8.5,4+1]) rotate([0,90,0]) cylinder(h=12,d=m3_hole);
+    }
   }
 }
 module gantry_joint_l(pulx, puly){
@@ -1799,6 +1807,8 @@ module gantry_joint_l(pulx, puly){
   } else if (x_gantry_type==1) {
     gantry_joint_l_cf();
     gantry_joint_l_cf_top();
+    // X trigger
+    translate([20,28,53+8]) rotate([0,90,-90]) xy_endstop_trigger();
   }
 }
 module gantry_joint_r_vslot(pulx, puly){
@@ -1868,8 +1878,6 @@ module gantry_joint_r_cf(){
     translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) screw(M5_cap_screw,m5_screw6);
     // Y endstop mount
     translate([ext-4,carriage_length(y_rail_carriage),10]) rotate([-90,0,0]) screw(M3_cs_cap_screw,m3_screw4);
-    // X endstop mount
-    translate([-2,23,57]) rotate([0,-90,0]) screw(M3_cs_cap_screw,m3_screw4);
   }
 
   // mount
@@ -2009,11 +2017,6 @@ module gantry_joint_r_cf_top(){
     translate([py_x,py_y,m5_screw1+22]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw1,print_upside=true);
     // top M5 screw
     translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw6+5,cut_nut=false,print_upside=true);
-    // X endstop trigger mount
-    translate([-2,14.5,61-9]) {
-      cube([2,14.6,11]);
-      translate([2,8.5,4+1]) rotate([0,90,0]) cylinder(h=12,d=m3_hole);
-    }
   }
 }
 module xy_endstop_trigger(){
@@ -2037,8 +2040,6 @@ module gantry_joint_r(pulx, puly){
     gantry_joint_r_cf_top();
     // Y trigger
     translate([12,carriage_length(y_rail_carriage)-2,5]) xy_endstop_trigger();
-    // X trigger
-    translate([0,28,53]) rotate([0,-90,90]) xy_endstop_trigger();
   }
 }
 module gantry(){
