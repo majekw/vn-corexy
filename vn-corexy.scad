@@ -991,7 +991,7 @@ module extruder_with_nema14(){
   // cooling fan shroud
   translate([0,hot_y,hot_z]) blower_to_v6();
   // part cooling fans
-  translate([0,-5,-48]) rotate([90,0,90]) {
+  translate([0,-5,-44]) rotate([90,0,90]) {
     blower(PE4020C);
     translate([40,0,0]) rotate([0,180,0]) blower(PE4020C);
   }
@@ -1033,7 +1033,7 @@ module extruder_with_nema14(){
   // part cooling fan screws
   for (i=[1,2]) {
     p=blower_screw_holes(PE4020C)[i];
-    translate([16,p.x-5,p.y-48]) rotate([90,0,90]) {
+    translate([16,p.x-5,p.y-44]) rotate([90,0,90]) {
       screw(M3_cap_screw,35);
       translate([0,0,-34.5]) nut(M3_nut);
     }
@@ -1056,24 +1056,24 @@ module extruder_with_nema14(){
   translate([14,-9,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
 }
 module extruder_mount_base_mgn9(){
-  plate_h=67;
+  plate_h=63;
   plate_d=gantry_belt_pos-cf_from_front-2.5; // 2.5=2xbelt thickness
   mgn9plate_z=cf_above_carriage+20+carriage_height(MGN9H_carriage);
   color(pp_color2) difference(){
     union(){
       translate([-hotend_carriage_w/2,cf_from_front,0]){
         // back plate
-        translate([0,plate_d-4,-5]) cube([hotend_carriage_w,4,plate_h]);
+        translate([0,plate_d-4,-1]) cube([hotend_carriage_w,4,plate_h]);
         // mgn mount
         translate([0,-1,mgn9plate_z]) cube([hotend_carriage_w,plate_d,2.5]); // or 4.5
         // bottom plate
-        translate([0,-11,-2-3]) cube([hotend_carriage_w,plate_d+11,3]);
+        translate([0,-11,-1]) cube([hotend_carriage_w,plate_d+11,3]);
         // hotend mount
         translate([0,-11,-2]) cube([hotend_carriage_w,5,11.5]);
       }
       // reinforcements
-      translate([0,plate_d+1,-2]) rotate([90,0,-90]) triangle(h=hotend_carriage_w,a=3);
-      translate([0,-1,-2]) rotate([0,-90,0]) triangle(h=hotend_carriage_w,a=7);
+      translate([0,plate_d+1,2]) rotate([90,0,-90]) triangle(h=hotend_carriage_w,a=3);
+      translate([0,-1,0]) rotate([0,-90,0]) triangle(h=hotend_carriage_w,a=7);
       translate([0,plate_d+1,mgn9plate_z+2.5]) rotate([90,0,-90]) triangle(h=hotend_carriage_w,a=3);
       translate([0,plate_d+1,mgn9plate_z]) rotate([-90,0,-90]) triangle(h=hotend_carriage_w,a=3);
       // X endstop mount plate
@@ -1082,31 +1082,31 @@ module extruder_mount_base_mgn9(){
       translate([1.5,cf_from_front+plate_d-10,mgn9plate_z+2.5+16]) cube([2,6,10]);
       //fan back mounts
       hull(){
-        translate([13,32.5,-10]) rotate([0,90,0]) cylinder(h=3,d=7);
-        translate([13,30,-4]) rotate([0,90,0]) cylinder(h=3,d=7);
+        translate([13,32.5,-6]) rotate([0,90,0]) cylinder(h=3,d=7);
+        translate([13,30,0]) rotate([0,90,0]) cylinder(h=3,d=7);
       }
       hull(){
-        translate([-13,32.5,-10]) rotate([0,-90,0]) cylinder(h=3,d=7);
-        translate([-13,30,-4]) rotate([0,-90,0]) cylinder(h=3,d=7);
+        translate([-13,32.5,-6]) rotate([0,-90,0]) cylinder(h=3,d=7);
+        translate([-13,30,0]) rotate([0,-90,0]) cylinder(h=3,d=7);
       }
       // fan front mounts
-      translate([-13-1.5,-6,-5]) rotate([0,90,0]) triangle(h=3,a=13);
-      translate([13+1.5,-6,-5]) rotate([0,90,0]) triangle(h=3,a=13);
+      translate([-13-1.5,-6,-1]) rotate([0,90,0]) triangle(h=3,a=13);
+      translate([13+1.5,-6,-1]) rotate([0,90,0]) triangle(h=3,a=13);
       // belt mount
       translate([-15,gantry_belt_pos-2.5,beltx_shift-22]) cube([30+3,6.5,46]);
       // lower zip tie mount
-      translate([-5,gantry_belt_pos-2.5,0]) cube([10,5,16]);
+      translate([-5,gantry_belt_pos-2.5,4]) cube([10,5,12]);
     }
     // HOLES
 
     // lower back cable hole
-    translate([0,35,-3]) rotate([45,0,0]) translate([-10,-15,0]) cube([20,30,3]);
+    translate([0,35,1]) rotate([45,0,0]) translate([-10,-15,0]) cube([20,30,3]);
     // lower front cable hole
     translate([0,-7,0]) rotate([-45,0,0]) translate([-10,-15,0]) cube([20,30,7]);
     // upper cable hole
     translate([-3,43,58]) rotate([0,0,0]) translate([-10,-15,0]) cube([11,12,2.5]);
     // lower zip tie hole
-    translate([-5,gantry_belt_pos-2.5,4]) cube([10,3,5]);
+    translate([-5,gantry_belt_pos-2.5,8]) cube([10,3,5]);
     // belt mount vertical hole
     translate([-5,gantry_belt_pos-2.5,beltx_shift-14]) cube([10,6.5,30]);
     // belt mount holes
@@ -1145,7 +1145,7 @@ module extruder_mount_base_mgn9(){
     // part cooling fan screws
     for (i=[1,2]) {
       p=blower_screw_holes(PE4020C)[i];
-      translate([-20,p.x-5,p.y-48]) rotate([90,0,90]) cylinder(d=3+2*printer_off,h=40);
+      translate([-20,p.x-5,p.y-44]) rotate([90,0,90]) cylinder(d=3+2*printer_off,h=40);
     }
   }
 }
