@@ -1069,7 +1069,7 @@ module extruder_mount_base_mgn9(){
         // bottom plate
         translate([0,-11,-1]) cube([hotend_carriage_w,plate_d+11,3]);
         // hotend mount
-        translate([0,-11,-2]) cube([hotend_carriage_w,5,11.5]);
+        translate([0,-11,-1]) cube([hotend_carriage_w,5,10.5]);
       }
       // reinforcements
       translate([0,plate_d+1,2]) rotate([90,0,-90]) triangle(h=hotend_carriage_w,a=3);
@@ -1093,41 +1093,45 @@ module extruder_mount_base_mgn9(){
       translate([-13-1.5,-6,-1]) rotate([0,90,0]) triangle(h=3,a=13);
       translate([13+1.5,-6,-1]) rotate([0,90,0]) triangle(h=3,a=13);
       // belt mount
-      translate([-15,gantry_belt_pos-2.5,beltx_shift-22]) cube([30+3,6.5,46]);
-      // lower zip tie mount
-      translate([-5,gantry_belt_pos-2.5,4]) cube([10,5,12]);
+      translate([-15-3,gantry_belt_pos-2.5,beltx_shift-22]) cube([30+3,6.5,46]);
+      // upper cable passage
+      translate([-1.5,cf_from_front+plate_d-4,61.5]) cube([19.5,10.5,2]);
+      // lower cable passage
+      translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,3]) cube([hotend_carriage_w,7,5]);
     }
     // HOLES
 
     // lower back cable hole
-    translate([0,35,1]) rotate([45,0,0]) translate([-10,-15,0]) cube([20,30,3]);
+    translate([0,35,1]) rotate([45,0,0]) translate([-13,-15,0]) cube([26,15,3]);
+    // lower cable passage
+    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,3]) cube([hotend_carriage_w/2-2,5,5]);
+    translate([2,gantry_belt_pos-2.5,3]) cube([hotend_carriage_w/2-2,5,5]);
     // lower front cable hole
     translate([0,-7,0]) rotate([-45,0,0]) translate([-10,-15,0]) cube([20,30,7]);
     // upper cable hole
-    translate([-3,43,58]) rotate([0,0,0]) translate([-10,-15,0]) cube([11,12,2.5]);
+    translate([2,28,59.5]) cube([17,12,2]);
     // lower zip tie hole
-    translate([-5,gantry_belt_pos-2.5,8]) cube([10,3,5]);
+    //translate([-5,gantry_belt_pos-2.5,8]) cube([10,3,5]);
     // belt mount vertical hole
     translate([-5,gantry_belt_pos-2.5,beltx_shift-14]) cube([10,6.5,30]);
     // belt mount holes
     translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,beltx_shift-12]) cube([hotend_carriage_w,2.5,11]);
     translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,belty_shift-12]) cube([hotend_carriage_w,2.5,11]);
     // belt tracks
-    translate([-15,gantry_belt_pos-2.5+6.6,beltx_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.6);
-    translate([-15,gantry_belt_pos-2.5+6.6,belty_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.6);
+    translate([5,gantry_belt_pos-2.5+6.6,beltx_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.6);
+    translate([5,gantry_belt_pos-2.5+6.6,belty_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.6);
     // locking hole
-    translate([7,gantry_belt_pos-3.5,beltx_shift-16]) cube([8,3.5,40]);
+    translate([-7-8,gantry_belt_pos-3.5,beltx_shift-16]) cube([10,3.5,40]);
 
      // X endstop screw holes
     for (i=[0:1])
       translate([6.5,28.5-optical_endstop_holes[i].x,-optical_endstop_holes[i].y+62]) rotate([0,-90,0]) cylinder(h=10,d=m3_hole);
     // zip tie holes behind endstop
-    translate([-1.5,25,48]) rotate([0,0,0]) cube([3,3,3]);
-    translate([-1.5,25,39]) rotate([0,0,0]) cube([3,3,3]);
-    translate([-1.5,15.5,48]) rotate([0,0,0]) cube([3,3,3]);
-    translate([-1.5,15.5,39]) rotate([0,0,0]) cube([3,3,3]);
-    translate([-1.5,6,48]) rotate([0,0,0]) cube([3,3,3]);
-    translate([-1.5,6,39]) rotate([0,0,0]) cube([3,3,3]);
+    for (c_y=[6,15.5,25]) {
+      for (c_z=[42,49]) {
+        translate([-1.5,c_y,c_z]) cube([3,3,3]);
+      }
+    }
     // holes for MGN9 screws
     for (c=MGN9_holes)
       translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20]) {
@@ -1155,7 +1159,7 @@ module extruder(){
   } else
   if (hotend_type>=1) {
     extruder_mount_base_mgn9();
-    translate([7,gantry_belt_pos-3.5,beltx_shift-16]) belt_lock();
+    translate([-5,gantry_belt_pos,beltx_shift-16]) rotate([0,0,180]) belt_lock();
     hotend_mount_mgn9();
     v6_clamp();
     extruder_with_nema14();
@@ -1165,13 +1169,13 @@ module belt_lock(){
   color(pp_color)
     intersection(){
       difference(){
-        cube([8,3.5,43]);
+        cube([10,3.5,43]);
 
-        gt2_tooths(4,30,1.4);
-        translate([0,0.5,-1]) rotate([30,0,0]) cube([8,2,6]);
-        translate([2,0,40]) cube([4,3.5,1]);
+        gt2_tooths(5,30,1.4);
+        translate([0,0.5,-1]) rotate([30,0,0]) cube([10,2,6]);
+        translate([2,0,40]) cube([6,3.5,1]);
       }
-      translate([0.25,0.1,0]) cube([7.5,3.3,45]);
+      translate([0.25,0.1,0]) cube([9.5,3.3,45]);
     }
 }
 module pulley_spacer(h=1) {
