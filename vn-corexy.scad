@@ -862,7 +862,7 @@ module v6_clamp(){
         for (i=[0,1]) {
           translate([TBG_holes_front()[i].x,hot_y-11,hot_z+4]) hull(){
             translate([-3,0,0]) cube([6,2.5,1]);
-            translate([0,0,TBG_holes_front()[i].z]) rotate([-90,0,0]) cylinder(h=2.5,d=6);
+            translate([0,0,TBG_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6);
           }
         }
       }
@@ -891,7 +891,7 @@ module v6_clamp(){
     // TBG holes
     if (hotend_type==2) {
       for (i=[0,1]) {
-        translate([TBG_holes_front()[i].x,hot_y-11,hot_z+4+TBG_holes_front()[i].z]) rotate([-90,0,0]) cylinder(h=2.5,d=3.2);
+        translate([TBG_holes_front()[i].x,hot_y-11,hot_z+4+TBG_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=3.2);
       }
     }
     // Sailfin holes
@@ -907,8 +907,8 @@ module v6_clamp(){
     }
     // screws for TBG
     if (hotend_type==2) {
-      translate([TBG_holes_front()[0].x,hot_y-11,hot_z+4+TBG_holes_front()[0].z]) rotate([90,0,0]) screw(M3_cap_screw,30);
-      translate([TBG_holes_front()[1].x,hot_y-11,hot_z+4+TBG_holes_front()[1].z]) rotate([90,0,0]) screw(M3_cap_screw,8);
+      translate([TBG_holes_front()[0].x,hot_y-11,hot_z+4+TBG_holes_front()[0].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,30);
+      translate([TBG_holes_front()[1].x,hot_y-11,hot_z+4+TBG_holes_front()[1].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,8);
     }
   }
 }
@@ -1097,6 +1097,7 @@ module extruder_mount_base_mgn9(){
       translate([-15-3,gantry_belt_pos-2.5,beltx_shift-22]) cube([30+3,6.5,46]);
       // upper cable passage
       translate([-1.5,cf_from_front+plate_d-4,61.5]) cube([19.5,10.5,2]);
+      translate([-1.5,cf_from_front+plate_d-4+10.5/2,61.5]) rotate([90,0,180]) triangle(a=2,h=10.5);
       // lower cable passage
       translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,3]) cube([hotend_carriage_w,6,5]);
     }
