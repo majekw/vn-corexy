@@ -129,7 +129,7 @@ cf_above_carriage=3.5; // height of cf above carriage
 cf_from_front=5; // distance from front of carriage
 
 // hotend position
-hot_y=-44;
+hot_y=-40;
 hot_z=-4;
 hotend_carriage_w=36;
 
@@ -920,21 +920,21 @@ module hotend_mount_mgn9(){
   color(pp_color) difference(){
     union(){
       // lower back plate
-      translate([-hotend_carriage_w/2-2,-3-6,-49]) cube([hotend_carriage_w+4,3,61]);
+      translate([-hotend_carriage_w/2-2,-6,-49]) cube([hotend_carriage_w+4,3,60]);
       // upper back plate
-      translate([-hotend_carriage_w/2-2,-3-6+4,14]) cube([hotend_carriage_w+4,3,25.5]);
+      translate([-hotend_carriage_w/2-2,-3-6+4,11]) cube([hotend_carriage_w+4,3,28.5]);
       // connection between upper and lower back plate
-      translate([0,-7,14]) rotate([0,90,0]) triangle(h=hotend_carriage_w+4,a=5);
-      translate([0,-4,12]) rotate([0,-90,180]) triangle(h=hotend_carriage_w+4,a=5);
+      translate([0,-5,11]) rotate([0,90,0]) triangle(h=hotend_carriage_w+4,a=3);
+      translate([0,-4,11]) rotate([0,-90,180]) triangle(h=hotend_carriage_w+4,a=2);
       // carriage mount
       translate([-hotend_carriage_w/2,-2,36]) cube([hotend_carriage_w,27.5,3.5]);
       // v6/extruder plate
-      translate([-hotend_carriage_w/2-2,hot_y,-10+2]) cube([hotend_carriage_w+4,-hot_y-6,8]);
+      translate([-hotend_carriage_w/2-2,hot_y,-10+2]) cube([hotend_carriage_w+4,-hot_y-3,8]);
       // V6 mount
       zg=25;
       translate([0,hot_y,hot_z-6]) intersection(){
         cylinder(h=2,d=zg);
-        translate([-zg/2,0,0]) cube([zg,zg/2,2]);
+        translate([-zg/2,0,0]) cube([zg,zg/2-1,2]);
       }
       // fan/hotend screws
       intersection(){
@@ -950,12 +950,12 @@ module hotend_mount_mgn9(){
 
     // fan holes
     for (i=[0:3])
-      translate([-9+i*7,-29,-10+2-0.05]) cube([6.2,17,10.1]);
+      translate([-9+i*7,hot_y+15,-10+2-0.05]) cube([6.2,17,10.1]);
     // lower front cable hole
-    translate([0,-9,0]) rotate([-45,0,0]) translate([-10,-15,0]) cube([20,30,8]);
+    translate([0,-5,0]) rotate([-45,0,0]) translate([-10,-15,0]) cube([20,30,8]);
     // hotend back plate screws to carriage
-    translate([-14,-6,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
-    translate([14,-6,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
+    translate([-14,-2,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
+    translate([14,-2,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
     // V6 hole
     translate([0,hot_y,hot_z]) v6_hole();
     // front holes for M3 inserts for V6 lock
@@ -969,7 +969,8 @@ module hotend_mount_mgn9(){
     // slot
     translate([-2,3,36]) cube([4,22.5,3.5]);
     // fan cable
-    translate([-4,-9,-37]) cube([6,3,20]);
+    translate([0,-6,-29]) rotate([0,45,0]) translate([-12,0,-12]) cube([24,3,24]);
+    translate([-3,-5,-15.5]) cube([6,2,15]);
     // fan/hotend screws
     for (i=[0,1,2]) {
       p=blower_screw_holes(PE4020C)[i];
@@ -1052,8 +1053,8 @@ module extruder_with_nema14(){
   translate([-13,-21.5+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
   translate([13,-21.5+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
   // hotend back plate screws to carriage
-  translate([-14,-9,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
-  translate([14,-9,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
+  translate([-14,-6,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
+  translate([14,-6,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
 }
 module extruder_mount_base_mgn9(){
   plate_h=63;
