@@ -1128,22 +1128,22 @@ module extruder_mount_base_mgn9(){
       translate([-13-1.5,-3,-1]) rotate([0,90,0]) triangle(h=3,a=13);
       translate([13+1.5,-3,-1]) rotate([0,90,0]) triangle(h=3,a=13);
       // belt mount
-      translate([-15-3,gantry_belt_pos-2.5,beltx_shift-20]) cube([30+3,6.5,46-4]);
+      translate([-15-3,gantry_belt_pos-2.5,beltx_shift-17.5]) cube([30+3,6,46-6.5]);
+      translate([0,gantry_belt_pos-2.5,20+1.5]) rotate([-90,0,0]) cylinder(h=6,d=6);
       // upper cable passage
-      translate([-1.5,cf_from_front+plate_d-4,59.5]) cube([19.5,10.5,4]);
-      translate([-1.5,cf_from_front+plate_d-4+10.5/2,60]) rotate([90,0,180]) triangle(a=3.5,h=10.5);
+      translate([-1.5,cf_from_front+plate_d-4,59.5]) cube([19.5,10,4]);
+      translate([-1.5,cf_from_front+plate_d-4+10/2,60]) rotate([90,0,180]) triangle(a=3.5,h=10);
       // lower cable passage
-      translate([-2.5,gantry_belt_pos-2.5,3]) cube([5,4.5,5]);
+      translate([-hotend_carriage_w/2+3,gantry_belt_pos-2.5,3+2.5]) rotate([-90,0,0]) cylinder(h=4.5,d=6);
+      translate([hotend_carriage_w/2-3,gantry_belt_pos-2.5,3+2.5]) rotate([-90,0,0]) cylinder(h=4.5,d=6);
     }
     // HOLES
 
     // lower back cable hole
     translate([0,35,1]) rotate([45,0,0]) translate([-13,-15,0]) cube([26,15,3]);
-    // lower cable passage mount hole
-    translate([0,gantry_belt_pos-8,3+2.5]) rotate([-90,0,0]) cylinder(h=10,d=m3_hole);
-    // lower cable lock side holes
-    translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,3+2.5]) rotate([0,0,-90]) triangle(h=5,a=3);
-    translate([hotend_carriage_w/2,gantry_belt_pos-2.5,3+2.5]) rotate([0,0,180]) triangle(h=5,a=3);
+    // lower cable lock holes
+    translate([-hotend_carriage_w/2+3,gantry_belt_pos-8,3+2.5]) rotate([-90,0,0]) cylinder(h=11,d=m3_hole);
+    translate([hotend_carriage_w/2-3,gantry_belt_pos-8,3+2.5]) rotate([-90,0,0]) cylinder(h=11,d=m3_hole);
     // lower front cable hole
     translate([0,-4,0]) rotate([-45,0,0]) translate([-10,-15,0]) cube([20,30,7]);
     // upper cable hole
@@ -1154,10 +1154,10 @@ module extruder_mount_base_mgn9(){
     translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,beltx_shift-12]) cube([hotend_carriage_w,2.5,11]);
     translate([-hotend_carriage_w/2,gantry_belt_pos-2.5,belty_shift-12]) cube([hotend_carriage_w,2.5,11]);
     // belt tracks
-    translate([5,gantry_belt_pos-2.5+6.6,beltx_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.8);
-    translate([5,gantry_belt_pos-2.5+6.6,belty_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.8);
+    translate([5,gantry_belt_pos-3+6.6,beltx_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.8);
+    translate([5,gantry_belt_pos-3+6.6,belty_shift-12]) mirror([0,1,0]) gt2_tooths(5,11,1.8);
     // locking hole
-    translate([-7-8,gantry_belt_pos-3.5,beltx_shift-18]) cube([10,3.5,42]);
+    translate([-7-8,gantry_belt_pos-3.5,beltx_shift-16]) cube([10,3.5,42]);
 
      // X endstop screw holes
     for (i=[0:1])
@@ -1193,27 +1193,20 @@ module mount_base_cable_lock(){
   color(pp_color) difference(){
     union(){
       // rear part/base
-      translate([-hotend_carriage_w/2,gantry_belt_pos+2,3]) cube([hotend_carriage_w,1.5,5]);
+      translate([-hotend_carriage_w/2+1,gantry_belt_pos+2,3]) cube([hotend_carriage_w-2,1.5,5]);
       // screw reinforcement
-      translate([0,gantry_belt_pos+2,3+2.5]) rotate([-90,0,0]) cylinder(h=1.5,d=7);
-      // left claw
-      translate([-hotend_carriage_w/2,gantry_belt_pos+2-5.5,3+0.25]) {
-        cube([1.5,5.5,4.5]);
-        translate([0,0,4.5/2]) rotate([0,0,-90]) triangle(h=4.5,a=1.5);
-      }
-      // right claw
-      translate([hotend_carriage_w/2-1.5,gantry_belt_pos+2-5.5,3+0.25]) {
-        cube([1.5,5.5,4.5]);
-        translate([1.5,0,4.5/2]) rotate([0,0,180]) triangle(h=4.5,a=1.5);
-      }
+      translate([-hotend_carriage_w/2+3,gantry_belt_pos+2,3+2.5]) rotate([-90,0,0]) cylinder(h=1.5,d=7);
+      translate([hotend_carriage_w/2-3,gantry_belt_pos+2,3+2.5]) rotate([-90,0,0]) cylinder(h=1.5,d=7);
     }
 
     // HOLES
     // M3 hole
-    translate([0,gantry_belt_pos+2-0.2,3+2.5]) rotate([-90,0,0]) cylinder(d2=6.5,d1=3,h=2);
+    translate([-hotend_carriage_w/2+3,gantry_belt_pos+2-0.1,3+2.5]) rotate([-90,0,0]) cylinder(d2=6.5,d1=3,h=2);
+    translate([hotend_carriage_w/2-3,gantry_belt_pos+2-0.1,3+2.5]) rotate([-90,0,0]) cylinder(d2=6.5,d1=3,h=2);
   }
   if ($preview){
-    translate([0,gantry_belt_pos+4,3+2.5]) rotate([-90,0,0]) screw(M3_cs_cap_screw,8);
+    translate([-hotend_carriage_w/2+3,gantry_belt_pos+4,3+2.5]) rotate([-90,0,0]) screw(M3_cs_cap_screw,8);
+    translate([hotend_carriage_w/2-3,gantry_belt_pos+4,3+2.5]) rotate([-90,0,0]) screw(M3_cs_cap_screw,8);
   }
 }
 module extruder(){
@@ -1222,7 +1215,7 @@ module extruder(){
   } else
   if (hotend_type>=1) {
     extruder_mount_base_mgn9();
-    translate([-5,gantry_belt_pos,beltx_shift-18]) rotate([0,0,180]) belt_lock();
+    translate([-5,gantry_belt_pos,beltx_shift-16]) rotate([0,0,180]) belt_lock();
     hotend_mount_mgn9();
     v6_clamp();
     extruder_with_nema14();
@@ -1234,11 +1227,11 @@ module belt_lock(){
   color(pp_color)
     intersection(){
       difference(){
-        cube([10,3.5,43]);
+        cube([10,3.5,41]);
 
-        gt2_tooths(5,33,1.6);
+        gt2_tooths(5,31,1.6);
         translate([0,0.7,-1]) rotate([30,0,0]) cube([10,2,6]);
-        translate([2,0,40]) cube([6,3.5,1]);
+        translate([2,0,38]) cube([6,3.5,1]);
       }
       translate([0.25,0.1,0]) cube([9.5,3.3,45]);
     }
