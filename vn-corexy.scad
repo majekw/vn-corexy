@@ -1089,6 +1089,9 @@ module carriage_to_nema14_mount(){
       translate([-TBG_w()/2+19.9,hot_y+13+5,21.1+1]) scale([1.05,1,1.1]) rotate([-90,0,0]) cylinder(h=7,d=36.2);
     }
   }
+  if ($preview) {
+    translate([-TBG_w()/2+19.9,hot_y+21,23.5]) rotate([-90,0,0]) ziptie(ziptie_3mm,r=20,t=0);
+  }
 }
 module extruder_mount_base_mgn9(){
   plate_h=63;
