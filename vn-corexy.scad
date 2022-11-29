@@ -755,7 +755,7 @@ module omerod_sensor(){
   // socket original
   //translate([-2.4,oh/2-2.65,0]) rotate([0,0,0]) pin_header(2p54header, 3, 1);
   // socket right angle
-  translate([-2.4,oh/2-2.65,1.5]) rotate([0,0,180]) pin_header(2p54header, 3, 1, right_angle = true);
+  translate([-2.4,oh/2-2.65,1.5]) rotate([0,0,180]) jst_xh_header(jst_xh_header, 3, right_angle = true);
   // capacitor
   translate([-1.7,-oh/2+3,0]) color("grey") cylinder(d=5.1,h=8.15);
 }
@@ -2915,7 +2915,7 @@ module electronics(){
     
     // Control board
     cb_h=80;
-    translate([base_w-elec_support/2-55+ext/2,joint_in_material,cb_h]) rotate([-90,-90,0]) btt_skr_13(1);
+    translate([base_w-elec_support/2-55+ext/2,joint_in_material,cb_h]) rotate([-90,-90,0]) btt_skr_13(0);
     // mounts for control board
     translate([base_w-elec_support,0,cb_h-12]) control_board_mount(1);
     translate([base_w,0,cb_h-12+ext]) rotate([0,180,0]) control_board_mount(0);
