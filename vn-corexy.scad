@@ -585,22 +585,22 @@ module frame(){
   // printed joints
   if (printed_corners) printed_joints();
 }
-module fcc_cable(length, height, p1, p2){
+module fcc_cable(length, height, dxy){
   thick=0.1;
-  d=abs(p1.x-p2.x);
+  d=abs(dxy.x);
   lr=PI*d/2;
   lm=length-lr;
-  ld=p2.y-p1.y;
+  ld=dxy.y;
   l1=lm/2+ld/2;
   l2=lm/2-ld/2;
 
   color("#f0f0f0") union(){
     // half circle
-    translate([p1.x+d/2,p1.y+l1,0]) rotate_extrude(angle=180,convexity=2) translate([d/2,0,0]) square([thick,height]);
+    translate([d/2,l1,0]) rotate_extrude(angle=180,convexity=2) translate([d/2,0,0]) square([thick,height]);
     // left
-    translate([p1.x-thick,p1.y,0]) cube([thick,l1,height]);
+    translate([-thick,0,0]) cube([thick,l1,height]);
     // right
-    translate([p2.x,p2.y,0]) cube([thick,l2,height]);
+    translate([dxy.x,dxy.y,0]) cube([thick,l2,height]);
   }
 
 }
@@ -2231,14 +2231,21 @@ module gantry(){
   motor_support_y();
 
   // FFC cable stoper
-  translate([base_w-6*ext,base_d-ext,base_h]) ffc_stopper();
+  translate([base_w-7*ext,base_d-ext,base_h]) ffc_stopper();
   translate([5*ext,base_d-ext,base_h]) ffc_stopper();
 
   // FFC cables
   if (!hide_ffc)
-    translate([0,0,base_h+36]) rotate([0,0,90]) {
-      fcc_cable(350,31,[132+pos_y,-40-pos_x],[139+pos_y,-base_w+35]);
-      fcc_cable(450,31,[141+pos_y,-base_w+35],[base_d-23,-base_w+50]);
+    translate([0,0,base_h+fpc_z-31/2]) {
+      // carriage to loop
+      translate([pos_x+40,132+pos_y,0]) rotate([0,0,90]) fcc_cable(350,31,[7.1,-base_w+pos_x+75]);
+      // loop to bend
+      translate([base_w-35,140+pos_y,0]) rotate([0,0,90]) fcc_cable(450,31,[base_d-pos_y-140-ext,6*ext-35-2]);
+      // bend to frame
+      color("#f0f0f0") {
+        translate([base_w-6*ext+2,base_d-ext/2,0]) rotate([0,0,-90]) rotate_extrude(angle=90,convexity=2) translate([ext/2,0,0]) square([0.1,31]);
+        translate([base_w-5.5*ext+2,base_d-ext/2,0]) cube([0.1,ext/2,31]);
+      }
     }
 }
 module build_plate(){
@@ -2935,7 +2942,7 @@ module electronics(){
       translate([0,0,-25]) y_endstop_mount();
     }
     // FPC mount
-    translate([fpc_x,-20,base_h+fpc_z]) rotate([90,0,0]) fpc30_pcb();
+    translate([base_w-5.5*ext,12,base_h+fpc_z]) rotate([90,0,90]) fpc30_pcb();
   }
 }
 module draw_whole_printer(){
