@@ -47,7 +47,7 @@ bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame]
+render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount]
 
 /* [tweaks/hacks] */
 
@@ -181,6 +181,18 @@ VWHEEL = VWHEEL_L;
 // blower - Pengda other type
 PE4020C = ["PE4020C", "Blower Pengda Technology 4020 - custom", 40, 40, 19.3, 27.5, M3_cap_screw, 22, [21.5, 20], 3.1, [[37.7,2.60],[2.60,37.8],[37.7,37.8]], 29.3, 17,  1.5, 1.2, 1.3, 12.9];
 hotend_blower=PE4020C;
+// TH35 rail
+/* 0 - thickness
+   1 - height
+   2 - hole dia (0 - no holes)
+   3 - hole lenght
+   4 - hole spacing (start to start)
+*/
+TH35_75_T1_20_NO_HOLES=[1.2, 7.5, 0, 0, 0];
+TH35_75_T1_20_2HOLES=[1.2, 7.5, 5, 6, 64];
+TH35_75_T1_0_SL6_5x15x25=[1.0, 7.5, 6.5, 15, 25];
+TH35_TYPE = TH35_75_T1_20_2HOLES;
+//TH35_TYPE = TH35_75_T1_0_SL6_5x15x25;
 /*
 $vpt=[ 195, 260, 230 ]; // viewport translate
 $vpr=[ 62.70, 0.00, 360*$t ]; // viewport rotation 67.20
@@ -1642,7 +1654,7 @@ module ffc_stopper(){
 module fpc_mount(){
   hh=fpc_z+22;
   ww=7;
-  color(pp_color2) union(){
+  color(pp_color) union(){
     difference(){
       union(){
         // base
@@ -2845,11 +2857,15 @@ module control_board_mount(orient=0){
     // pcb mount hole
     if (orient==0) {
       // 2 horizontal
-      translate([d_dist-4,0,sup_d/2]) rotate([-90,0,0]) slot(pcb_d,joint_in_material,5);
-      translate([d_dist-4,0,ext-sup_d/2]) rotate([-90,0,0]) slot(pcb_d,joint_in_material,5);
+      translate([d_dist-4,-eps,sup_d/2]) rotate([-90,0,0]) slot(pcb_d,joint_in_material+2*eps,5);
+      translate([d_dist-4,-eps,ext-sup_d/2]) rotate([-90,0,0]) slot(pcb_d,joint_in_material+2*eps,5);
     } else {
-      translate([d_dist,0,sup_d/2]) rotate([-90,-90,0]) slot(pcb_d,joint_in_material,ext-sup_d);
+      translate([d_dist,-eps,sup_d/2]) rotate([-90,-90,0]) slot(pcb_d,joint_in_material+2*eps,ext-sup_d);
     }
+  }
+  if ($preview){
+    translate([ext/2,joint_in_material,ext/2]) rotate([-90,0,0]) screw(M5_cap_screw,12);
+
   }
 }
 module cable_tie(sl=joint_screw_len){
@@ -2941,6 +2957,76 @@ module y_endstop_mount(){
 
   }
 }
+module th35_rail(type, length, hole_shift=0){
+// TH35 rail
+/* 0 - thickness
+   1 - height
+   2 - hole dia (0 - no holes)
+   3 - hole lenght
+   4 - hole spacing (start to start)
+*/
+  th_h=type[1];
+  th_th=type[0];
+
+  profile=[ [th_h-th_th,0],
+            [th_h,0],
+            [th_h,4+th_th-0.8],
+            [th_h-0.8,4+th_th],
+            [th_th+0.8,4+th_th],
+            [th_th,4+th_th+0.8],
+            [th_th,31-th_th-0.8],
+            [th_th+0.8,31-th_th],
+            [th_h-0.8,31-th_th],
+            [th_h,31-th_th+0.8],
+            [th_h,35],
+            [th_h-th_th,35],
+            [th_h-th_th,31+0.8],
+            [th_h-th_th-0.8,31],
+            [0.8,31],
+            [0,31-0.8],
+            [0,4+0.8],
+            [0.8,4],
+            [th_h-th_th-0.8,4],
+            [th_h-th_th,4-0.8] ];
+  color("silver") difference(){
+    linear_extrude(length,convexity=3) polygon(profile);
+
+    // HOLES
+    if (type[2]!=0) {
+      for (i=[0:length/type[4]]) {
+        translate([-eps,35/2,(type[4]-type[3])/2+i*type[4]+hole_shift]) hull(){
+          rotate([0,90,0]) cylinder(d=type[2],h=th_th+2*eps);
+          translate([0,0,type[3]-type[2]]) rotate([0,90,0]) cylinder(d=type[2],h=th_th+2*eps);
+        }
+      }
+    }
+  }
+}
+module th35_mount(th_type,rotation=false){
+  color(pp_color) difference(){
+    union(){
+      // base
+      cube([ext,joint_in_material,ext+10]);
+      // clamp
+      translate([0,0,ext-4]) cube([ext,joint_in_material+th_type[1]+2,4+4]);
+      // vslot
+      if (rotation){
+        translate([0,0,ext/2]) rotate([0,-90,180]) vslot_groove(ext);
+      } else {
+        translate([ext/2,0,0]) rotate([0,0,180]) vslot_groove(ext+10);
+      }
+    }
+
+    // HOLES
+    // TH slot
+    translate([0,joint_in_material+th_type[1]-th_type[0],ext]) cube([ext,th_type[0]+2*printer_off,4.5]);
+    // screw hole
+    translate([ext/2,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole();
+  }
+  if ($preview){
+    translate([ext/2,joint_in_material,ext/2]) rotate([-90,0,0]) screw(M5_cap_screw,12);
+  }
+}
 module electronics(){
   translate([0,base_d,0]){
     // PSU
@@ -2959,15 +3045,15 @@ module electronics(){
     translate([0,0,0]) rotate([0,0,0]) power_socket_mount();
     
     // Control board
-    cb_h=80;
+    cb_h=180;
     translate([base_w-elec_support/2-55+ext/2,joint_in_material,cb_h]) rotate([-90,-90,0]) btt_skr_13(0);
     // mounts for control board
     translate([base_w-elec_support,0,cb_h-12]) control_board_mount(1);
     translate([base_w,0,cb_h-12+ext]) rotate([0,180,0]) control_board_mount(0);
     translate([base_w-elec_support,0,cb_h+110-8]) control_board_mount(1);
     translate([base_w,0,cb_h+110-8+ext]) rotate([0,180,0]) control_board_mount(0);
-    translate([base_w-elec_support,0,cb_h+161-8]) control_board_mount(1);
-    translate([base_w,0,cb_h+161-8+ext]) rotate([0,180,0]) control_board_mount(0);
+    //translate([base_w-elec_support,0,cb_h+161-8]) control_board_mount(1);
+    //translate([base_w,0,cb_h+161-8+ext]) rotate([0,180,0]) control_board_mount(0);
 
     // Z end stop
     translate([base_w-elec_support,-ext,ext*3]) rotate([90,0,0]) {
@@ -2981,6 +3067,14 @@ module electronics(){
     }
     // FPC mount
     translate([base_w-5.5*ext,12,base_h+fpc_z]) rotate([90,0,90]) fpc30_pcb();
+
+    // TH35 rail
+    translate([base_w-elec_support+13.5,joint_in_material,50]) rotate([90,0,90]) th35_rail(TH35_TYPE, 108,-6);
+    // TH35 mounts
+    translate([base_w-elec_support,0,30]) rotate([0,0,0]) th35_mount(TH35_TYPE);
+    translate([base_w-ext,0,30]) rotate([0,0,0]) th35_mount(TH35_TYPE);
+    translate([base_w-elec_support+ext,0,30+30+45]) rotate([0,180,0]) th35_mount(TH35_TYPE);
+    translate([base_w,0,30+30+45]) rotate([0,180,0]) th35_mount(TH35_TYPE);
   }
 }
 module draw_whole_printer(){
@@ -3055,6 +3149,7 @@ module draw_printable_parts(){
   if (render_parts==55) carriage_to_nema14_mount();
   if (render_parts==56) mount_base_cable_lock();
   if (render_parts==57) fpc_mount();
+  if (render_parts==58) th35_mount(TH35_TYPE);
 }
 
 if ($preview) {
