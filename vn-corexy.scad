@@ -1642,32 +1642,34 @@ module ffc_stopper(){
 module fpc_mount(){
   hh=fpc_z+22;
   ww=7;
-  color(pp_color2) difference(){
-    union(){
-      // base
-      cube([1.5*ext,ext,joint_in_material]);
-      translate([0,ext/2,0]) rotate([-90,0,-90]) vslot_groove(1.5*ext);
-      // ffc mount
-      dd=35;
-      translate([1.5*ext-ww,0,0]) rotate([90,0,90]) linear_extrude(ww) polygon([[0,0], [ext,0], [dd,fpc_z-22], [dd,hh], [0,hh], [0,0]]);
-      // stopper
-      cube([1.5*ext,5,hh]);
-      // clamp
-      translate([1.5*ext,5,fpc_z-16-5]) rotate([90,0,0]) linear_extrude(5) polygon([ [0,0], [3,5], [3,5+32], [0,10+32], [0,0]]);
-    }
-    // HOLES
+  color(pp_color2) union(){
+    difference(){
+      union(){
+        // base
+        cube([1.5*ext,ext,joint_in_material]);
+        translate([0,ext/2,0]) rotate([-90,0,-90]) vslot_groove(1.5*ext);
+        // ffc mount
+        dd=35;
+        translate([1.5*ext-ww,0,0]) rotate([90,0,90]) linear_extrude(ww) polygon([[0,0], [ext,0], [dd,fpc_z-22], [dd,hh], [0,hh], [0,0]]);
+        // stopper
+        cube([1.5*ext,5,hh]);
+      }
+      // HOLES
 
-    // screw to frame
-    translate([ext/2,ext/2,joint_in_material]) rotate([180,0,0]) joint_hole(20);
-    // fillets
-    translate([-10,0,fpc_z-17]) fillet(r=20,h=34);
-    translate([1.5*ext,0,fpc_z-16]) rotate([0,0,90])fillet(r=10,h=32);
-    // FPC holes
-    translate([1.5*ext+eps,ext+12+fpc30_screws[0].x,fpc_z+fpc30_screws[0].y]) rotate([0,-90,0]) cylinder(h=ww+2*eps,d=m3_hole);
-    translate([1.5*ext+eps,ext+12+fpc30_screws[1].x,fpc_z+fpc30_screws[1].y]) rotate([0,-90,0]) cylinder(h=ww+2*eps,d=m3_hole);
-    // zip-tie holes
-    translate([1.5*ext-ww-eps,28,27]) rotate([-28,0,0]) cube([ww+2*eps,3,5]);
-    translate([1.5*ext-ww-eps,18.5,8]) rotate([-28,0,0]) cube([ww+2*eps,3,5]);
+      // screw to frame
+      translate([ext/2,ext/2,joint_in_material]) rotate([180,0,0]) joint_hole(20);
+      // fillets
+      translate([-10,0,fpc_z-17]) fillet(r=20,h=34);
+      translate([1.5*ext,0,fpc_z-16]) rotate([0,0,90])fillet(r=10,h=32);
+      // FPC holes
+      translate([1.5*ext+eps,ext+12+fpc30_screws[0].x,fpc_z+fpc30_screws[0].y]) rotate([0,-90,0]) cylinder(h=ww+2*eps,d=m3_hole);
+      translate([1.5*ext+eps,ext+12+fpc30_screws[1].x,fpc_z+fpc30_screws[1].y]) rotate([0,-90,0]) cylinder(h=ww+2*eps,d=m3_hole);
+      // zip-tie holes
+      translate([1.5*ext-ww-eps,28,27]) rotate([-28,0,0]) cube([ww+2*eps,3,5]);
+      translate([1.5*ext-ww-eps,18.5,8]) rotate([-28,0,0]) cube([ww+2*eps,3,5]);
+    }
+    // clamp
+    translate([1.5*ext,0,fpc_z-16]) rotate([0,0,90]) fillet(r=4,h=32);
   }
   if ($preview){
     translate([ext/2,ext/2,joint_in_material]) screw(M5_cap_screw,12);
