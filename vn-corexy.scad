@@ -3053,6 +3053,8 @@ module step_down_board(){
   for (xy=[[-holes.x,-holes.y],[-holes.x,holes.y],[holes.x,-holes.y],[holes.x,holes.y]]){
       translate([15+xy.x/2,35+xy.y/2,pcb_t]) screw(M2_cap_screw,8);
   }
+  // step down board
+  translate([1,14,0]) color("#0000a0") cube([23,43,15]);
 }
 module step_down_mount(th_type){
   holes=[25.2,65.2];
@@ -3095,7 +3097,7 @@ module electronics(){
     translate([0,0,0]) rotate([0,0,0]) power_socket_mount();
     
     // Control board
-    cb_h=200;
+    cb_h=230;
     translate([base_w-elec_support/2-55+ext/2,joint_in_material,cb_h]) rotate([-90,-90,0]) btt_skr_13(0);
     // mounts for control board
     translate([base_w-elec_support,0,cb_h-12]) control_board_mount(1);
@@ -3128,7 +3130,7 @@ module electronics(){
     translate([base_w,0,th1_h+10+45]) rotate([0,180,0]) th35_mount(TH35_TYPE);
 
     // wire join block
-    translate([base_w-elec_support+ext,joint_in_material+7.5,50-8]) color("#204020") cube([14,26.5,51]);
+    translate([base_w-elec_support+ext,joint_in_material+7.5,50-8]) color("#808080") cube([14,26.5,51]);
     translate([base_w-elec_support+ext+15,joint_in_material+7.5,50-8]) color("#4040f0") cube([14,26.5,51]);
 
     // step down board
@@ -3139,12 +3141,23 @@ module electronics(){
 
     // second TH35 rail
     th2_h=130;
-    translate([base_w-elec_support,joint_in_material,th2_h]) rotate([90,0,90]) th35_rail(TH35_TYPE, 130);
+    translate([base_w-elec_support-50,joint_in_material,th2_h]) rotate([90,0,90]) th35_rail(TH35_TYPE, 185);
     // TH35 mounts
     translate([base_w-elec_support,0,th2_h-20]) rotate([0,0,0]) th35_mount(TH35_TYPE);
     translate([base_w-ext,0,th2_h-20]) rotate([0,0,0]) th35_mount(TH35_TYPE);
     translate([base_w-elec_support+ext,0,th2_h+10+45]) rotate([0,180,0]) th35_mount(TH35_TYPE);
     translate([base_w,0,th2_h+10+45]) rotate([0,180,0]) th35_mount(TH35_TYPE);
+
+    // MOS boards
+    translate([base_w-elec_support-50,joint_in_material+7.5,th2_h-12.5]) cube([50,30,60]);
+    translate([base_w-elec_support+20,joint_in_material+7.5,th2_h-12.5]) cube([50,30,60]);
+    // relay board
+    translate([base_w-elec_support+80,joint_in_material+7.5,th2_h+17.5-45/2]) cube([20,20,45]);
+
+    // fans
+    fan_h=200;
+    for (fx = [42.5,92.5])
+      translate([base_w-elec_support+fx,25,fan_h]) fan(fan50x15);
   }
 }
 module draw_whole_printer(){
