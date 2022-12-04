@@ -3018,13 +3018,18 @@ module th35_mount(th_type,rotation=false){
       } else {
         translate([ext/2,0,0]) rotate([0,0,180]) vslot_groove(ext+10);
       }
+      // zip tie mount
+      translate([0,0,0]) cube([ext,joint_in_material+4,3]);
     }
 
     // HOLES
     // TH slot
-    translate([0,joint_in_material+th_type[1]-th_type[0],ext]) cube([ext,th_type[0]+2*printer_off,4.5]);
+    translate([-eps,joint_in_material+th_type[1]-th_type[0],ext]) cube([ext+2*eps,th_type[0]+2*printer_off,4.5]);
     // screw hole
     translate([ext/2,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole();
+    // zip tie holes
+    translate([2,joint_in_material,-eps]) cube([4,2,3+2*eps]);
+    translate([ext-2-4,joint_in_material,-eps]) cube([4,2,3+2*eps]);
   }
   if ($preview){
     translate([ext/2,joint_in_material,ext/2]) rotate([-90,0,0]) screw(M5_cap_screw,12);
