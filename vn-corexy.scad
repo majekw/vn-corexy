@@ -3047,8 +3047,8 @@ module step_down_board(){
   //translate([15,35,0]) rotate([0,0,90]) pcb(PERF70x30);
   for (i=[0:3]){
     translate([3+i*7.62,9,pcb_t]) rotate([0,0,-90]) jst_xh_header(jst_xh_header, 2, right_angle = false);
-    translate([14,63,pcb_t]) rotate([0,0,90]) green_terminal(gt_5x11, 2, colour="gray");
   }
+  translate([14,63,pcb_t]) rotate([0,0,90]) green_terminal(gt_5x11, 2, colour="gray");
   // screws
   for (xy=[[-holes.x,-holes.y],[-holes.x,holes.y],[holes.x,-holes.y],[holes.x,holes.y]]){
       translate([15+xy.x/2,35+xy.y/2,pcb_t]) screw(M2_cap_screw,8);
@@ -3078,6 +3078,39 @@ module step_down_mount(th_type){
     // center
     translate([-eps,36-29/2,-eps]) cube([32+2*eps,29,th_type[1]-4+2*printer_off]);
   }
+}
+module mos_board(){
+  board_th=1.6;
+  mh=[42,52]; // mos holes, dia=3.6
+  // pcb
+  color("black") difference(){
+    // board
+    cube([50,60,board_th]);
+    // holes
+    for (xy = [[50/2-mh.x/2,60/2-mh.y/2], [50/2+mh.x/2,60/2-mh.y/2], [50/2-mh.x/2,60/2+mh.y/2], [50/2+mh.x/2,60/2+mh.y/2]]) {
+      translate([xy.x,xy.y,-eps]) cylinder(d=3.6, h=board_th+2*eps);
+    }
+  }
+  // terminals
+  translate([3.5,10,board_th]) rotate([0,0,90]) terminal_block([10,1,14,14,7.7,14], 4);
+  // jst
+  translate([8,38,board_th]) rotate([0,0,90]) jst_xh_header(jst_xh_header, 2, right_angle = false);
+  // transistor
+  translate([25,41,20]) rotate([90,0,0]) TO247(lead_length = 6);
+  // radiator
+  translate([25-12,41,board_th]) color("silver") cube([24,8.5,24.5]);
+}
+module relay_board(){
+  board_th=1.2;
+  // pcb
+  color("#2020b0") cube([17.3,42.2,board_th]);
+  // terminal
+  translate([8.5,5.8,board_th]) rotate([0,0,-90]) green_terminal(gt_5x11, 3, colour="#6060f0");
+  // relay
+  translate([1,11,board_th]) color("#5050f0") cube([15,18.8,15.6]);
+  // pin header
+  translate([8.5,38,board_th]) pin_header(2p54header, 3, 1);
+
 }
 module electronics(){
   translate([0,base_d,0]){
@@ -3149,10 +3182,10 @@ module electronics(){
     translate([base_w,0,th2_h+10+45]) rotate([0,180,0]) th35_mount(TH35_TYPE);
 
     // MOS boards
-    translate([base_w-elec_support-50,joint_in_material+7.5,th2_h-12.5]) cube([50,30,60]);
-    translate([base_w-elec_support+20,joint_in_material+7.5,th2_h-12.5]) cube([50,30,60]);
+    translate([base_w-elec_support,joint_in_material+7.5,th2_h-12.5]) rotate([90,0,180]) mos_board();
+    translate([base_w-elec_support+70,joint_in_material+7.5,th2_h-12.5]) rotate([90,0,180]) mos_board();
     // relay board
-    translate([base_w-elec_support+80,joint_in_material+7.5,th2_h+17.5-45/2]) cube([20,20,45]);
+    translate([base_w-elec_support+100,joint_in_material+7.5,th2_h+17.5-45/2]) rotate([-90,180,0]) relay_board();
 
     // fans
     fan_h=200;
