@@ -71,6 +71,9 @@ printer_off=0.10; // [0:0.01:0.2]
 // hide FPC boards and FFC cables
 hide_ffc=false;
 
+// show detailed electronic modules
+show_detailed_electronics=true;
+
 
 // internal stuff starts here
 /* [Hidden] */
@@ -2763,9 +2766,13 @@ module mgn9_mount_helper(){
 }
 module btt_skr_13(mot=0){
   // mot=1 - draw BTT-EXP-MOT module
-  color([0.4,0,0]) {
-    cube([109.67,84.30,25]);
-    if (mot==1) translate([115,0,0]) cube([46.00,84.30,25]);
+  if (show_detailed_electronics){
+    translate([55,44.5,0]) pcb(BTT_SKR_V1_4_TURBO);
+  } else {
+    color([0.4,0,0]) {
+      cube([109.67,84.30,25]);
+      if (mot==1) translate([115,0,0]) cube([46.00,84.30,25]);
+    }
   }
 }
 module m4_hole(l){
@@ -3038,23 +3045,22 @@ module th35_mount(th_type,rotation=false){
 module step_down_board(){
   pcb_t=1.6;
   holes=[25.2,65.2];
-  color("#00a000") difference(){
-    cube([30,70,pcb_t]);
-    for (xy=[[-holes.x,-holes.y],[-holes.x,holes.y],[holes.x,-holes.y],[holes.x,holes.y]]){
-      translate([15+xy.x/2,35+xy.y/2,-eps]) cylinder(h=pcb_t+2*eps,d=2);
+  if (show_detailed_electronics){
+    translate([15,35,0]) rotate([0,0,90]) pcb(PERF70x30);
+    for (i=[0:3]){
+      translate([3+i*7.62,9,pcb_t]) rotate([0,0,-90]) jst_xh_header(jst_xh_header, 2, right_angle = false);
     }
+    translate([14,63,pcb_t]) rotate([0,0,90]) green_terminal(gt_5x11, 2, colour="gray");
+    // screws
+    for (xy=[[-holes.x,-holes.y],[-holes.x,holes.y],[holes.x,-holes.y],[holes.x,holes.y]]){
+        translate([15+xy.x/2,35+xy.y/2,pcb_t]) screw(M2_cap_screw,8);
+    }
+    // step down board
+    translate([1,14,0]) color("#0000a0") cube([23,43,15]);
+  } else {
+    // low res version
+    color("#00a000") cube([30,70,20]);
   }
-  //translate([15,35,0]) rotate([0,0,90]) pcb(PERF70x30);
-  for (i=[0:3]){
-    translate([3+i*7.62,9,pcb_t]) rotate([0,0,-90]) jst_xh_header(jst_xh_header, 2, right_angle = false);
-  }
-  translate([14,63,pcb_t]) rotate([0,0,90]) green_terminal(gt_5x11, 2, colour="gray");
-  // screws
-  for (xy=[[-holes.x,-holes.y],[-holes.x,holes.y],[holes.x,-holes.y],[holes.x,holes.y]]){
-      translate([15+xy.x/2,35+xy.y/2,pcb_t]) screw(M2_cap_screw,8);
-  }
-  // step down board
-  translate([1,14,0]) color("#0000a0") cube([23,43,15]);
 }
 module step_down_mount(th_type){
   holes=[25.2,65.2];
@@ -3082,35 +3088,44 @@ module step_down_mount(th_type){
 module mos_board(){
   board_th=1.6;
   mh=[42,52]; // mos holes, dia=3.6
-  // pcb
-  color("black") difference(){
-    // board
-    cube([50,60,board_th]);
-    // holes
-    for (xy = [[50/2-mh.x/2,60/2-mh.y/2], [50/2+mh.x/2,60/2-mh.y/2], [50/2-mh.x/2,60/2+mh.y/2], [50/2+mh.x/2,60/2+mh.y/2]]) {
-      translate([xy.x,xy.y,-eps]) cylinder(d=3.6, h=board_th+2*eps);
+  if (show_detailed_electronics){
+    // pcb
+    color("black") difference(){
+      // board
+      cube([50,60,board_th]);
+      // holes
+      for (xy = [[50/2-mh.x/2,60/2-mh.y/2], [50/2+mh.x/2,60/2-mh.y/2], [50/2-mh.x/2,60/2+mh.y/2], [50/2+mh.x/2,60/2+mh.y/2]]) {
+        translate([xy.x,xy.y,-eps]) cylinder(d=3.6, h=board_th+2*eps);
+      }
     }
+    // terminals
+    translate([3.5,10,board_th]) rotate([0,0,90]) terminal_block([10,1,14,14,7.7,14], 4);
+    // jst
+    translate([8,38,board_th]) rotate([0,0,90]) jst_xh_header(jst_xh_header, 2, right_angle = false);
+    // transistor
+    translate([25,41,20]) rotate([90,0,0]) TO247(lead_length = 6);
+    // radiator
+    translate([25-12,41,board_th]) color("silver") cube([24,8.5,24.5]);
+  } else {
+    // low res version
+    color("black") cube([50,60,26]);
   }
-  // terminals
-  translate([3.5,10,board_th]) rotate([0,0,90]) terminal_block([10,1,14,14,7.7,14], 4);
-  // jst
-  translate([8,38,board_th]) rotate([0,0,90]) jst_xh_header(jst_xh_header, 2, right_angle = false);
-  // transistor
-  translate([25,41,20]) rotate([90,0,0]) TO247(lead_length = 6);
-  // radiator
-  translate([25-12,41,board_th]) color("silver") cube([24,8.5,24.5]);
 }
 module relay_board(){
   board_th=1.2;
-  // pcb
-  color("#2020b0") cube([17.3,42.2,board_th]);
-  // terminal
-  translate([8.5,5.8,board_th]) rotate([0,0,-90]) green_terminal(gt_5x11, 3, colour="#6060f0");
-  // relay
-  translate([1,11,board_th]) color("#5050f0") cube([15,18.8,15.6]);
-  // pin header
-  translate([8.5,38,board_th]) pin_header(2p54header, 3, 1);
-
+  if (show_detailed_electronics){
+    // pcb
+    color("#2020b0") cube([17.3,42.2,board_th]);
+    // terminal
+    translate([8.5,5.8,board_th]) rotate([0,0,-90]) green_terminal(gt_5x11, 3, colour="#6060f0");
+    // relay
+    translate([1,11,board_th]) color("#5050f0") cube([15,18.8,15.6]);
+    // pin header
+    translate([8.5,38,board_th]) pin_header(2p54header, 3, 1);
+  } else {
+    // low res version
+    color("#2020b0") cube([17.3,42.2,17]);
+  }
 }
 module electronics(){
   translate([0,base_d,0]){
@@ -3174,7 +3189,7 @@ module electronics(){
 
     // second TH35 rail
     th2_h=130;
-    translate([base_w-elec_support-50,joint_in_material,th2_h]) rotate([90,0,90]) th35_rail(TH35_TYPE, 185);
+    translate([base_w-elec_support-55,joint_in_material,th2_h]) rotate([90,0,90]) th35_rail(TH35_TYPE, 190);
     // TH35 mounts
     translate([base_w-elec_support,0,th2_h-20]) rotate([0,0,0]) th35_mount(TH35_TYPE);
     translate([base_w-ext,0,th2_h-20]) rotate([0,0,0]) th35_mount(TH35_TYPE);
