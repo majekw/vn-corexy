@@ -10,7 +10,7 @@
 /* [head position] */
 pos_x=0;
 pos_y=100;
-pos_z=310;
+pos_z=290;
 /* [build plate] */
 build_plate_w=310; // (X)
 build_plate_d=310; // (Y)
@@ -18,12 +18,11 @@ build_plate_mount_space=240; // space between mounting screws
 /* [build volume] */
 build_x=300;
 build_y=300;
-build_z=310;
+build_z=290; // not used anywhere
 /* [hotend] */
 hotend_w=50;
 hotend_d=70;
 hotend_type=2; // [0:with BMG extruder, 1: with Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder, 5: bowden]
-hotend_nozzle=67-hotend_type*17; //distance from gantry to nozzle
 /* [frame] */
 // extrusions family size
 ext=20;
@@ -126,14 +125,15 @@ m5_hole=4.75; // hole for direct M5 screw without tapping
 m3_hole=2.75; // hole for direct M3 screw without tapping
 m2_hole=1.7; // hole for direct M2 screw without tapping
 m3_insert=3.8; // hole for M3 heat insert
-bed_z=base_h-2*ext-10-pos_z; // bed Z position
+bed_z=base_h-2*ext-28-pos_z; // bed Z position
 
 // Carbon fiber tube private variables
 cf_above_carriage=3.5; // height of cf above carriage
 cf_from_front=5; // distance from front of carriage
 
 // hotend position
-hot_y=-40;
+hot_y_variants=[-52,-40,-40,-40,-40,-40];
+hot_y=hot_y_variants[hotend_type]; // distance from gantry to nozzle
 hot_z=-4;
 hotend_carriage_w=36;
 
@@ -202,9 +202,27 @@ $vpr=[ 62.70, 0.00, 360*$t ]; // viewport rotation 67.20
 $vpd=1770.74; // viewport distance
 $vpf=22.50; // viewport fov
 */
+
+// general geometry modules
 module diamond(dim){
   linear_extrude(dim.z) polygon([ [0,dim.y/2], [dim.x/2,0], [dim.x,dim.y/2], [dim.x/2,dim.y] ]);
 }
+module triangle(a,h){
+  translate([0,0,-h/2]) linear_extrude(h) polygon([[0,0], [a,0], [0,a]]);
+}
+module round_corner(r,h){
+  difference(){
+    cube([r,r,h]);
+    translate([r,r,0]) cylinder(r=r,h=h);
+  }
+}
+module slot(d,h,l){
+  hull(){
+    cylinder(d=d,h=h);
+    translate([l,0,0]) cylinder(d=d,h=h);
+  }
+}
+// printer specific modules
 module gt2_tooths(tooths,h=10,depth=1.38){
   translate([1,depth-1.381,0]) linear_extrude(height=h)
     union(){
@@ -257,15 +275,6 @@ module vslot_wheel(wheel){
   color("#f0f0f0") difference(){
     cylinder(d=wheel[3], h=wheel[4]);
     cylinder(d=wheel[2], h=wheel[4]);
-  }
-}
-module triangle(a,h){
-  translate([0,0,-h/2]) linear_extrude(h) polygon([[0,0], [a,0], [0,a]]);
-}
-module round_corner(r,h){
-  difference(){
-    cube([r,r,h]);
-    translate([r,r,0]) cylinder(r=r,h=h);
   }
 }
 module vtriangle(){
@@ -2626,7 +2635,7 @@ module z_endstop_trigger(){
 }
 module z_bed_frame(){
   // build plate
-  translate([(base_w-build_plate_w)/2,hotend_d-hotend_nozzle+ext+10,15]) build_plate();
+  translate([(base_w-build_plate_w)/2,hotend_d+hot_y+ext-5,15]) build_plate();
 
   // plate frame
   // left
@@ -2837,12 +2846,6 @@ module power_socket_mount(){
     translate([ext/4,13,4*ext+45-8-6]) cube([ext/4,24,3]);
     translate([ext/4,13,4*ext+45-8-12]) cube([ext/4,24,3]);
     translate([ext/4,13,4*ext+45-8-18]) cube([ext/4,24,3]);
-  }
-}
-module slot(d,h,l){
-  hull(){
-    cylinder(d=d,h=h);
-    translate([l,0,0]) cylinder(d=d,h=h);
   }
 }
 module control_board_mount(orient=0){

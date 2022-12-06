@@ -1,7 +1,7 @@
 # vn-corexy
 Very Narrow CoreXY 3D Printer
 
-![vn-corexy rendering](img/vn-corexy-animated-20220816.gif)
+![vn-corexy rendering](img/vn-corexy-animated-20221206.gif)
 
 vn-corexy is designed around 300x300 mm build plate with goal to be
 as compact as possible with focus on width. Current dimensions are
@@ -10,8 +10,7 @@ are final, height could change.
 
 In this repository there is OpenScad source code with 3D printer design.
 There are many parameters that can be customized. In Customizer you could
-choose which printed parts you want to render and save as STL file,
-or render them all at once.
+choose which printed parts you want to render and save as STL file.
 There are also ECHO messages in console that can be used to prepare BOM,
 for example there are messages with all lengths of specific extrusion types,
 GT2 belt lengts are also calculated.
@@ -22,7 +21,7 @@ Forum thread (in Polish): https://reprapy.pl/viewtopic.php?f=10&t=7225
 
 # Requirements
 - OpenScad https://www.openscad.org/
-- NopSCADlib library https://github.com/nophead/NopSCADlib (version 20.10.3)
+- NopSCADlib library https://github.com/nophead/NopSCADlib (version 20.14.0)
 - for Sailfin extruder checkout Sailfin-Extruder/ git submodule
 - for Moli extruder checkout Moli-Extruder/ git submodule
 - for MRF extruder, download stl files from https://www.thingiverse.com/thing:5149028
