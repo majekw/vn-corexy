@@ -46,7 +46,7 @@ bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount, 59: Step down mount]
+render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount, 59: Step down mount, 60: MOS mount, 61: relay mount]
 
 /* [tweaks/hacks] */
 
@@ -3065,27 +3065,55 @@ module step_down_board(){
     color("#00a000") cube([30,70,20]);
   }
 }
+module relay_mount(th_type){
+  pcb_d=[17.5,43.5];
+  size=[pcb_d.x+8,pcb_d.y+4];
+
+  color(pp_color) difference(){
+    cube([size.x,size.y,5+4]);
+
+    // HOLES
+    // slot for relay
+    translate([4-printer_off,2-printer_off,5]) cube([pcb_d.x+2*printer_off,pcb_d.y+2*printer_off,4+eps]);
+    // zip ties
+    translate([1,20,-eps]) cube([2,4,5+4+2*eps]);
+    translate([size.x-3,20,-eps]) cube([2,4,5+4+2*eps]);
+    // TH slot
+    translate([-eps,size.y/2-36/2,th_type[1]-th_type[0]-4]) cube([size.x+2*eps,36,th_type[0]+2*printer_off]);
+    // TH center
+    translate([-eps,size.y/2-29/2,-eps]) cube([size.x+2*eps,29,th_type[1]-4+2*printer_off]);
+  }
+}
 module step_down_mount(th_type){
-  holes=[25.2,65.2];
+  holes=[25.2, 65.2];
+  size=[32, 72];
+  pcb_to_th35_mount(th_type, size, holes, m2_hole);
+}
+module mos_mount(th_type){
+  holes=[42, 52];
+  size=[50, 60];
+  pcb_to_th35_mount(th_type, size, holes, m3_hole);
+}
+module pcb_to_th35_mount(th_type, size, holes, hole_d){
   color(pp_color) difference(){
     union(){
       // main shape
-      cube([32,72,5]);
+      cube([size.x,size.y,5]);
       // top support
-      cube([32,6,8.5]);
+      cube([size.x,6,8.5]);
       // bottom support
-      translate([0,66,0]) cube([32,6,8.5]);
+      translate([0,size.y-6,0]) cube([size.x,6,8.5]);
     }
     // HOLES
 
     // screws
     for (xy=[[-holes.x,-holes.y],[-holes.x,holes.y],[holes.x,-holes.y],[holes.x,holes.y]]){
-      translate([16+xy.x/2,36+xy.y/2,-eps]) cylinder(h=8.5+2*eps,d=m2_hole);
+      translate([size.x/2+xy.x/2,size.y/2+xy.y/2,-eps]) cylinder(h=8.5+2*eps,d=hole_d);
     }
     // slot
-    translate([-eps,36-36/2,th_type[1]-th_type[0]-4]) cube([32+2*eps,36,th_type[0]+2*printer_off]);
+    translate([-eps,size.y/2-36/2,th_type[1]-th_type[0]-4]) cube([size.x+2*eps,36,th_type[0]+2*printer_off]);
     // center
-    translate([-eps,36-29/2,-eps]) cube([32+2*eps,29,th_type[1]-4+2*printer_off]);
+    translate([-eps,size.y/2-29/2,-eps]) cube([size.x+2*eps,29,th_type[1]-4+2*printer_off]);
   }
 }
 module mos_board(){
@@ -3118,7 +3146,7 @@ module relay_board(){
   board_th=1.2;
   if (show_detailed_electronics){
     // pcb
-    color("#2020b0") cube([17.3,42.2,board_th]);
+    color("#2020b0") cube([17.3,43.2,board_th]);
     // terminal
     translate([8.5,5.8,board_th]) rotate([0,0,-90]) green_terminal(gt_5x11, 3, colour="#6060f0");
     // relay
@@ -3200,10 +3228,19 @@ module electronics(){
     translate([base_w,0,th2_h+10+45]) rotate([0,180,0]) th35_mount(TH35_TYPE);
 
     // MOS boards
-    translate([base_w-elec_support,joint_in_material+7.5,th2_h-12.5]) rotate([90,0,180]) mos_board();
-    translate([base_w-elec_support+70,joint_in_material+7.5,th2_h-12.5]) rotate([90,0,180]) mos_board();
+    translate([base_w-elec_support,joint_in_material,th2_h-12.5]) rotate([90,0,180]) {
+      translate([0,0,7.5+5]) mos_board();
+      translate([0,0,4]) mos_mount(TH35_TYPE);
+    }
+    translate([base_w-elec_support+70,joint_in_material,th2_h-12.5]) rotate([90,0,180]) {
+      translate([0,0,7.5+5]) mos_board();
+      translate([0,0,4]) mos_mount(TH35_TYPE);
+    }
     // relay board
-    translate([base_w-elec_support+100,joint_in_material+7.5,th2_h+17.5-45/2]) rotate([-90,180,0]) relay_board();
+    translate([base_w-elec_support+100,joint_in_material,th2_h+17.5-43.5/2]) rotate([-90,180,0]) {
+      translate([0,0,7.5+5-2]) relay_board();
+      translate([-4,-2,4]) relay_mount(TH35_TYPE);
+    }
 
     // fans
     fan_h=200;
@@ -3285,6 +3322,8 @@ module draw_printable_parts(){
   if (render_parts==57) fpc_mount();
   if (render_parts==58) th35_mount(TH35_TYPE);
   if (render_parts==59) step_down_mount(TH35_TYPE);
+  if (render_parts==60) mos_mount(TH35_TYPE);
+  if (render_parts==61) relay_mount(TH35_TYPE);
 }
 
 if ($preview) {
