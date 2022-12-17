@@ -3137,6 +3137,10 @@ module mos_board(){
     translate([25,41,20]) rotate([90,0,0]) TO247(lead_length = 6);
     // radiator
     translate([25-12,41,board_th]) color("silver") cube([24,8.5,24.5]);
+    // screws
+    for (xy = [[50/2-mh.x/2,60/2-mh.y/2], [50/2+mh.x/2,60/2-mh.y/2], [50/2-mh.x/2,60/2+mh.y/2], [50/2+mh.x/2,60/2+mh.y/2]]) {
+      translate([xy.x,xy.y,board_th]) screw(M3_cap_screw,8);
+    }
   } else {
     // low res version
     color("black") cube([50,60,26]);
