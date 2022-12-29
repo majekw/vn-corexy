@@ -23,6 +23,8 @@ build_z=290; // not used anywhere
 hotend_w=50;
 hotend_d=70;
 hotend_type=2; // [0:with BMG extruder, 1: with Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder, 5: bowden]
+hotend_block=1; // [0: standard V6, 1: CHC ]
+hotend_block_sock=true;
 /* [frame] */
 // extrusions family size
 ext=20;
@@ -1015,6 +1017,75 @@ module hotend_mount_mgn9(){
     }
   }
 }
+module vn_hot_end(){
+  if (hotend_block==0){
+     rotate([0,0,180]) hot_end(E3Dv6, 1.75, bowden = (hotend_type==5),resistor_wire_rotate = [0,0,0], naked = true);
+  } else {
+    // V6 heatsink
+    color("silver") translate([0,0,-39]) difference(){
+      union(){
+        // core
+        cylinder(d1=12.3,d2=8.5,h=30);
+        // lower fins
+        for (i=[0:10]){
+          translate([0,0,i*2.5]) cylinder(d=22.3,h=1);
+        }
+        // upper fin
+        translate([0,0,27.5]) cylinder(d=16,h=1);
+        // lower mount ring
+        translate([0,0,30]) cylinder(d=16,h=3);
+        // main mount ring
+        translate([0,0,33]) cylinder(d=12,h=6);
+        // upper mount ring
+        translate([0,0,39]) cylinder(d=16,h=3.7);
+      }
+      // HOLES
+      // heatbreak
+      translate([0,0,-eps]) cylinder(d=6,h=15.1+2*eps);
+      // PTFE part
+      translate([0,0,15.1]) cylinder(d=4.2,h=21.1+eps);
+      // upper hole
+      translate([0,0,36.2]) cylinder(d=8,h=6.5+eps);
+    }
+
+    // heatbreak
+    translate_z(-46.9) color("silver") cylinder(d=6,h=23);
+
+    // heat block
+    translate_z(-39-19.5+5.1) {
+      // ceramic ring
+      color("white") cylinder(d=11, h=8.1);
+      // square block
+      translate([-11.9/2,-11.9/2,8.1]) color("silver") cube([11.9,11.9,3.4]);
+      // cable out
+      translate([-2.55,0,8.1-0.3]) color("silver") cube([8.5,19.5,3.7]);
+      if (hotend_block_sock) difference(){
+        color("#ff4040") union(){
+          // lower ring
+          translate_z(-2.4) cylinder(d=11,h=1);
+          // heater part
+          translate_z(-1.4) cylinder(d=15,h=8);
+          // square part
+          translate([-15.5/2,-15.5/2,6.6]) cube([15.5,15.5,6]);
+        }
+        translate_z(-2.5) cylinder(d=8,h=16);
+      }
+    }
+
+    // nozzle - copy from NopSCADlib/vitamins/e3d.scad
+    translate([0,0,-39-19.5]) color(brass) {
+      rotate_extrude()
+        polygon([
+                [0.2,  0],
+                [0.2,  2],
+                [1.5,  2],
+                [0.65, 0]
+            ]);
+     translate_z(2) cylinder(d = 8, h = 3, $fn=6);
+     translate_z(5) cylinder(d = 6, h = 7.5);
+    };
+  }
+}
 module extruder_with_nema14(){
   // coordinates relative to:
   // X: center of X carriage
@@ -1023,7 +1094,7 @@ module extruder_with_nema14(){
 
   z_zero=cf_above_carriage+cf_tube_size+carriage_height(MGN12H_carriage);
   // E3D
-  translate([0,hot_y,hot_z]) rotate([0,0,180]) hot_end(E3Dv6, 1.75, bowden = (hotend_type==5),resistor_wire_rotate = [0,0,0], naked = true);
+  translate([0,hot_y,hot_z]) vn_hot_end();
   // hotend cooling fan
   translate([20,hot_y+33-(20-blower_depth(hotend_blower)),hot_z-4.5]) rotate([-90,0,180]) blower(hotend_blower);
   // cooling fan shroud
