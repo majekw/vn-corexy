@@ -48,7 +48,7 @@ bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 
 /* [render printable parts] */
-render_parts=0; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount, 59: Step down mount, 60: MOS mount, 61: relay mount]
+render_parts=1; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount, 59: Step down mount, 60: MOS mount, 61: Relay mount, 62: Probe mount ]
 
 /* [tweaks/hacks] */
 
@@ -125,7 +125,8 @@ t8_frame_dist=2.5; // distance from frame to start of T8 screw
 t8_bb_offset=1.5; // space from start of T8 to ball bearing
 m5_hole=4.75; // hole for direct M5 screw without tapping
 m3_hole=2.75; // hole for direct M3 screw without tapping
-m2_hole=1.7; // hole for direct M2 screw without tapping
+m2p5_hole=2.25; // hole for direct M2.5 screw without tapping
+m2_hole=1.75; // hole for direct M2 screw without tapping
 m3_insert=3.8; // hole for M3 heat insert
 bed_z=base_h-2*ext-28-pos_z; // bed Z position
 
@@ -138,6 +139,11 @@ hot_y_variants=[-52,-40,-40,-40,-40,-40];
 hot_y=hot_y_variants[hotend_type]; // distance from gantry to nozzle
 hot_z=-4;
 hotend_carriage_w=36;
+probe_y=(hotend_block==0) ? -19:-12; // relative to hot_y
+probe_z=hot_z-49;
+probe_p1=[-13,-34]; // x,z coordinates of probe mount pillars on shroud
+probe_p2=[-9.25,probe_z+10.25]; // x,z coordinates of probe mount on pcb
+
 
 // oldham coupler
 oldham_w=ext*1.3; // width of oldham coupler
@@ -780,8 +786,8 @@ module omerod_sensor(){
     // pcb
     color("green") translate([-ow/2,-oh/2,0]) cube([ow,oh,1.5]);
     // mounting holes
-    translate([-9.25,oh/2-2.65,0]) cylinder(h=1.5,d=3);
-    translate([9.25,oh/2-2.65,0]) cylinder(h=1.5,d=3);
+    translate([-9.25,oh/2-2.65,-eps]) cylinder(h=1.5+2*eps,d=3);
+    translate([9.25,oh/2-2.65,-eps]) cylinder(h=1.5+2*eps,d=3);
   }
   // socket original
   //translate([-2.4,oh/2-2.65,0]) rotate([0,0,0]) pin_header(2p54header, 3, 1);
@@ -841,8 +847,8 @@ module blower_to_v6(blower_type=PE4020C){
         for (p=blower_screw_holes(blower_type))
           translate([p.x,p.y,0]) cylinder(h=7,d=6);
       // sensor mount
-      translate([-13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=4);
-      translate([13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=4);
+      translate([probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=4);
+      translate([-probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=4);
     }
 
     // main air hole from blower
@@ -872,8 +878,8 @@ module blower_to_v6(blower_type=PE4020C){
     // space for V6 top mount
     translate([-13,-10-0.1,-7.5]) cube([26,22,2]);
     // sensor mount screw holes
-    translate([-13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=m2_hole);
-    translate([13,0,-34]) rotate([90,0,0]) cylinder(h=20.5,d=m2_hole);
+    translate([probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=m2_hole);
+    translate([-probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=m2_hole);
   }
 }
 module v6_hole(){
@@ -1086,6 +1092,20 @@ module vn_hot_end(){
     };
   }
 }
+module probe_mount(){
+  color(pp_color2) difference(){
+    union(){
+      hull(){
+        translate([probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(d=4,h=3);
+        translate([probe_p2.x,0,probe_p2.y]) rotate([90,0,0]) cylinder(d=4.5,h=3);
+      }
+      translate([probe_p2.x,0,probe_p2.y]) rotate([90,0,0]) cylinder(d=4.5,h=5);
+    }
+    // holes
+    translate([probe_p1.x,eps,probe_p1.y]) rotate([90,0,0]) cylinder(d=2,h=3+2*eps);
+    translate([probe_p2.x,eps,probe_p2.y]) rotate([90,0,0]) cylinder(d=m2p5_hole,h=5+2*eps);
+  }
+}
 module extruder_with_nema14(){
   // coordinates relative to:
   // X: center of X carriage
@@ -1110,7 +1130,7 @@ module extruder_with_nema14(){
   // X endstop
   translate([-3.5,28.5,62-10.2]) rotate([90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
-  translate([0,hot_y-19,hot_z-49]) rotate([90,0,0]) omerod_sensor(); // 3.5mm from block
+  translate([0,hot_y+probe_y,probe_z]) rotate([90,0,0]) omerod_sensor(); // 3.5mm from block
   // Sailfin extruder
   if (hotend_type==1) {
     translate([0,hot_y,0]) rotate([0,0,0]) sailfin_extruder(color1=pp_color2,color2=pp_color);
@@ -1137,6 +1157,9 @@ module extruder_with_nema14(){
   }
   // filament
   #translate([0,hot_y,hot_z]) cylinder(h=100,d=1.75);
+  // probe mount
+  translate([0,hot_y+probe_y-1.5,hot_z]) probe_mount();
+  translate([0,hot_y+probe_y-1.5,hot_z]) mirror([1,0,0]) probe_mount();
 
   // screws
   // part cooling fan screws
@@ -1158,8 +1181,11 @@ module extruder_with_nema14(){
     translate([20,33.3+hot_y,-4.5+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) blower_spacer();
   }
   // sensor screws to shroud
-  translate([-13,-21.5+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
-  translate([13,-21.5+hot_y,-34+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
+  translate([probe_p1.x,hot_y+probe_y-4.5,probe_p1.y+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
+  translate([-probe_p1.x,hot_y+probe_y-4.5,probe_p1.y+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
+  // sensor screws
+  translate([probe_p2.x,hot_y+probe_y,probe_p2.y+hot_z]) rotate([-90,0,0]) screw(M2p5_cap_screw,6);
+  translate([-probe_p2.x,hot_y+probe_y,probe_p2.y+hot_z]) rotate([-90,0,0]) screw(M2p5_cap_screw,6);
   // hotend back plate screws to carriage
   translate([-14,-6,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
   translate([14,-6,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
@@ -3399,6 +3425,7 @@ module draw_printable_parts(){
   if (render_parts==59) step_down_mount(TH35_TYPE);
   if (render_parts==60) mos_mount(TH35_TYPE);
   if (render_parts==61) relay_mount(TH35_TYPE);
+  if (render_parts==62) probe_mount();
 }
 
 if ($preview) {
