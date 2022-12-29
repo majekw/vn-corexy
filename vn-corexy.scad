@@ -852,8 +852,8 @@ module blower_to_v6(blower_type=PE4020C){
     translate([0,0,-39-6]) cylinder(h=v6_h+0.3+6+printer_off,d=v6_d+2*printer_off);
     translate([0,0,-6-7]) cylinder(d=16+2*printer_off,h=7);
     // bottom hole
-    translate([0,12.8-40/2,-39-6]) cylinder(d=40,h=6);
-    // screw holes
+    translate([0,12.8-40/2,-39-6]) cylinder(d=38,h=6);
+    // blower screw holes
     translate([20,33-13,-4.5]) rotate([-90,0,180])
       for (p=blower_screw_holes(blower_type)) {
         // holes for M3
