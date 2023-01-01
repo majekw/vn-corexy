@@ -139,8 +139,8 @@ hot_y_variants=[-52,-40,-40,-40,-40,-40];
 hot_y=hot_y_variants[hotend_type]; // distance from gantry to nozzle
 hot_z=-4;
 hotend_carriage_w=36;
-probe_y=(hotend_block==0) ? -19:-12; // relative to hot_y
-probe_z=hot_z-49;
+probe_y=(hotend_block==0) ? -19:-13; // relative to hot_y
+probe_z=hot_z-49.7+1.5; // triggers 3.75mm above surface, so 1.5mm above nozzle should be ok
 probe_p1=[-13,-34]; // x,z coordinates of probe mount pillars on shroud
 probe_p2=[-9.25,probe_z+10.25]; // x,z coordinates of probe mount on pcb
 
@@ -1404,7 +1404,7 @@ module pulley_support_front_down(logo=0){
     }
   }
 }
-module pulley_support_front_up(){
+module pulley_support_front_up(side=0){
   belts_h=30;
   belt_w=6;
   fh=belts_h+5+3;
@@ -1446,6 +1446,10 @@ module pulley_support_front_up(){
     translate([ext/2,ext*2.5+12.5,0]) cylinder(h=fh,d=5);
     // rounded corner
     round_corner(r=10,h=fh);
+    // TBG fix
+    if (hotend_type==2 && side==1){
+      translate([ext-6-4,50,16]) rotate([90,0,90]) slot(16,6+eps,20);
+    }
   }
 }
 module pulley_support_front(side=0,logo=0){
@@ -1472,7 +1476,7 @@ module pulley_support_front(side=0,logo=0){
     }
     // block body
     pulley_support_front_down(logo);
-    pulley_support_front_up();
+    pulley_support_front_up(side);
     // pulley spacers
     translate([ext/2,ext/2,beltx_shift-1]) pulley_spacer(1);
     translate([ext/2,ext/2,beltx_shift+13]) pulley_spacer(2);
@@ -3397,7 +3401,7 @@ module draw_printable_parts(){
   if (render_parts==31) translate([-140,40,0]) pulley_spacer(1);
   if (render_parts==32) translate([-140,50,0]) pulley_spacer(2);
   if (render_parts==33) translate([-200,60,0]) pulley_support_front_up();
-  if (render_parts==34) translate([-210,60,0]) mirror([1,0,0]) pulley_support_front_up();
+  if (render_parts==34) translate([-210,60,0]) mirror([1,0,0]) pulley_support_front_up(1);
   if (render_parts==35) translate([0,100,0]) oldham_low();
   if (render_parts==36) translate([-30,100,0]) oldham_mid();
   if (render_parts==37) translate([0,150,0]) oldham_hi(1.5*ext);
