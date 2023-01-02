@@ -1173,7 +1173,7 @@ module extruder_with_nema14(){
   // MGN9 screws
   for (c=MGN9_holes) {
     //translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20+2.5]) screw(M3_cs_cap_screw,6);
-    translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20+8]) screw(M3_cap_screw,12);
+    translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20+8.5]) screw(M3_cap_screw,12);
   }
   // hotend blower screws and spacers
   for (p=blower_screw_holes(hotend_blower)) {
@@ -1195,16 +1195,16 @@ module carriage_to_nema14_mount(){
   color(pp_color2) difference(){
     union(){
       //mount plate
-      translate([-mw/2,hot_y+13+6,39.5]) cube([mw,46.5,2]);
+      translate([-mw/2,hot_y+13+6,39.5]) cube([mw,46.5,2.5]);
       translate([-TBG_w()/2+19.9,hot_y+13+5,21.1]) scale([1.05,1,1.25]) rotate([-90,0,0]) cylinder(h=7,d=36.2);
     }
 
     // HOLES
     // holes for MGN9 screws
     for (c=MGN9_holes)
-      translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,39.5]) cylinder(d=3.2,h=2);
+      translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,39.5]) cylinder(d=3.2,h=2.5);
     // slot
-    translate([-2,3,39.5]) cube([4,22.5,2]);
+    translate([-2,3,39.5]) cube([4,22.5,2.5]);
     // cut lower part
     translate([-25,hot_y+13+4,-10]) cube([50,9,40]);
     // motor hole
