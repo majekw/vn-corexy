@@ -221,7 +221,7 @@ module triangle(a,h){
 module round_corner(r,h){
   difference(){
     cube([r,r,h]);
-    translate([r,r,0]) cylinder(r=r,h=h);
+    translate([r,r,-eps]) cylinder(r=r,h=h+2*eps);
   }
 }
 module slot(d,h,l){
@@ -1428,9 +1428,9 @@ module pulley_support_front_up(side=0){
       translate([0,0,belts_h-1]) cylinder(d=7,h=1);
     }
     // hole for left belt
-    cube([belt_w,3.5*ext,belts_h]);
+    translate([-eps,0,0]) cube([belt_w+eps,3.5*ext,belts_h]);
     // hole for front belt
-    cube([3*ext,belt_w,belts_h]);
+    translate([0,-eps,0]) cube([3*ext,belt_w+eps,belts_h]);
     // screws
     translate([0,0,-beltx_shift+1]) {
       // front left hole
@@ -1445,10 +1445,10 @@ module pulley_support_front_up(side=0){
     // hole for M3 allen key
     translate([ext/2,ext*2.5+12.5,0]) cylinder(h=fh,d=5);
     // rounded corner
-    round_corner(r=10,h=fh);
+    translate([-eps,-eps,0]) round_corner(r=10,h=fh+eps);
     // TBG fix
     if (hotend_type==2 && side==1){
-      translate([ext-6-4,50,16]) rotate([90,0,90]) slot(16,6+eps,20);
+      translate([ext-6-4,47,18]) rotate([90,0,90]) slot(16,6+eps,20);
     }
   }
 }
@@ -2208,7 +2208,8 @@ module gantry_joint_r_cf_top(){
   m5_screw6=30; // top
 
   box_h2=13+2+8;
-  ffc_dy=49;
+  ffc_dy=49+3;
+  ffc_fin_len=20+50;
 
   color(pp_color2) difference(){
     union(){
@@ -2220,13 +2221,14 @@ module gantry_joint_r_cf_top(){
             translate([py_x+3,5,py_z-1]) cylinder(d=12,h=box_h2);
           }
           // FFC cable holder
-          translate([-40,ffc_dy,fpc_z-31]) cube([20,2.4,36]);
+          translate([-20-ffc_fin_len,ffc_dy,fpc_z-31]) cube([min(ffc_fin_len,30),2.4,36]);
+          translate([py_x-7,py_y+3,fpc_z+3]) rotate([0,0,180]) round_corner(5,7.5);
           hull(){
             hh=7.5;
-            translate([-40,ffc_dy+1.2,fpc_z+3]) cylinder(d=2.4,h=hh);
+            translate([-20-ffc_fin_len,ffc_dy+1.2,fpc_z+3]) cylinder(d=2.4,h=hh);
             translate([-10,ffc_dy+1.2,fpc_z+3]) cylinder(d=2.4,h=hh);
-            translate([0,ffc_dy-5,fpc_z+3]) cylinder(d=2.4,h=hh);
-            translate([3.5,ffc_dy-1,fpc_z+3]) cylinder(d=2.4,h=hh);
+            translate([0,py_y+2+ffc_fin_len/50,fpc_z+3]) cylinder(d=2.4,h=hh);
+            translate([4,py_y+6.5,fpc_z+3]) cylinder(d=2.4,h=hh);
           }
         }
         // hole for Y idler
@@ -2236,7 +2238,7 @@ module gantry_joint_r_cf_top(){
         // side belt path
         translate([ext-6,0,py_z-1]) cube([6,40,15]);
         // hole for FFC cable
-        translate([-43,ffc_dy+0.8,fpc_z-29]) cube([40,0.8,32]);
+        translate([-20-ffc_fin_len-eps,ffc_dy+0.8,fpc_z-29]) cube([ffc_fin_len+2*eps,0.8,32]);
       }
       translate([px_x,px_y,px_z+13]) pulley_spacer();
       translate([py_x,py_y,py_z+13]) pulley_spacer();
@@ -2402,9 +2404,9 @@ module gantry(){
   if (!hide_ffc)
     translate([0,0,base_h+fpc_z-31/2]) {
       // carriage to loop
-      translate([pos_x+40,131+pos_y,0]) rotate([0,0,90]) fcc_cable(350,31,[8.1,-base_w+pos_x+75]);
+      translate([pos_x+40,131+pos_y,0]) rotate([0,0,90]) fcc_cable(305,31,[11.1,-base_w+pos_x+75+40]);
       // loop to bend
-      translate([base_w-35,140+pos_y,0]) rotate([0,0,90]) fcc_cable(430,31,[base_d-pos_y-140-ext,6*ext-35-2]);
+      translate([base_w-35-40,143+pos_y,0]) rotate([0,0,90]) fcc_cable(400,31,[base_d-pos_y-143-ext,6*ext-35-2-40]);
       // bend to frame
       color("#f0f0f0") {
         translate([base_w-6*ext+2,base_d-ext/2,0]) rotate([0,0,-90]) rotate_extrude(angle=90,convexity=2) translate([ext/2,0,0]) square([0.1,31]);

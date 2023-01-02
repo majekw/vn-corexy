@@ -38,7 +38,7 @@ module TBG_lite(){
       // lever
       color("#404040") translate([-TBG_w()/2+36.65,-8.5+3,0]) cube([4.50,15,55.85]);
       // screw
-      translate([53.65-TBG_w()/2,-8.5+3+15/2,39.85]) rotate([0,-90,0]) {
+      translate([53.65-TBG_w()/2,-8.5+3+15/2,39.85+2]) rotate([0,-90,0]) {
         color("#404040") cylinder(h=4,d=12); // dial
         color("#808080") cylinder(h=16,d=5); // spring
         color("#a0a0a0") cylinder(h=25,d=2.85); // screw
