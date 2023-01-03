@@ -1119,16 +1119,9 @@ module extruder_with_nema14(){
   translate([20,hot_y+33-(20-blower_depth(hotend_blower)),hot_z-4.5]) rotate([-90,0,180]) blower(hotend_blower);
   // cooling fan shroud
   translate([0,hot_y,hot_z]) blower_to_v6();
-  // part cooling fans
-  translate([0,-2,-47.5]) rotate([90,0,90]) {
-    blower(PE4020C);
-    translate([40,0,0]) rotate([0,180,0]) blower(PE4020C);
-  }
   // fpc socket board
   if (!hide_ffc)
     translate([4,39,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
-  // X endstop
-  translate([-3.5,28.5,62-10.2]) rotate([90,0,-90]) optical_endstop(screws=true);
   // omerod sensor
   translate([0,hot_y+probe_y,probe_z]) rotate([90,0,0]) omerod_sensor(); // 3.5mm from block
   // Sailfin extruder
@@ -1162,14 +1155,6 @@ module extruder_with_nema14(){
   translate([0,hot_y+probe_y-1.5,hot_z]) mirror([1,0,0]) probe_mount();
 
   // screws
-  // part cooling fan screws
-  for (i=[1,2]) {
-    p=blower_screw_holes(PE4020C)[i];
-    translate([16,p.x-2,p.y-47.5]) rotate([90,0,90]) {
-      screw(M3_cap_screw,35);
-      translate([0,0,-34.5]) nut(M3_nut);
-    }
-  }
   // MGN9 screws
   for (c=MGN9_holes) {
     //translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+20+2.5]) screw(M3_cs_cap_screw,6);
@@ -1254,8 +1239,8 @@ module extruder_mount_base_mgn9(){
         translate([-13,30,-3.5]) rotate([0,-90,0]) cylinder(h=3,d=7);
       }
       // fan front mounts
-      translate([-13-1.5,-3,-4.5]) rotate([0,90,0]) triangle(h=3,a=13);
-      translate([13+1.5,-3,-4.5]) rotate([0,90,0]) triangle(h=3,a=13);
+      translate([-13-1.5,-3,-4.5]) rotate([0,90,0]) triangle(h=3,a=15);
+      translate([13+1.5,-3,-4.5]) rotate([0,90,0]) triangle(h=3,a=15);
       // belt mount
       translate([-15-3,gantry_belt_pos-2.5,beltx_shift-17.5]) cube([30+3,6,46-6.5]);
       translate([0,gantry_belt_pos-2.5,20+1.5]) rotate([-90,0,0]) cylinder(h=6,d=6);
@@ -1314,6 +1299,23 @@ module extruder_mount_base_mgn9(){
       p=blower_screw_holes(PE4020C)[i];
       translate([-20,p.x-2,p.y-47.5]) rotate([90,0,90]) cylinder(d=3+2*printer_off,h=40);
     }
+  }
+  if ($preview) {
+    // part cooling fans
+    translate([0,-2,-47.5]) rotate([90,0,90]) {
+      blower(PE4020C);
+      translate([40,0,0]) rotate([0,180,0]) blower(PE4020C);
+    }
+    // part cooling fan screws
+    for (i=[1,2]) {
+      p=blower_screw_holes(PE4020C)[i];
+      translate([16,p.x-2,p.y-47.5]) rotate([90,0,90]) {
+        screw(M3_cap_screw,35);
+        translate([0,0,-34.5]) nut(M3_nut);
+      }
+    }
+    // X endstop
+    translate([-3.5,28.5,62-10.2]) rotate([90,0,-90]) optical_endstop(screws=true);
   }
 }
 module mount_base_cable_lock(){
