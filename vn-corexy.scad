@@ -1,7 +1,7 @@
 /* Very Narrow CoreXY Printer (vn-corexy)
    Created with goal: use as small space in width dimension as possible.
-   (C) 2020-2022 Marek Wodzinski <majek@w7i.pl> https://majek.sh
-   
+   (C) 2020-2023 Marek Wodzinski <majek@w7i.pl> https://majek.sh
+
    vn-corexy is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
    You should have received a copy of the license along with this work.
    If not, see <http://creativecommons.org/licenses/by-sa/4.0/>

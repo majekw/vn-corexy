@@ -21,7 +21,7 @@ Forum thread (in Polish): https://reprapy.pl/viewtopic.php?f=10&t=7225
 
 # Requirements
 - OpenScad https://www.openscad.org/
-- NopSCADlib library https://github.com/nophead/NopSCADlib (version 20.14.0)
+- NopSCADlib library https://github.com/nophead/NopSCADlib (version 20.15.1)
 - for Sailfin extruder checkout Sailfin-Extruder/ git submodule
 - for Moli extruder checkout Moli-Extruder/ git submodule
 - for MRF extruder, download stl files from https://www.thingiverse.com/thing:5149028
@@ -33,7 +33,7 @@ Forum thread (in Polish): https://reprapy.pl/viewtopic.php?f=10&t=7225
 - bed frame wheels supports are temporary, will be changed in future
 
 # Copyright & license
-(C) 2020-2022 Marek Wodzinski <majek@w7i.pl>
+(C) 2020-2023 Marek Wodzinski <majek@w7i.pl>
 
 This work is licensed under Creative Commons Attribution-ShareAlike 4.0 International License.
 You should have received a copy of the license along with this work. 
