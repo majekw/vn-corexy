@@ -982,9 +982,16 @@ module hotend_mount_mgn9(){
       intersection(){
         for (i=[0,1,2]) {
           p=blower_screw_holes(PE4020C)[i];
-          translate([-p.x+20,hot_y+38,-p.y-8.5]) rotate([90,0,0]) cylinder(h=5.5,d=6);
+          translate([-p.x+20,hot_y+38,-p.y-8.5]) rotate([90,0,0]) cylinder(h=5.5,d=6.5);
         }
         translate([-hotend_carriage_w/2-2,-12,-50]) cube([hotend_carriage_w+4,6,45]);
+      }
+      // TBG back mount
+      if (hotend_type==2) {
+        translate([TBG_holes_front()[0].x,hot_y+15.5,hot_z+4]) hull(){
+          translate([-3,0,0]) cube([6,2.5,1]);
+          translate([0,0,TBG_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6);
+        }
       }
     }
 
@@ -994,7 +1001,7 @@ module hotend_mount_mgn9(){
     for (i=[0:3])
       translate([-9+i*7,hot_y+15,-10+2-0.05]) cube([6.2,17,10.1]);
     // lower front cable hole
-    translate([0,-5,-2]) rotate([-45,0,0]) translate([-10,-15,0]) cube([20,30,8]);
+    translate([0,-5,-2]) rotate([-45,0,0]) translate([-5,-15,0]) cube([10,30,8]);
     // hotend back plate screws to carriage
     translate([-14,-2,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
     translate([14,-2,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
@@ -1007,7 +1014,8 @@ module hotend_mount_mgn9(){
     translate([-9,hot_y,-7]) rotate([-90,0,0]) cylinder(h=8,d=m3_insert);
     translate([9,hot_y,-7]) rotate([-90,0,0]) cylinder(h=8,d=m3_insert);
     // cable groove
-    translate([-18,hot_y,-6]) cube([5,30,6.01]);
+    translate([-18,hot_y,-6]) cube([5,15,6+eps]);
+    translate([-13-eps,hot_y+10,-6]) cube([3,20,6.01]);
     // holes for MGN9 screws
     for (c=MGN9_holes)
       translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+22.5]) cylinder(d=3.2,h=3.5);
@@ -1020,6 +1028,10 @@ module hotend_mount_mgn9(){
     for (i=[0,1,2]) {
       p=blower_screw_holes(PE4020C)[i];
       translate([-p.x+20,hot_y+38,-p.y-8.5]) rotate([90,0,0]) cylinder(h=8,d=m3_insert);
+    }
+    // hole for rear TBG mount
+    if (hotend_type==2) {
+      translate([TBG_holes_front()[0].x,hot_y+15.5-eps,hot_z+4+TBG_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5+2*eps,d=3+2*printer_off);
     }
   }
 }
