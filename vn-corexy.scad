@@ -948,7 +948,7 @@ module v6_clamp(){
     // screws for TBG
     if (hotend_type==2) {
       translate([TBG_holes_front()[0].x,hot_y-11,hot_z+4+TBG_holes_front()[0].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,30);
-      translate([TBG_holes_front()[1].x,hot_y-11,hot_z+4+TBG_holes_front()[1].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,8);
+      translate([TBG_holes_front()[1].x,hot_y-11,hot_z+4+TBG_holes_front()[1].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,16);
     }
   }
 }
@@ -957,19 +957,28 @@ module hotend_mount_mgn9(){
   // X: center of X carriage
   // Y: from start of Y carriage
   // Z: from top of Y carriage
+  lbh=blower_screw_holes(PE4020C)[0]; // lower blower hole
+
   color(pp_color) difference(){
     union(){
       // lower back plate
-      translate([-hotend_carriage_w/2-2,-6,-49]) cube([hotend_carriage_w+4,3,60]);
+      translate([-hotend_carriage_w/2-2,-7.5,-50]) cube([hotend_carriage_w+4,4.5,46]);
+      // middle back plate
+      translate([-hotend_carriage_w/2-2,-6,-4]) cube([hotend_carriage_w+4,3,15]);
       // upper back plate
-      translate([-hotend_carriage_w/2-2,-3-6+4,11]) cube([hotend_carriage_w+4,3,28.5]);
+      translate([-hotend_carriage_w/2-2,-4-6+4,11]) cube([hotend_carriage_w+4,4,28.5]);
       // connection between upper and lower back plate
       translate([0,-5,11]) rotate([0,90,0]) triangle(h=hotend_carriage_w+4,a=3);
-      translate([0,-4,11]) rotate([0,-90,180]) triangle(h=hotend_carriage_w+4,a=2);
+      //translate([0,-4,11]) rotate([0,-90,180]) triangle(h=hotend_carriage_w+4,a=2);
       // carriage mount
       translate([-hotend_carriage_w/2,-2,36]) cube([hotend_carriage_w,27.5,3.5]);
-      // reinforcement
+      // upper reinforcement
       translate([0,-2,36]) rotate([0,90,0]) triangle(a=3,h=hotend_carriage_w);
+      // main plate reinforcement
+      translate([0,-6,0]) rotate([90,0,-90]) triangle(a=2,h=40);
+      // side plate reinforcement
+      translate([-20+2.5/2,-6,0]) rotate([90,0,-90]) triangle(a=11,h=2.5);
+      translate([20-1.8/2,-6,0]) rotate([90,0,-90]) triangle(a=11,h=1.8);
       // v6/extruder plate
       translate([-hotend_carriage_w/2-2,hot_y,-10+2]) cube([hotend_carriage_w+4,-hot_y-3,8]);
       // V6 mount
@@ -978,20 +987,17 @@ module hotend_mount_mgn9(){
         cylinder(h=2,d=zg);
         translate([-zg/2,0,0]) cube([zg,zg/2-1,2]);
       }
-      // fan/hotend screws
-      intersection(){
-        for (i=[0,1,2]) {
-          p=blower_screw_holes(PE4020C)[i];
-          translate([-p.x+20,hot_y+38,-p.y-8.5]) rotate([90,0,0]) cylinder(h=5.5,d=6.5);
-        }
-        translate([-hotend_carriage_w/2-2,-12,-50]) cube([hotend_carriage_w+4,6,45]);
-      }
       // TBG back mount
       if (hotend_type==2) {
         translate([TBG_holes_front()[0].x,hot_y+15.5,hot_z+4]) hull(){
-          translate([-3,0,0]) cube([6,2.5,1]);
-          translate([0,0,TBG_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6);
+          translate([-3.25,0,0]) cube([6.5,2.5,1]);
+          translate([0,0,TBG_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6.5);
         }
+      }
+      // lower fan hole mount
+      translate([-20+4,40+0.4-lbh.x-2,lbh.y-47.5]) hull(){
+        rotate([0,90,0]) cylinder(d=8,h=3);
+        translate([0,-4.5,-4]) cube([3,1,15]);
       }
     }
 
@@ -1006,8 +1012,8 @@ module hotend_mount_mgn9(){
     translate([-14,-2,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
     translate([14,-2,5]) rotate([90,0,0]) cylinder(h=4,d=3+2*printer_off);
     // zip-tie holes
-    translate([-20,-5,24]) cube([2,3,3]);
-    translate([-12,-5,24]) cube([2,3,3]);
+    translate([-20-eps,-6-eps,24]) cube([2+eps,4+2*eps,3]);
+    translate([-12,-6-eps,24]) cube([2,4+2*eps,3]);
     // V6 hole
     translate([0,hot_y,hot_z]) v6_hole();
     // front holes for M3 inserts for V6 lock
@@ -1021,9 +1027,14 @@ module hotend_mount_mgn9(){
       translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,carriage_height(MGN9H_carriage)+cf_above_carriage+22.5]) cylinder(d=3.2,h=3.5);
     // carriage slot
     translate([-2,3,36]) cube([4,22.5,3.5]);
-    // fan cable
-    translate([0,-6,-29]) rotate([0,45,0]) translate([-12,0,-12]) cube([24,3,24]);
-    translate([-3,-5,-15.5]) cube([6,2,15]);
+    // upper hotend and fan cable
+    translate([-5,-6+eps,-15.5]) cube([10,3,15]);
+    // diamond hollow part
+    translate([-15,-3+eps,-45]) rotate([90,0,0]) diamond([30,37,4.5+2*eps]);
+    // hotend cables
+    translate([-4,-12,-52]) rotate([-13,0,0]) cube([8,6,20]);
+    // hotend fan cable
+    translate([-20-eps,-7.5-eps,-31.5]) cube([10,2,5]);
     // fan/hotend screws
     for (i=[0,1,2]) {
       p=blower_screw_holes(PE4020C)[i];
@@ -1033,6 +1044,20 @@ module hotend_mount_mgn9(){
     if (hotend_type==2) {
       translate([TBG_holes_front()[0].x,hot_y+15.5-eps,hot_z+4+TBG_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5+2*eps,d=3+2*printer_off);
     }
+    // holes for lower fan mount
+    translate([-20,40+0.4-lbh.x-2,lbh.y-47.5]) {
+      // screw hole
+      translate([4-eps,0,0]) rotate([0,90,0]) cylinder(h=3+2*eps,d=4+2*printer_off);
+      // cap hole
+      translate([-eps,0,0]) rotate([0,90,0]) cylinder(h=4+eps,d=8.5);
+    }
+  }
+  if ($preview) {
+    // lower fan M4 screw
+    translate([-20,40+0.4-lbh.x-2,lbh.y-47.5]) rotate([0,-90,0]) screw(M4_cs_cap_screw,12); // 0.4 is shift of fan holes
+    // hotend back plate screws to carriage
+    translate([-14,-6,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
+    translate([14,-6,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
   }
 }
 module vn_hot_end(){
@@ -1183,9 +1208,6 @@ module extruder_with_nema14(){
   // sensor screws
   translate([probe_p2.x,hot_y+probe_y,probe_p2.y+hot_z]) rotate([-90,0,0]) screw(M2p5_cap_screw,6);
   translate([-probe_p2.x,hot_y+probe_y,probe_p2.y+hot_z]) rotate([-90,0,0]) screw(M2p5_cap_screw,6);
-  // hotend back plate screws to carriage
-  translate([-14,-6,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
-  translate([14,-6,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
 }
 module carriage_to_nema14_mount(){
   mw=22; // mount width
