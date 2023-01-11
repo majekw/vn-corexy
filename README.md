@@ -18,6 +18,7 @@ GT2 belt lengts are also calculated.
 **WARNING: THIS IS WORK IN PROGRESS**
 
 Forum thread (in Polish): https://reprapy.pl/viewtopic.php?f=10&t=7225
+YouTube videos: https://youtube.com/playlist?list=PL_tFeFf-6be2vM2YfxNyLlgO5D3nhVPHG
 
 # Requirements
 - OpenScad https://www.openscad.org/
