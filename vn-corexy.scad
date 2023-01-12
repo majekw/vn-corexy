@@ -143,6 +143,7 @@ probe_y=(hotend_block==0) ? -19:-13; // relative to hot_y
 probe_z=hot_z-49.7+1.5; // triggers 3.75mm above surface, so 1.5mm above nozzle should be ok
 probe_p1=[-13,-34]; // x,z coordinates of probe mount pillars on shroud
 probe_p2=[-9.25,probe_z+10.25]; // x,z coordinates of probe mount on pcb
+cooling_fan_z=-7.5;
 
 
 // oldham coupler
@@ -1267,11 +1268,11 @@ module extruder_mount_base_mgn9(){
       translate([-1.5-2,cf_from_front+plate_d-10,mgn9plate_z+2.5+16]) cube([2,6,10]);
       //fan back mounts
       hull(){
-        translate([13,35.5,-9.5]) rotate([0,90,0]) cylinder(h=3,d=7);
+        translate([13,35.5,cooling_fan_z-2]) rotate([0,90,0]) cylinder(h=3,d=7);
         translate([13,30,-3.5]) rotate([0,90,0]) cylinder(h=3,d=7);
       }
       hull(){
-        translate([-13,35.5,-9.5]) rotate([0,-90,0]) cylinder(h=3,d=7);
+        translate([-13,35.5,cooling_fan_z-2]) rotate([0,-90,0]) cylinder(h=3,d=7);
         translate([-13,30,-3.5]) rotate([0,-90,0]) cylinder(h=3,d=7);
       }
       // fan front mounts
@@ -1333,19 +1334,19 @@ module extruder_mount_base_mgn9(){
     // part cooling fan screws
     for (i=[1,2]) {
       p=blower_screw_holes(PE4020C)[i];
-      translate([-20,p.x-2,p.y-47.5]) rotate([90,0,90]) cylinder(d=3+2*printer_off,h=40);
+      translate([-20,p.x-2,p.y-40+cooling_fan_z]) rotate([90,0,90]) cylinder(d=3+2*printer_off,h=40);
     }
   }
   if ($preview) {
     // part cooling fans
-    translate([0,-2,-47.5]) rotate([90,0,90]) {
+    translate([0,-2,cooling_fan_z-40]) rotate([90,0,90]) {
       blower(PE4020C);
       translate([40,0,0]) rotate([0,180,0]) blower(PE4020C);
     }
     // part cooling fan screws
     for (i=[1,2]) {
       p=blower_screw_holes(PE4020C)[i];
-      translate([16,p.x-2,p.y-47.5]) rotate([90,0,90]) {
+      translate([16,p.x-2,p.y-40+cooling_fan_z]) rotate([90,0,90]) {
         screw(M3_cap_screw,35);
         translate([0,0,-34.5]) nut(M3_nut);
       }
@@ -1374,6 +1375,15 @@ module mount_base_cable_lock(){
     translate([hotend_carriage_w/2-3,gantry_belt_pos+4,2.5]) rotate([-90,0,0]) screw(M3_cs_cap_screw,8);
   }
 }
+module cooling_fan_inlet(){
+  // clearance from output of fans to end of nozzle: 14mm
+  color(pp_color2) difference(){
+    union(){
+      #translate([0,-3,cooling_fan_z-40]) cube([20,30.5,1]);
+      #translate([-20,-3+11.5,cooling_fan_z-40]) cube([20,30.5,1]);
+    }
+  }
+}
 module extruder(){
   if (hotend_type==0) {
     translate([0,-18,10]) extruder_with_bmg();
@@ -1386,6 +1396,7 @@ module extruder(){
     extruder_with_nema14();
     carriage_to_nema14_mount();
     mount_base_cable_lock();
+    cooling_fan_inlet();
   }
 }
 module belt_lock(){
