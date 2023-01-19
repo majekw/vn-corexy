@@ -26,7 +26,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 /* [render printable parts] */
-render_parts=1; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount, 59: Step down mount, 60: MOS mount, 61: Relay mount, 62: Probe mount ]
+render_parts=1; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount, 59: Step down mount, 60: MOS mount, 61: Relay mount, 62: Probe mount, 63: Part cooling 1 ]
 
 /* [tweaks/hacks] */
 
@@ -46,6 +46,9 @@ t8_upper_bearings=true;
 
 // correction for offset on overextrusion or slicer problems impacting on XY dimensions
 printer_off=0.10; // [0:0.01:0.2]
+
+// nozzle/path width
+print_width=0.4;
 
 // hide FPC boards and FFC cables
 hide_ffc=false;
@@ -194,7 +197,7 @@ VWHEEL_L = [ "V-wheel large", 24.32, 5, 16, 11.1, 20.50, 5.1, 19.40, 8.5 ];
 VWHEEL_S = [ "V-wheel small", 15.25, 5, 11, 8.90, 12.10, 6.1, 12.50, 7.0 ];
 VWHEEL = VWHEEL_L;
 // blower - Pengda other type
-PE4020C = ["PE4020C", "Blower Pengda Technology 4020 - custom", 40, 40, 19.3, 27.5, M3_cap_screw, 22, [21.5, 20], 3.1, [[37.7,2.60],[2.60,37.8],[37.7,37.8]], 29.3, 17,  1.5, 1.2, 1.3, 12.9];
+PE4020C = ["PE4020C", "Blower Pengda Technology 4020 - custom", 40, 40, 19.3, 27.5, M3_cap_screw, 22, [21.5, 20], 3.1, [[37.7,2.60],[2.60,37.8],[37.7,37.8]], 29.3, 17,  1.4, 1.2, 1.1, 12.9];
 hotend_blower=PE4020C;
 cooling_blower=PE4020C;
 // TH35 rail
@@ -1379,13 +1382,99 @@ module mount_base_cable_lock(){
     translate([hotend_carriage_w/2-3,gantry_belt_pos+4,2.5]) rotate([-90,0,0]) screw(M3_cs_cap_screw,8);
   }
 }
-module cooling_fan_inlet(){
-  // clearance from output of fans to end of nozzle: 14mm
-  color(pp_color2) difference(){
+module cooling_fan_inlet(handle_space=0){
+  cb=cooling_blower;
+  // blower outlet
+  bl_in_x=blower_depth(cb)-blower_base(cb)-blower_top(cb)-2*printer_off;
+  bl_in_y=blower_exit(cb)-blower_wall(cb)-2*printer_off-1.3;
+  bl_in_z=2;
+  ddx=20-blower_lug(cb)-handle_space;
+
+  difference(){
     union(){
-      #translate([0,-3,cooling_fan_z-40]) cube([20,30.5,1]);
-      #translate([-20,-3+11.5,cooling_fan_z-40]) cube([20,30.5,1]);
+      // lower part
+      cube([20,40,2]);
+      // middle
+      translate_z(2)cube([blower_depth(cb),blower_exit(cb),1]);
+      // inside exit
+      translate([blower_base(cb)+printer_off,blower_wall(cb)+printer_off,3]) hull(){
+        cube([bl_in_x,bl_in_y,eps]);
+        translate_z(bl_in_z) cube([bl_in_x,bl_in_y-bl_in_z,eps]);
+      }
+      // handle
+      translate([blower_lug(cb)+handle_space,0,1]) hull(){
+        translate([0,40-8,0]) cube([ddx,8,eps]);
+        translate([0,blower_screw_holes(cb)[0].x,blower_screw_holes(cb)[0].y+2]) rotate([0,90,0]) cylinder(h=ddx,d=8);
+      }
     }
+    // HOLES
+    // screw
+    translate([20+eps,blower_screw_holes(cb)[0].x,blower_screw_holes(cb)[0].y+3]){
+      // M4 head
+      rotate([0,-90,0]) cylinder(d1=9,d2=0,h=4.5);
+      // M4 hole
+      rotate([0,-90,0]) cylinder(d=4.2,h=ddx+2*eps);
+    }
+    // back cut
+    if (handle_space>0) translate([-0.5,40.5,0]) cube([21,3,10]);
+    // air out
+    translate([blower_base(cb)+printer_off+print_width,blower_wall(cb)+printer_off+print_width,-eps]) cube([bl_in_x-2*print_width,bl_in_y-bl_in_z-2*print_width,6]);
+  }
+}
+module part_cooling1(){
+  // clearance from output of fans to end of nozzle: 14mm
+
+  // blower base
+  color(pp_color2) translate([0,-2,cooling_fan_z-43]) union(){
+    cooling_fan_inlet();
+    translate([0,40,0]) rotate([0,0,180]) cooling_fan_inlet(3);
+  }
+  // vertical to horizontal
+  color(pp_color2) translate([0,-2,cooling_fan_z-43]) difference(){
+    translate([0,-3,0]) union(){
+      translate([0,0,-7-2*print_width]) {
+        // right part
+        cube([20,27+3,7+2*print_width]);
+        // left part
+        translate([-20,0,0]) cube([20,40+3,7+2*print_width]);
+      }
+      // to hotend
+      // right outlet
+      translate([2+4-2*print_width,-5,-7-print_width]) cube([12+4*print_width,5,7]);
+      // left outlet
+      translate([-18-2*print_width,-5,-7-print_width]) cube([12+4*print_width,5.5,7]);
+    }
+    // HOLES
+    // right cut
+    translate([10,27+eps,-7-2*print_width-eps]) rotate([90,0,-90]) triangle(h=20+eps,a=7+2*print_width+2*eps);
+    // left cut
+    translate([-10,40+eps,-7-2*print_width-eps]) rotate([90,0,-90]) triangle(h=20+2*eps,a=7+2*print_width+2*eps);
+    // air hole
+    difference(){
+      union(){
+        // right main hole under fan
+        translate([2,-3,-7]) cube([16,25.5+3,7]);
+        // left main hole under fan
+        translate([-18,-3,-7]) cube([16,38.5+3,7]);
+        // right main hole to hotend
+        translate([2+4,-10,-7]) cube([12,10,7-2*print_width]);
+        // left main hole to hotend
+        translate([-18,-10,-7]) cube([12,10.5,7-2*print_width]);
+      }
+      // right cut
+      translate([2+8-eps,25.5,-7]) rotate([90,0,-90]) triangle(h=16+2*eps,a=7);
+      // left cut
+      translate([-18+8-eps,38.5,-7]) rotate([90,0,-90]) triangle(h=16+2*eps,a=7);
+      // center cut
+      translate([0,3,-3.5]) rotate([0,0,-90-45]) triangle(h=7,a=8.5);
+      // top cut
+      translate([-20,-3,-2*print_width]) cube([40,3.5,2*print_width]);
+      translate([0,0.5,0]) rotate([0,90,0]) triangle(h=40,a=2*print_width);
+    }
+  }
+  if ($preview) {
+    // back M4 screw
+    translate([20,-2+blower_screw_holes(cooling_blower)[0].x,cooling_fan_z-40+blower_screw_holes(cooling_blower)[0].y]) rotate([0,90,0]) screw(M4_cs_cap_screw,16);
   }
 }
 module extruder(){
@@ -1400,7 +1489,7 @@ module extruder(){
     extruder_with_nema14();
     carriage_to_nema14_mount();
     mount_base_cable_lock();
-    cooling_fan_inlet();
+    part_cooling1();
   }
 }
 module belt_lock(){
@@ -3485,6 +3574,7 @@ module draw_printable_parts(){
   if (render_parts==60) mos_mount(TH35_TYPE);
   if (render_parts==61) relay_mount(TH35_TYPE);
   if (render_parts==62) probe_mount();
+  if (render_parts==63) part_cooling1();
 }
 
 if ($preview) {
