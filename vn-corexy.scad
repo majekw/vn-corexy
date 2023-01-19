@@ -196,6 +196,7 @@ VWHEEL = VWHEEL_L;
 // blower - Pengda other type
 PE4020C = ["PE4020C", "Blower Pengda Technology 4020 - custom", 40, 40, 19.3, 27.5, M3_cap_screw, 22, [21.5, 20], 3.1, [[37.7,2.60],[2.60,37.8],[37.7,37.8]], 29.3, 17,  1.5, 1.2, 1.3, 12.9];
 hotend_blower=PE4020C;
+cooling_blower=PE4020C;
 // TH35 rail
 /* 0 - thickness
    1 - height
@@ -826,7 +827,7 @@ module blower_spacer(){
     cylinder(d=3+2*printer_off,h=bs_h);
   }
 }
-module blower_to_v6(blower_type=PE4020C){
+module blower_to_v6(blower_type=hotend_blower){
   v6_d=22.3;
   v6_h=26;
   shroud_d=40;
@@ -961,7 +962,7 @@ module hotend_mount_mgn9(){
   // X: center of X carriage
   // Y: from start of Y carriage
   // Z: from top of Y carriage
-  lbh=blower_screw_holes(PE4020C)[0]; // lower blower hole
+  lbh=blower_screw_holes(cooling_blower)[0]; // lower blower hole
 
   color(pp_color) difference(){
     union(){
@@ -1041,7 +1042,7 @@ module hotend_mount_mgn9(){
     translate([-20-eps,-7.5-eps,-31.5]) cube([10,2,5]);
     // fan/hotend screws
     for (i=[0,1,2]) {
-      p=blower_screw_holes(PE4020C)[i];
+      p=blower_screw_holes(hotend_blower)[i];
       translate([-p.x+20,hot_y+38,-p.y-8.5]) rotate([90,0,0]) cylinder(h=8,d=m3_insert);
     }
     // hole for rear TBG mount
@@ -1336,19 +1337,19 @@ module extruder_mount_base_mgn9(){
     translate([14,3,5]) rotate([90,0,0]) cylinder(h=6,d=m3_insert);
     // part cooling fan screws
     for (i=[1,2]) {
-      p=blower_screw_holes(PE4020C)[i];
+      p=blower_screw_holes(cooling_blower)[i];
       translate([-20,p.x-2,p.y-40+cooling_fan_z]) rotate([90,0,90]) cylinder(d=3+2*printer_off,h=40);
     }
   }
   if ($preview) {
     // part cooling fans
     translate([0,-2,cooling_fan_z-40]) rotate([90,0,90]) {
-      blower(PE4020C);
-      translate([40,0,0]) rotate([0,180,0]) blower(PE4020C);
+      blower(cooling_blower);
+      translate([40,0,0]) rotate([0,180,0]) blower(cooling_blower);
     }
     // part cooling fan screws
     for (i=[1,2]) {
-      p=blower_screw_holes(PE4020C)[i];
+      p=blower_screw_holes(cooling_blower)[i];
       translate([16,p.x-2,p.y-40+cooling_fan_z]) rotate([90,0,90]) {
         screw(M3_cap_screw,35);
         translate([0,0,-34.5]) nut(M3_nut);
