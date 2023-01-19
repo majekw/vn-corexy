@@ -11,33 +11,12 @@
 pos_x=0;
 pos_y=100;
 pos_z=290;
-/* [build plate] */
-build_plate_w=310; // (X)
-build_plate_d=310; // (Y)
-build_plate_mount_space=240; // space between mounting screws
-/* [build volume] */
-build_x=300;
-build_y=300;
-build_z=290; // not used anywhere
+
 /* [hotend] */
-hotend_w=50;
-hotend_d=70;
 hotend_type=2; // [0:with BMG extruder, 1: with Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder, 5: bowden]
 hotend_block=1; // [0: standard V6, 1: CHC ]
 hotend_block_sock=true;
-/* [frame] */
-// extrusions family size
-ext=20;
-// extrusion type
-ext_type=1; // [0:T-SLOT, 1:V-SLOT]
-// minimum margin between build plate and frame
-x_margin=10;
-// X gantry build type
-x_gantry_type=1; // [0: V-SLOT + MGN12, 1: Carbon fiber tube + MGN9]
-// CF tube size
-cf_tube_size=20.20;
-// CF tube wall thickness
-cf_tube_wall=1.15;
+
 /* [printed parts] */
 printed_corners=true; // [false:no, true:yes]
 printed_corners_nut=1; // [0:printed nut, 1:rotating t-nut, 2:sliding t-nut]
@@ -45,7 +24,6 @@ pp_color=[0.3,0.3,0.3]; // [0:0.1:1]
 pp_color2=[0.3,0.3,0.8]; // [0:0.1:1]
 printed_t8_clamps=true; // [false:no, true:yes]
 bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
-
 
 /* [render printable parts] */
 render_parts=1; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount, 59: Step down mount, 60: MOS mount, 61: Relay mount, 62: Probe mount ]
@@ -75,12 +53,49 @@ hide_ffc=false;
 // show detailed electronic modules
 show_detailed_electronics=true;
 
+/* [build plate] */
+build_plate_w=310; // (X)
+build_plate_d=310; // (Y)
+build_plate_mount_space=240; // space between mounting screws
+
+/* [build volume] */
+build_x=300;
+build_y=300;
+build_z=290; // not used anywhere
+
+/* [frame] */
+// extrusions family size
+ext=20;
+// extrusion type
+ext_type=1; // [0:T-SLOT, 1:V-SLOT]
+// minimum margin between build plate and frame
+x_margin=10;
+// X gantry build type
+x_gantry_type=1; // [0: V-SLOT + MGN12, 1: Carbon fiber tube + MGN9]
+// CF tube size
+cf_tube_size=20.20;
+// CF tube wall thickness
+cf_tube_wall=1.15;
+
 
 // internal stuff starts here
 /* [Hidden] */
 include <NopSCADlib/lib.scad>
 use <TBG-Lite.scad>
 eps=0.01;
+
+// hotend variables
+hotend_w=50;
+hotend_d=70;
+hot_y_variants=[-52,-40,-40,-40,-40,-40];
+hot_y=hot_y_variants[hotend_type]; // distance from gantry to nozzle
+hot_z=-4;
+hotend_carriage_w=36;
+probe_y=(hotend_block==0) ? -19:-13; // relative to hot_y
+probe_z=hot_z-49.7+1.5; // triggers 3.75mm above surface, so 1.5mm above nozzle should be ok
+probe_p1=[-13,-34]; // x,z coordinates of probe mount pillars on shroud
+probe_p2=[-9.25,probe_z+10.25]; // x,z coordinates of probe mount on pcb
+cooling_fan_z=-7.5;
 
 // calculated
 base_w=2*ext+max(build_x+hotend_w,build_plate_w+x_margin); // frame width
@@ -133,18 +148,6 @@ bed_z=base_h-2*ext-28-pos_z; // bed Z position
 // Carbon fiber tube private variables
 cf_above_carriage=3.5; // height of cf above carriage
 cf_from_front=5; // distance from front of carriage
-
-// hotend position
-hot_y_variants=[-52,-40,-40,-40,-40,-40];
-hot_y=hot_y_variants[hotend_type]; // distance from gantry to nozzle
-hot_z=-4;
-hotend_carriage_w=36;
-probe_y=(hotend_block==0) ? -19:-13; // relative to hot_y
-probe_z=hot_z-49.7+1.5; // triggers 3.75mm above surface, so 1.5mm above nozzle should be ok
-probe_p1=[-13,-34]; // x,z coordinates of probe mount pillars on shroud
-probe_p2=[-9.25,probe_z+10.25]; // x,z coordinates of probe mount on pcb
-cooling_fan_z=-7.5;
-
 
 // oldham coupler
 oldham_w=ext*1.3; // width of oldham coupler
