@@ -197,9 +197,10 @@ VWHEEL_L = [ "V-wheel large", 24.32, 5, 16, 11.1, 20.50, 5.1, 19.40, 8.5 ];
 VWHEEL_S = [ "V-wheel small", 15.25, 5, 11, 8.90, 12.10, 6.1, 12.50, 7.0 ];
 VWHEEL = VWHEEL_L;
 // blower - Pengda other type
-PE4020C = ["PE4020C", "Blower Pengda Technology 4020 - custom", 40, 40, 19.3, 27.5, M3_cap_screw, 22, [21.5, 20], 3.1, [[37.7,2.60],[2.60,37.8],[37.7,37.8]], 29.3, 17,  1.4, 1.2, 1.1, 12.9];
-hotend_blower=PE4020C;
-cooling_blower=PE4020C;
+IF4020 = ["IF4020", "Blower IdeaFormer 4020", 40, 40, 19.3, 27.5, M3_cap_screw, 22, [21.5, 20], 3.1, [[37.7,2.60],[2.60,37.8],[37.7,37.8]], 29.3, 17,  1.4, 1.2, 1.15, 12.9];
+PE4020BB = ["PE4020BB", "Blower Pengda Technology 4020 - BB", 40, 40, 19.3, 27.5, M3_cap_screw, 22, [21.5, 20], 3.1, [[37.7,2.60],[2.60,37.8],[37.7,37.8]], 29.3, 17,  1.6, 1.4, 1.5, 12.9];
+hotend_blower=IF4020;
+cooling_blower=PE4020BB;
 // TH35 rail
 /* 0 - thickness
    1 - height
@@ -1423,11 +1424,16 @@ module cooling_fan_inlet(handle_space=0){
 }
 module part_cooling1(){
   // clearance from output of fans to end of nozzle: 14mm
+  cb=cooling_blower;
 
   // blower base
   color(pp_color2) translate([0,-2,cooling_fan_z-43]) union(){
     cooling_fan_inlet();
     translate([0,40,0]) rotate([0,0,180]) cooling_fan_inlet(3);
+  }
+  // directors for right fan
+  color(pp_color2) for (i=[0:2]){
+    translate([blower_base(cb)+printer_off,3+6*i,cooling_fan_z-43-1]) rotate([-35,0,0]) cube([blower_depth(cb)-blower_base(cb)-blower_top(cb)-2*printer_off,print_width,7]);
   }
   // vertical to horizontal
   color(pp_color2) translate([0,-2,cooling_fan_z-43]) difference(){
