@@ -85,6 +85,7 @@ cf_tube_wall=1.15;
 /* [Hidden] */
 include <NopSCADlib/lib.scad>
 use <TBG-Lite.scad>
+use <vn-lib.scad>
 eps=0.01;
 
 // hotend variables
@@ -220,25 +221,6 @@ $vpd=1770.74; // viewport distance
 $vpf=22.50; // viewport fov
 */
 
-// general geometry modules
-module diamond(dim){
-  linear_extrude(dim.z) polygon([ [0,dim.y/2], [dim.x/2,0], [dim.x,dim.y/2], [dim.x/2,dim.y] ]);
-}
-module triangle(a,h){
-  translate([0,0,-h/2]) linear_extrude(h) polygon([[0,0], [a,0], [0,a]]);
-}
-module round_corner(r,h){
-  difference(){
-    cube([r,r,h]);
-    translate([r,r,-eps]) cylinder(r=r,h=h+2*eps);
-  }
-}
-module slot(d,h,l){
-  hull(){
-    cylinder(d=d,h=h);
-    translate([l,0,0]) cylinder(d=d,h=h);
-  }
-}
 // printer specific modules
 module gt2_tooths(tooths,h=10,depth=1.38){
   translate([1,depth-1.381,0]) linear_extrude(height=h)
