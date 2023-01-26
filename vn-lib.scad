@@ -59,11 +59,15 @@ module slot(d,h,l){
    shape - argument to polygon()
    eps - height of extrude of shape (default=0.01)
 */
-module path_extrude(trs,eps=0.01){
+module path_extrude(trs,offset=0,eps=0.01){
   for (cc=[0:len(trs)-2]) {
     hull(){
-      translate(trs[cc][0]) rotate(trs[cc][1]) linear_extrude(eps) polygon(trs[cc][2]);
-      translate(trs[cc+1][0]) rotate(trs[cc+1][1]) linear_extrude(eps) polygon(trs[cc+1][2]);
+      translate(trs[cc][0]) rotate(trs[cc][1]) linear_extrude(eps) offset(delta=offset) polygon(trs[cc][2]);
+      translate(trs[cc+1][0]) rotate(trs[cc+1][1]) linear_extrude(eps) offset(delta=offset) polygon(trs[cc+1][2]);
     }
   }
 }
+
+/* return points of square
+*/
+function square_points(x,y) = [[0,0],[x,0],[x,y],[0,y]];
