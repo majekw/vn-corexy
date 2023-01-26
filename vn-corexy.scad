@@ -214,13 +214,20 @@ TH35_75_T1_20_2HOLES=[1.2, 7.5, 5, 6, 64];
 TH35_75_T1_0_SL6_5x15x25=[1.0, 7.5, 6.5, 15, 25];
 TH35_TYPE = TH35_75_T1_20_2HOLES;
 //TH35_TYPE = TH35_75_T1_0_SL6_5x15x25;
-/*
-$vpt=[ 195, 260, 230 ]; // viewport translate
-$vpr=[ 62.70, 0.00, 360*$t ]; // viewport rotation 67.20
-$vpd=1770.74; // viewport distance
-$vpf=22.50; // viewport fov
-*/
 
+/*
+// whole printer animation
+$vpt=[ 195, 260, 250 ]; // viewport translate
+$vpr=[ 51.50, 0.00, 360*$t ]; // viewport rotation 67.20
+$vpd=1770.74; // viewport distance
+$vpf=23.50; // viewport fov
+/*
+// carriage animation
+$vpt=[ 191, 178, 455 ]; // viewport translate
+$vpr=[ 110, 0.00, 360*$t ]; // viewport rotation 67.20
+$vpd=210; // viewport distance
+$vpf=35; // viewport fov
+*/
 // printer specific modules
 module gt2_tooths(tooths,h=10,depth=1.38){
   translate([1,depth-1.381,0]) linear_extrude(height=h)
@@ -1488,10 +1495,10 @@ module part_cooling2(){
     [[-pof2,-5,-pof2],[90,0,0],inlet],
     [[-1.2,-15,0],[90,0,0],square_points(12,8)],
     [[-1.2,-25,1],[90,0,20],square_points(9.5,7)],
-    [[-0.6,-30,1.5],[90,0,35],square_points(9,6.5)],
-    [[1.1,-35,0.6],[100,0,55],square_points(9,6.5)],
-    [[6.0,-38,-1.9],[105,0,75+5],square_points(9,6)],
-    [[9,-39,-5.1],[120,0,90],square_points(10,4)]
+    [[-1.1,-31,1.0],[90,0,35],square_points(10,7)],
+    [[1.1,-36,0],[100,0,55],square_points(10,6.0)],
+    [[6.0,-38.5,-1.9],[105,0,75+5],square_points(9,5)],
+    [[9,-39,-4],[120,0,90],square_points(10,4)]
     ];
 
   color(pp_color2) difference() {
@@ -1509,8 +1516,8 @@ module part_cooling2(){
           translate([-3,3.5,0]) cube([6,eps,blower_depth(hotend_blower)-blower_lug(hotend_blower)]);
         }
       }
-      // bottom joining plate
-      translate([-38/2,-10.5,cooling_fan_z-43-8]) cube([38,5,1.2]);
+      // bottom temporary joining plate
+      translate([-38/2,-10.5,cooling_fan_z-43-8]) cube([38,5,print_width]);
     }
     // HOLES
     // air duct hole
@@ -1523,7 +1530,7 @@ module part_cooling2(){
     // fan holes
     for (i=[1,2]){
       p=blower_screw_holes(hotend_blower)[i];
-      translate([20,33.3+hot_y,-4.5+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) cylinder(h=blower_depth(hotend_blower)-blower_lug(hotend_blower),d=3);
+      translate([20,33.3+hot_y,-4.5+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) cylinder(h=blower_depth(hotend_blower)-blower_lug(hotend_blower),d=3.1);
     }
   }
 }
