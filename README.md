@@ -1,12 +1,12 @@
 # vn-corexy
 Very Narrow CoreXY 3D Printer
 
-![vn-corexy rendering](img/vn-corexy-animated-20221206.gif)
+![vn-corexy rendering](img/vn-corexy-animated-20230127.gif)
 
 vn-corexy is designed around 300x300 mm build plate with goal to be
 as compact as possible with focus on width. Current dimensions are
-390(width)x520(depth)x530(height). While width and depth dimensions
-are final, height could change.
+390(width)x520(depth)x520(height) mm. Only filament could stick above
+maximum height, everything else (including cables) are within size limits.
 
 In this repository there is OpenScad source code with 3D printer design.
 There are many parameters that can be customized. In Customizer you could
@@ -15,9 +15,10 @@ There are also ECHO messages in console that can be used to prepare BOM,
 for example there are messages with all lengths of specific extrusion types,
 GT2 belt lengts are also calculated.
 
-**WARNING: THIS IS WORK IN PROGRESS**
+**WARNING: While this is almost finished, THIS IS STILL WORK IN PROGRESS**
 
 Forum thread (in Polish): https://reprapy.pl/viewtopic.php?f=10&t=7225
+
 YouTube videos: https://youtube.com/playlist?list=PL_tFeFf-6be2vM2YfxNyLlgO5D3nhVPHG
 
 # Requirements
@@ -32,6 +33,11 @@ YouTube videos: https://youtube.com/playlist?list=PL_tFeFf-6be2vM2YfxNyLlgO5D3nh
 - MGN12 carriage sticks 3.5mm out of frame
 - bed frame could be 10mm shorter to use 4 the same wheel supports
 - bed frame wheels supports are temporary, will be changed in future
+- Sailfin, Moli and MRF extruders support is not finished, BMG extruder
+  is abandoned.
+
+Current working configuration is TBG-Lite extruder and CHC heating block.
+![vn-corexy carriage rendering](img/carriage-animated-20230127.gif)
 
 # Copyright & license
 (C) 2020-2023 Marek Wodzinski <majek@w7i.pl>
