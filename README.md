@@ -44,4 +44,4 @@ Current working configuration is TBG-Lite extruder and CHC heating block.
 
 This work is licensed under Creative Commons Attribution-ShareAlike 4.0 International License.
 You should have received a copy of the license along with this work. 
-If not, see <http://creativecommons.org/licenses/by-sa/4.0/
+If not, see http://creativecommons.org/licenses/by-sa/4.0/

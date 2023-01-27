@@ -1420,16 +1420,16 @@ module part_cooling1(){
   cb=cooling_blower;
 
   // blower base
-  color(pp_color2) translate([0,-2,cooling_fan_z-43]) union(){
+  color(pp_color) translate([0,-2,cooling_fan_z-43]) union(){
     cooling_fan_inlet();
     translate([0,40,0]) rotate([0,0,180]) cooling_fan_inlet(3);
   }
   // directors for right fan
-  color(pp_color2) for (i=[0:2]){
+  color(pp_color) for (i=[0:2]){
     translate([blower_base(cb)+printer_off,3+6*i,cooling_fan_z-43-1]) rotate([-35,0,0]) cube([blower_depth(cb)-blower_base(cb)-blower_top(cb)-2*printer_off,print_width,7]);
   }
   // vertical to horizontal
-  color(pp_color2) translate([0,-2,cooling_fan_z-43]) difference(){
+  color(pp_color) translate([0,-2,cooling_fan_z-43]) difference(){
     translate([0,-3,0]) union(){
       translate([0,0,-7-2*print_width]) {
         // right part
@@ -1477,18 +1477,6 @@ module part_cooling1(){
   }
 }
 module part_cooling2(){
-/*
-  translate([0,-2,cooling_fan_z-43])
-  // right outlet
-  translate([2+4-2*print_width,-5,-7-print_width]) cube([12+4*print_width,5,7]);
-  // left outlet
-  translate([-18-2*print_width,-5,-7-print_width]) cube([12+4*print_width,5,7]);
-
-  {
-    p=blower_screw_holes(hotend_blower)[0];
-    translate([20,33.3+hot_y,-4.5+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) blower_spacer();
-  }
-*/
   pof2=2*printer_off;
   inlet=square_points(12+4*print_width+2*pof2,7+2*pof2);
   air_duct_in=[ [[-pof2,0,-pof2],[90,0,0],inlet],
@@ -1516,8 +1504,8 @@ module part_cooling2(){
           translate([-3,3.5,0]) cube([6,eps,blower_depth(hotend_blower)-blower_lug(hotend_blower)]);
         }
       }
-      // bottom temporary joining plate
-      translate([-38/2,-10.5,cooling_fan_z-43-8]) cube([38,5,print_width]);
+      // bottom temporary joining plate for printing only
+      if (!$preview) translate([-38/2,-10.5,cooling_fan_z-43-8]) cube([38,5,print_width]);
     }
     // HOLES
     // air duct hole
