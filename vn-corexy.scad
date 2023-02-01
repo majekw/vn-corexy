@@ -777,7 +777,7 @@ module nema14_round(depth=20){
   // cables
   translate([-5,16,-depth+0.5]) color("white") cube([10,5,3.5]);
 }
-module omerod_sensor(){
+module ormerod_sensor(){
   ow=24.2;
   oh=17.6;
   difference(){
@@ -1157,8 +1157,8 @@ module extruder_with_nema14(){
   // fpc socket board
   if (!hide_ffc)
     translate([4,39,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
-  // omerod sensor
-  translate([0,hot_y+probe_y,probe_z]) rotate([90,0,0]) omerod_sensor(); // 3.5mm from block
+  // ormerod sensor
+  translate([0,hot_y+probe_y,probe_z]) rotate([90,0,0]) ormerod_sensor(); // 3.5mm from block
   // Sailfin extruder
   if (hotend_type==1) {
     translate([0,hot_y,0]) rotate([0,0,0]) sailfin_extruder(color1=pp_color2,color2=pp_color);
