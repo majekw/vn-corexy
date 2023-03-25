@@ -23,7 +23,7 @@ YouTube videos: https://youtube.com/playlist?list=PL_tFeFf-6be2vM2YfxNyLlgO5D3nh
 
 # Requirements
 - OpenScad https://www.openscad.org/
-- NopSCADlib library https://github.com/nophead/NopSCADlib (version 20.15.1)
+- NopSCADlib library https://github.com/nophead/NopSCADlib (version 21.1.0)
 - for Sailfin extruder checkout Sailfin-Extruder/ git submodule
 - for Moli extruder checkout Moli-Extruder/ git submodule
 - for MRF extruder, download stl files from https://www.thingiverse.com/thing:5149028

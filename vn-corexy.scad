@@ -3539,8 +3539,12 @@ module electronics(){
 
     // fans
     fan_h=200;
-    for (fx = [42.5,92.5])
+    for (fx = [92.5]) //42.5
       translate([base_w-elec_support+fx,25,fan_h]) fan(fan50x15);
+
+    // Orange PI Zero 2
+    translate([base_w-elec_support/2-14,joint_in_material,cb_h+145]) rotate([-90,90,0]) pcb(OPZ2);
+    translate([base_w-elec_support,0,cb_h+145+23]) control_board_mount(1);
   }
 }
 module draw_whole_printer(){
