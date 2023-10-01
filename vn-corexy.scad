@@ -16,6 +16,7 @@ pos_z=290;
 hotend_type=2; // [0:with BMG extruder, 1: with Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder, 5: bowden]
 hotend_block=1; // [0: standard V6, 1: CHC ]
 hotend_block_sock=true;
+level_probe=0; // [0: Ormerod, 1: BL-Touch ]
 
 /* [printed parts] */
 printed_corners=true; // [false:no, true:yes]
@@ -794,6 +795,9 @@ module ormerod_sensor(){
   // capacitor
   translate([-1.7,-oh/2+3,0]) color("grey") cylinder(d=5.1,h=8.15);
 }
+module bl_touch(){
+  import("BL-touch.stl");
+}
 module fpc30_pcb(screw_l=8){
   pcb_w=26;
   pcb_d=40;
@@ -1157,8 +1161,14 @@ module extruder_with_nema14(){
   // fpc socket board
   if (!hide_ffc)
     translate([4,39,fpc_z-carriage_height(MGN12H_carriage)]) rotate([-90,0,0]) fpc30_pcb();
-  // ormerod sensor
-  translate([0,hot_y+probe_y,probe_z]) rotate([90,0,0]) ormerod_sensor(); // 3.5mm from block
+  if (level_probe==0){
+    // ormerod sensor
+    translate([0,hot_y+probe_y,probe_z]) rotate([90,0,0]) ormerod_sensor(); // 3.5mm from block
+  }
+  if (level_probe==1){
+    // bl-touch
+    translate([-13,hot_y+probe_y-11,probe_z-16+8]) rotate([0,0,0]) bl_touch();
+  }
   // Sailfin extruder
   if (hotend_type==1) {
     translate([0,hot_y,0]) rotate([0,0,0]) sailfin_extruder(color1=pp_color2,color2=pp_color);
@@ -1185,9 +1195,11 @@ module extruder_with_nema14(){
   }
   // filament
   #translate([0,hot_y,hot_z]) cylinder(h=100,d=1.75);
-  // probe mount
-  translate([0,hot_y+probe_y-1.5,hot_z]) probe_mount();
-  translate([0,hot_y+probe_y-1.5,hot_z]) mirror([1,0,0]) probe_mount();
+  if (level_probe==0) {
+    // ormerod probe mount
+    translate([0,hot_y+probe_y-1.5,hot_z]) probe_mount();
+    translate([0,hot_y+probe_y-1.5,hot_z]) mirror([1,0,0]) probe_mount();
+  }
 
   // screws
   // MGN9 screws
@@ -1207,9 +1219,11 @@ module extruder_with_nema14(){
   // sensor screws to shroud
   translate([probe_p1.x,hot_y+probe_y-4.5,probe_p1.y+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
   translate([-probe_p1.x,hot_y+probe_y-4.5,probe_p1.y+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
-  // sensor screws
-  translate([probe_p2.x,hot_y+probe_y,probe_p2.y+hot_z]) rotate([-90,0,0]) screw(M2p5_cap_screw,6);
-  translate([-probe_p2.x,hot_y+probe_y,probe_p2.y+hot_z]) rotate([-90,0,0]) screw(M2p5_cap_screw,6);
+  if (level_probe==0){
+    // ormerod sensor screws
+    translate([probe_p2.x,hot_y+probe_y,probe_p2.y+hot_z]) rotate([-90,0,0]) screw(M2p5_cap_screw,6);
+    translate([-probe_p2.x,hot_y+probe_y,probe_p2.y+hot_z]) rotate([-90,0,0]) screw(M2p5_cap_screw,6);
+  }
 }
 module carriage_to_nema14_mount(){
   mw=22; // mount width

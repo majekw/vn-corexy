@@ -45,3 +45,6 @@ Current working configuration is TBG-Lite extruder and CHC heating block.
 This work is licensed under Creative Commons Attribution-ShareAlike 4.0 International License.
 You should have received a copy of the license along with this work. 
 If not, see http://creativecommons.org/licenses/by-sa/4.0/
+
+BL-Touch model (STL) by @EA3D from: https://www.printables.com/model/301723-bltouch 
+is under a Creative Commons (International License) Public Domain
