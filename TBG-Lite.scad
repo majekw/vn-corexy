@@ -24,7 +24,7 @@ function TBG_holes_left() = [[-TBG_w()/2,5.25,TBG_w()/2-10.95], [-TBG_w()/2,-2.3
 function TBG_holes_front() = [[-TBG_w()/2+5.00,-8.50,5.00], [15.50,-8.50,5.85], [-TBG_w()/2+3.50,-8.50,TBG_w()-3.50]];
 function TBG_body() = [[-TBG_w()/2+2.5,0], [TBG_w()/2-2.5,0], [TBG_w()/2,2.5], [TBG_w()/2,10], [TBG_w()/2-8.15,18], [TBG_w()/2-8.15,TBG_w()-2.5], [TBG_w()/2-8.15-2.5,TBG_w()], [-TBG_w()/2+2.5,TBG_w()], [-TBG_w()/2,TBG_w()-2.5], [-TBG_w()/2,2.5]];
 function TBG_backplate() = [[-TBG_w()/2+2.5,0], [TBG_w()/2-2.5,0], [TBG_w()/2,2.5], [TBG_w()/2,12], [TBG_w()/2-3,18], [TBG_w()/2-3,TBG_w()-2.5], [TBG_w()/2-3-2.5,TBG_w()], [-TBG_w()/2+2.5,TBG_w()], [-TBG_w()/2,TBG_w()-2.5], [-TBG_w()/2,2.5]];
-
+function TBG_motor_position() = [[-TBG_w()/2+19.9,13,21.1],[90,-47,0]];
 
 module TBG_lite(){
   difference(){

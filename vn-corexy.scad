@@ -13,7 +13,7 @@ pos_y=100;
 pos_z=290;
 
 /* [hotend] */
-hotend_type=2; // [0:with BMG extruder, 1: with Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder, 5: bowden]
+hotend_type=6; // [0:with BMG extruder, 1: with Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder, 5: bowden, 6: HGX Lite 2.0 extruder]
 hotend_block=1; // [0: standard V6, 1: CHC ]
 hotend_block_sock=true;
 level_probe=0; // [0: Ormerod, 1: BL-Touch ]
@@ -86,13 +86,14 @@ cf_tube_wall=1.15;
 /* [Hidden] */
 include <NopSCADlib/lib.scad>
 use <TBG-Lite.scad>
+use <HGX-Lite2/HGX-Lite-2.scad>
 use <vn-lib.scad>
 eps=0.01;
 
 // hotend variables
 hotend_w=50;
 hotend_d=70;
-hot_y_variants=[-52,-40,-40,-40,-40,-40];
+hot_y_variants=[-52,-40,-40,-40,-40,-40,-40];
 hot_y=hot_y_variants[hotend_type]; // distance from gantry to nozzle
 hot_z=-4;
 hotend_carriage_w=36;
@@ -908,6 +909,15 @@ module v6_clamp(){
           }
         }
       }
+      // HGX mounts
+      if (hotend_type==6) {
+        for (i=[0,1]) {
+          translate([HGX_holes_front()[i].x,hot_y-11,hot_z+4]) hull(){
+            translate([-3,0,0]) cube([6,2.5,1]);
+            translate([0,0,HGX_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6);
+          }
+        }
+      }
       // Sailfin mounts
       if (hotend_type==1) {
         intersection(){
@@ -936,6 +946,12 @@ module v6_clamp(){
         translate([TBG_holes_front()[i].x,hot_y-11,hot_z+4+TBG_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=3.2);
       }
     }
+    // HGX holes
+    if (hotend_type==6) {
+      for (i=[0,1]) {
+        translate([HGX_holes_front()[i].x,hot_y-11,hot_z+4+HGX_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=3.2);
+      }
+    }
     // Sailfin holes
     if (hotend_type==1) {
       translate([19,-2.9+hot_y,hot_z-4]) cylinder(h=8,d=m3_insert);
@@ -951,6 +967,11 @@ module v6_clamp(){
     if (hotend_type==2) {
       translate([TBG_holes_front()[0].x,hot_y-11,hot_z+4+TBG_holes_front()[0].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,30);
       translate([TBG_holes_front()[1].x,hot_y-11,hot_z+4+TBG_holes_front()[1].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,16);
+    }
+    // screws for HGX
+    if (hotend_type==6) {
+      translate([HGX_holes_front()[0].x,hot_y-11,hot_z+4+HGX_holes_front()[0].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,30);
+      translate([HGX_holes_front()[1].x,hot_y-11,hot_z+4+HGX_holes_front()[1].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,16);
     }
   }
 }
@@ -994,6 +1015,13 @@ module hotend_mount_mgn9(){
         translate([TBG_holes_front()[0].x,hot_y+15.5,hot_z+4]) hull(){
           translate([-3.25,0,0]) cube([6.5,2.5,1]);
           translate([0,0,TBG_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6.5);
+        }
+      }
+      // HGX back mount
+      if (hotend_type==6) {
+        translate([HGX_holes_front()[0].x,hot_y+15.5,hot_z+HGX_holes_front()[0].z]) hull(){
+          translate([-3.25,0,0]) cube([6.5,2.5,1]);
+          translate([0,0,HGX_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6.5);
         }
       }
       // lower fan hole mount
@@ -1045,6 +1073,10 @@ module hotend_mount_mgn9(){
     // hole for rear TBG mount
     if (hotend_type==2) {
       translate([TBG_holes_front()[0].x,hot_y+15.5-eps,hot_z+4+TBG_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5+2*eps,d=3+2*printer_off);
+    }
+    // hole for rear HGX mount
+    if (hotend_type==6) {
+      translate([HGX_holes_front()[0].x,hot_y+15.5-eps,hot_z+4+HGX_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5+2*eps,d=3+2*printer_off);
     }
     // holes for lower fan mount
     translate([-20,40+0.4-lbh.x-2,lbh.y-47.5]) {
@@ -1191,7 +1223,13 @@ module extruder_with_nema14(){
   if (hotend_type==2) {
     translate([0,hot_y,0]) TBG_lite();
     // motor for TBG
-    translate([-TBG_w()/2+19.9,hot_y+13,21.1]) rotate([90,-47,0]) nema14_round(17.4);
+    translate([TBG_motor_position()[0].x,hot_y+TBG_motor_position()[0].y,TBG_motor_position()[0].z]) rotate(TBG_motor_position()[1]) nema14_round(17.4);
+  }
+  // HGX Lite 2.0
+  if (hotend_type==6) {
+    translate([0,hot_y,0]) HGX_lite2();
+    // motor for TBG
+    translate([HGX_motor_position()[0].x,hot_y+HGX_motor_position()[0].y,HGX_motor_position()[0].z]) rotate(HGX_motor_position()[1]) nema14_round(17.4);
   }
   // filament
   #translate([0,hot_y,hot_z]) cylinder(h=100,d=1.75);
