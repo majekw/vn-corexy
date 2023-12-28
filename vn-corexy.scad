@@ -1267,6 +1267,14 @@ module extruder_with_nema14(){
   }
 }
 module carriage_to_nema14_mount(){
+  if (hotend_type==2){
+    carriage_to_nema14_mount_TBG();
+  }
+  if (hotend_type==6){
+    carriage_to_nema14_mount_HGX();
+  }
+}
+module carriage_to_nema14_mount_TBG(){
   mw=22; // mount width
   color(pp_color2) difference(){
     union(){
@@ -1295,6 +1303,37 @@ module carriage_to_nema14_mount(){
   }
   if ($preview) {
     translate([TBG_motor_position()[0].x,hot_y+TBG_motor_position()[0].y+8,TBG_motor_position()[0].z+2.4]) rotate([-90,0,0]) ziptie(ziptie_3mm,r=20,t=0);
+  }
+}
+module carriage_to_nema14_mount_HGX(){
+  mw=22; // mount width
+  color(pp_color2) difference(){
+    union(){
+      //mount plate
+      translate([-mw/2,hot_y+13+6,39.5]) cube([mw,46.5,2.5]);
+      translate([HGX_motor_position()[0].x,hot_y+HGX_motor_position()[0].y+5,HGX_motor_position()[0].z]) scale([1.05,1,1.25]) rotate([-90,0,0]) cylinder(h=7,d=36.2);
+    }
+
+    // HOLES
+    // holes for MGN9 screws
+    for (c=MGN9_holes)
+      translate([c.x,c.y+carriage_width(MGN9H_carriage)/2+cf_from_front,39.5]) cylinder(d=3.2,h=2.5);
+    // slot
+    translate([-2,3,39.5]) cube([4,22.5,2.5]);
+    // cut lower part
+    translate([-25,hot_y+HGX_motor_position()[0].y+4,-10]) cube([50,9,40]);
+    // motor hole
+    translate([HGX_motor_position()[0].x,hot_y+HGX_motor_position()[0].y+5,HGX_motor_position()[0].z]) rotate([-90,0,0]) cylinder(h=7,d=36.2+2*printer_off);
+    // upper zip-tie hole
+    difference(){
+      translate([-25,hot_y+HGX_motor_position()[0].y+5+1,30]) cube([50,5,20]);
+      translate([HGX_motor_position()[0].x,hot_y+HGX_motor_position()[0].y+5,HGX_motor_position()[0].z+1]) scale([1.05,1,1.1]) rotate([-90,0,0]) cylinder(h=7,d=36.2);
+    }
+    // cut upper part to be more printable
+    translate([-20,hot_y+16,42]) cube([40,10,5]);
+  }
+  if ($preview) {
+    translate([HGX_motor_position()[0].x,hot_y+HGX_motor_position()[0].y+8,HGX_motor_position()[0].z+2.4]) rotate([-90,0,0]) ziptie(ziptie_3mm,r=20,t=0);
   }
 }
 module extruder_mount_base_mgn9(){
