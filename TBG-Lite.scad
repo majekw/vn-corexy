@@ -19,6 +19,10 @@
 */
 
 function TBG_w() = 43.50;
+function TBG_dimensions() = [ -TBG_w()/2, // left from center
+                              TBG_w()/2, // right from center
+                              -8.5, // front
+                              14.0 ]; // back
 function TBG_holes_bottom() = [[-10.45,2,0], [8.05,4.50,0], [8.05,-4.50,0]];
 function TBG_holes_left() = [[-TBG_w()/2,5.25,TBG_w()/2-10.95], [-TBG_w()/2,-2.30,TBG_w()/2+11.42]];
 function TBG_holes_front() = [[-TBG_w()/2+5.00,-8.50,5.00], [15.50,-8.50,5.85], [-TBG_w()/2+3.50,-8.50,TBG_w()-3.50]];

@@ -894,27 +894,30 @@ module v6_hole(){
   }
 }
 module v6_clamp(){
+  clamp_dy=11;
   color(pp_color2) difference(){
     union(){
       // main part
-      translate([-20,hot_y-11,hot_z-4]) cube([40,11,8]);
+      translate([-20,hot_y-clamp_dy,hot_z-4]) cube([40,clamp_dy,8]);
       // bottom V6 mount
       translate([-25/2,hot_y-25/2+1.5,hot_z-6]) cube([25,25/2-1.5,2]);
       // TBG mounts
       if (hotend_type==2) {
         for (i=[0,1]) {
-          translate([TBG_holes_front()[i].x,hot_y-11,hot_z+4]) hull(){
-            translate([-3,0,0]) cube([6,2.5,1]);
-            translate([0,0,TBG_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6);
+          translate([TBG_holes_front()[i].x,hot_y-clamp_dy,hot_z+4]) hull(){
+            th=clamp_dy+TBG_dimensions()[2]; // front dimension is negative
+            translate([-3,0,0]) cube([6,th,1]);
+            translate([0,0,TBG_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=th,d=6);
           }
         }
       }
       // HGX mounts
       if (hotend_type==6) {
         for (i=[0,1]) {
-          translate([HGX_holes_front()[i].x,hot_y-11,hot_z+4]) hull(){
-            translate([-3,0,0]) cube([6,2.5,1]);
-            translate([0,0,HGX_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6);
+          translate([HGX_holes_front()[i].x,hot_y-clamp_dy,hot_z+4]) hull(){
+            th=clamp_dy+HGX_dimensions()[2]; // front dimension is negative
+            translate([-3,0,0]) cube([6,th,1]);
+            translate([0,0,HGX_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=th,d=6);
           }
         }
       }
@@ -943,13 +946,13 @@ module v6_clamp(){
     // TBG holes
     if (hotend_type==2) {
       for (i=[0,1]) {
-        translate([TBG_holes_front()[i].x,hot_y-11,hot_z+4+TBG_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=3.2);
+        translate([TBG_holes_front()[i].x,hot_y-clamp_dy,hot_z+4+TBG_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=clamp_dy+TBG_dimensions()[2],d=3.2);
       }
     }
     // HGX holes
     if (hotend_type==6) {
       for (i=[0,1]) {
-        translate([HGX_holes_front()[i].x,hot_y-11,hot_z+4+HGX_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=3.2);
+        translate([HGX_holes_front()[i].x,hot_y-clamp_dy,hot_z+4+HGX_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=clamp_dy+HGX_dimensions()[2],d=3.2);
       }
     }
     // Sailfin holes
@@ -965,13 +968,13 @@ module v6_clamp(){
     }
     // screws for TBG
     if (hotend_type==2) {
-      translate([TBG_holes_front()[0].x,hot_y-11,hot_z+4+TBG_holes_front()[0].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,30);
-      translate([TBG_holes_front()[1].x,hot_y-11,hot_z+4+TBG_holes_front()[1].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,16);
+      translate([TBG_holes_front()[0].x,hot_y-clamp_dy,hot_z+4+TBG_holes_front()[0].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,30);
+      translate([TBG_holes_front()[1].x,hot_y-clamp_dy,hot_z+4+TBG_holes_front()[1].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,16);
     }
     // screws for HGX
     if (hotend_type==6) {
-      translate([HGX_holes_front()[0].x,hot_y-11,hot_z+4+HGX_holes_front()[0].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,30);
-      translate([HGX_holes_front()[1].x,hot_y-11,hot_z+4+HGX_holes_front()[1].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,16);
+      translate([HGX_holes_front()[0].x,hot_y-clamp_dy,hot_z+4+HGX_holes_front()[0].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,30);
+      translate([HGX_holes_front()[1].x,hot_y-clamp_dy,hot_z+4+HGX_holes_front()[1].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,16);
     }
   }
 }
@@ -1012,7 +1015,7 @@ module hotend_mount_mgn9(){
       }
       // TBG back mount
       if (hotend_type==2) {
-        translate([TBG_holes_front()[0].x,hot_y+15.5,hot_z+4]) hull(){
+        translate([TBG_holes_front()[0].x,hot_y+TBG_dimensions()[3]+1.5,hot_z+4]) hull(){
           translate([-3.25,0,0]) cube([6.5,2.5,1]);
           translate([0,0,TBG_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6.5);
         }
@@ -1269,7 +1272,7 @@ module carriage_to_nema14_mount(){
     union(){
       //mount plate
       translate([-mw/2,hot_y+13+6,39.5]) cube([mw,46.5,2.5]);
-      translate([-TBG_w()/2+19.9,hot_y+13+5,21.1]) scale([1.05,1,1.25]) rotate([-90,0,0]) cylinder(h=7,d=36.2);
+      translate([TBG_motor_position()[0].x,hot_y+TBG_motor_position()[0].y+5,TBG_motor_position()[0].z]) scale([1.05,1,1.25]) rotate([-90,0,0]) cylinder(h=7,d=36.2);
     }
 
     // HOLES
@@ -1279,19 +1282,19 @@ module carriage_to_nema14_mount(){
     // slot
     translate([-2,3,39.5]) cube([4,22.5,2.5]);
     // cut lower part
-    translate([-25,hot_y+13+4,-10]) cube([50,9,40]);
+    translate([-25,hot_y+TBG_motor_position()[0].y+4,-10]) cube([50,9,40]);
     // motor hole
-    translate([-TBG_w()/2+19.9,hot_y+13+5,21.1]) rotate([-90,0,0]) cylinder(h=7,d=36.2+2*printer_off);
+    translate([TBG_motor_position()[0].x,hot_y+TBG_motor_position()[0].y+5,TBG_motor_position()[0].z]) rotate([-90,0,0]) cylinder(h=7,d=36.2+2*printer_off);
     // upper zip-tie hole
     difference(){
-      translate([-25,hot_y+13+5+1,30]) cube([50,5,20]);
-      translate([-TBG_w()/2+19.9,hot_y+13+5,21.1+1]) scale([1.05,1,1.1]) rotate([-90,0,0]) cylinder(h=7,d=36.2);
+      translate([-25,hot_y+TBG_motor_position()[0].y+5+1,30]) cube([50,5,20]);
+      translate([TBG_motor_position()[0].x,hot_y+TBG_motor_position()[0].y+5,TBG_motor_position()[0].z+1]) scale([1.05,1,1.1]) rotate([-90,0,0]) cylinder(h=7,d=36.2);
     }
     // cut upper part to be more printable
     translate([-20,hot_y+16,42]) cube([40,10,5]);
   }
   if ($preview) {
-    translate([-TBG_w()/2+19.9,hot_y+21,23.5]) rotate([-90,0,0]) ziptie(ziptie_3mm,r=20,t=0);
+    translate([TBG_motor_position()[0].x,hot_y+TBG_motor_position()[0].y+8,TBG_motor_position()[0].z+2.4]) rotate([-90,0,0]) ziptie(ziptie_3mm,r=20,t=0);
   }
 }
 module extruder_mount_base_mgn9(){

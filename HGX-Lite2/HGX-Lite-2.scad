@@ -25,8 +25,8 @@
 function HGX_holes_bottom() = [ [-11.5,-4,0], // left front
                                [-11.5,5,0], // left rear
                                [17.5,0,0] ]; // right
-function HGX_holes_right() = [ [20.55,4.9,3.20], // front
-                               [20.55,-5.1,3.20] ]; //back
+function HGX_holes_right() = [ [20.55,4.9,3.0], // front (3.2 measured)
+                               [20.55,-5.1,3.0] ]; //back
 function HGX_holes_front() = [ [-15.65,-7.9,4.1], // left down (motor1)
                                [12.0,-7.9,4.1], // right down (lever)
                                [-9.45,-7.9,16.50], // left filament gear
@@ -35,6 +35,10 @@ function HGX_holes_front() = [ [-15.65,-7.9,4.1], // left down (motor1)
                                [15.6,7.9,35] ]; // rear motor2
 function HGX_motor_position() = [[0,12.5,19.60],[90,-45.5,0]]; // motor position and rotation
 function HGX_tension_screw_position() = [28.4,3.1,31.75];
+function HGX_dimensions() = [ -19.45, // left from center
+                              20.55, // right from center
+                              -7.9, // front
+                              12.5 ]; // back
 
 module HGX_lite2_front(){
   difference(){
