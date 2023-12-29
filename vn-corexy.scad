@@ -797,7 +797,7 @@ module ormerod_sensor(){
   translate([-1.7,-oh/2+3,0]) color("grey") cylinder(d=5.1,h=8.15);
 }
 module bl_touch(){
-  import("BL-touch.stl");
+  translate([-13,-5.8,0])  import("BL-touch.stl");
 }
 module fpc30_pcb(screw_l=8){
   pcb_w=26;
@@ -850,8 +850,18 @@ module blower_to_v6(blower_type=hotend_blower){
         for (p=blower_screw_holes(blower_type))
           translate([p.x,p.y,0]) cylinder(h=7,d=6);
       // sensor mount
-      translate([probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=4);
-      translate([-probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=4);
+      if (level_probe==0) {
+        // Ormerod sensor
+        translate([probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=4);
+        translate([-probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=4);
+      }
+      if (level_probe==1){
+        // BL-Touch
+        translate([-16.4+0.5,-8.4,-14]) hull(){
+          cylinder(h=4,d=8);
+          translate([-4,20,0]) cube([8,1,4]);
+        }
+      }
     }
 
     // main air hole from blower
@@ -881,8 +891,15 @@ module blower_to_v6(blower_type=hotend_blower){
     // space for V6 top mount
     translate([-13,-10-0.1,-7.5]) cube([26,22,2]);
     // sensor mount screw holes
-    translate([probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=m2_hole);
-    translate([-probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=m2_hole);
+    if (level_probe==0) {
+      // Ormerod
+      translate([probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=m2_hole);
+      translate([-probe_p1.x,0,probe_p1.y]) rotate([90,0,0]) cylinder(h=-probe_y+1.5,d=m2_hole);
+    }
+    if (level_probe==1){
+      // BL-Touch
+      translate([-16.4,-8.4,-14-eps]) cylinder(h=4+2*eps,d=3);
+    }
   }
 }
 module v6_hole(){
@@ -1202,7 +1219,7 @@ module extruder_with_nema14(){
   }
   if (level_probe==1){
     // bl-touch
-    translate([-13,hot_y+probe_y-11,probe_z-16+8]) rotate([0,0,0]) bl_touch();
+    translate([-8-5.8,hot_y+probe_y-4,probe_z-16+8]) rotate([0,0,-90+17]) bl_touch();
   }
   // Sailfin extruder
   if (hotend_type==1) {
@@ -1258,12 +1275,17 @@ module extruder_with_nema14(){
     translate([20,33.3+hot_y,-4.5+hot_z]) rotate([-90,0,180]) translate([p.x,p.y,14]) blower_spacer();
   }
   // sensor screws to shroud
-  translate([probe_p1.x,hot_y+probe_y-4.5,probe_p1.y+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
-  translate([-probe_p1.x,hot_y+probe_y-4.5,probe_p1.y+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
-  if (level_probe==0){
+  if (level_probe==0) {
+    // ormerod screws to shroud
+    translate([probe_p1.x,hot_y+probe_y-4.5,probe_p1.y+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
+    translate([-probe_p1.x,hot_y+probe_y-4.5,probe_p1.y+hot_z]) rotate([90,0,0]) screw(M2_cap_screw,10);
     // ormerod sensor screws
     translate([probe_p2.x,hot_y+probe_y,probe_p2.y+hot_z]) rotate([-90,0,0]) screw(M2p5_cap_screw,6);
     translate([-probe_p2.x,hot_y+probe_y,probe_p2.y+hot_z]) rotate([-90,0,0]) screw(M2p5_cap_screw,6);
+  }
+  if (level_probe==1){
+    // BL-Touch
+    translate([-16.4,hot_y-8.4,hot_z-14-2]) rotate([180,0,0]) screw(M3_cap_screw,6);
   }
 }
 module carriage_to_nema14_mount(){
