@@ -917,7 +917,7 @@ module v6_clamp(){
           translate([HGX_holes_front()[i].x,hot_y-clamp_dy,hot_z+4]) hull(){
             th=clamp_dy+HGX_dimensions()[2]; // front dimension is negative
             translate([-3,0,0]) cube([6,th,1]);
-            translate([0,0,HGX_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=th,d=6);
+            translate([0,0,HGX_holes_front()[i].z+0.25]) rotate([-90,0,0]) cylinder(h=th,d=6);
           }
         }
       }
@@ -952,7 +952,7 @@ module v6_clamp(){
     // HGX holes
     if (hotend_type==6) {
       for (i=[0,1]) {
-        translate([HGX_holes_front()[i].x,hot_y-clamp_dy,hot_z+4+HGX_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=clamp_dy+HGX_dimensions()[2],d=3.2);
+        translate([HGX_holes_front()[i].x,hot_y-clamp_dy,hot_z+4+HGX_holes_front()[i].z+0.25]) rotate([-90,0,0]) cylinder(h=clamp_dy+HGX_dimensions()[2],d=3.2);
       }
     }
     // Sailfin holes
@@ -1003,8 +1003,8 @@ module hotend_mount_mgn9(){
       // main plate reinforcement
       translate([0,-6,0]) rotate([90,0,-90]) triangle(a=2,h=40);
       // side plate reinforcement
-      translate([-20+2.5/2,-6,0]) rotate([90,0,-90]) triangle(a=11,h=2.5);
-      translate([20-1.8/2,-6,0]) rotate([90,0,-90]) triangle(a=11,h=1.8);
+      translate([-20+2.5/2,-6,0]) rotate([90,0,-90]) triangle(a=15,h=2.5);
+      translate([20-1.8/2,-6,0]) rotate([90,0,-90]) triangle(a=15,h=1.8);
       // v6/extruder plate
       translate([-hotend_carriage_w/2-2,hot_y,-10+2]) cube([hotend_carriage_w+4,-hot_y-3,8]);
       // V6 mount
@@ -1016,14 +1016,14 @@ module hotend_mount_mgn9(){
       // TBG back mount
       if (hotend_type==2) {
         translate([TBG_holes_front()[0].x,hot_y+TBG_dimensions()[3]+1.5,hot_z+4]) hull(){
-          translate([-3.25,0,0]) cube([6.5,2.5,1]);
+          translate([-3.25,0,-1]) cube([6.5,2.5,1]);
           translate([0,0,TBG_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6.5);
         }
       }
       // HGX back mount
       if (hotend_type==6) {
         translate([HGX_holes_front()[0].x,hot_y+15.5,hot_z+HGX_holes_front()[0].z]) hull(){
-          translate([-3.25,0,0]) cube([6.5,2.5,1]);
+          translate([-4.35,0,-1]) cube([6.9,2.5,1]);
           translate([0,0,HGX_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6.5);
         }
       }
@@ -1079,7 +1079,7 @@ module hotend_mount_mgn9(){
     }
     // hole for rear HGX mount
     if (hotend_type==6) {
-      translate([HGX_holes_front()[0].x,hot_y+15.5-eps,hot_z+4+HGX_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5+2*eps,d=3+2*printer_off);
+      translate([HGX_holes_front()[0].x,hot_y+15.5-eps,hot_z+4+HGX_holes_front()[0].z+0.25]) rotate([-90,0,0]) cylinder(h=2.5+2*eps,d=3+2*printer_off);
     }
     // holes for lower fan mount
     translate([-20,40+0.4-lbh.x-2,lbh.y-47.5]) {
