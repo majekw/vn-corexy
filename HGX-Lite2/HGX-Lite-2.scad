@@ -43,26 +43,24 @@ function HGX_dimensions() = [ -19.45, // left from center
 module HGX_lite2_front(){
   difference(){
     translate([-0.3-40+20.55,8.1,0]) rotate([90,0,0]) linear_extrude(16, convexity = 4) import("hgx-front.svg");
+
     // HOLES
 
     // filament hole
-    //cylinder(h=HGX_w(),d=2); // main hole
-    //cylinder(h=6,d=9.6); // M10 hole
-    //translate([0,0,HGX_w()-3]) cylinder(h=3,d=4.2); // PTFE hole
+    cylinder(h=42,d=2); // main hole
+    cylinder(h=7.6,d=4.2); // bottom hole
+    translate([0,0,41.45-8.6]) cylinder(h=8.6,d=4.2); // top hole
     // bottom mount holes
     for ( i=[0:2]) {
-      translate(HGX_holes_bottom()[i]) cylinder(h=4,d=3.2);
+      translate(HGX_holes_bottom()[i]) cylinder(h=6,d=2.8);
     }
     // right mount holes
     for ( i=[0:1]) {
-      translate(HGX_holes_right()[i]) rotate([0,-90,0]) cylinder(h=5,d=3.2);
+      translate(HGX_holes_right()[i]) rotate([0,-90,0]) cylinder(h=5,d=2.8);
     }
-    // front mount holes
-    for ( i=[0:5]) {
-      #translate(HGX_holes_front()[i]) rotate([-90,0,0]) {
-        cylinder(h=23,d=3.2);
-        //cylinder(h=1.5,d=5.5);
-      }
+    // front mount holes counersink
+    for ( i=[0,1,4]) {
+      translate(HGX_holes_front()[i]) rotate([-90,0,0]) cylinder(h=1.65,d1=6.5,d2=3.2);
     }
   }
 }
@@ -77,8 +75,12 @@ module HGX_lite2_back(){
       }
     }
 
-    // rear motor hole
-    //translate([13.9,22.5-8.5,37.55]) rotate([90,0,0]) cylinder(h=4,d=3.2);
+    // back mount hole counersink
+    translate(HGX_holes_front()[5]) rotate([-90,0,0]) cylinder(h=1.65,d1=6.5,d2=3.2);
+    // back mount holes
+    for ( i=[0,1,2,4,5]) {
+      translate(HGX_holes_front()[i]) rotate([-90,0,0]) cylinder(h=25,d=3.2);
+    }
   }
 }
 
@@ -119,6 +121,17 @@ module HGX_lite2(){
     translate([HGX_holes_front()[3].x,8,HGX_holes_front()[3].z]) rotate([90,0,0]) {
       translate([0,0,3]) color("silver") cylinder(d=9.6,h=4.2);
       color("#202020") cylinder(d=23,h=3);
+    }
+    // top lock
+    translate([0,0,41.45]) difference(){
+      union(){
+        // plastic part
+        translate([0,0,1.5]) color("#040404") cylinder(d=8,h=1.5);
+        // metal part
+        color("silver") cylinder(d=6.25,h=1.5);
+      }
+      // hole
+      translate([0,0,-0.5]) cylinder(d=4.25,h=4);
     }
   }
 }

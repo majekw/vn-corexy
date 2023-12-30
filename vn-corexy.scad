@@ -898,7 +898,7 @@ module blower_to_v6(blower_type=hotend_blower){
     }
     if (level_probe==1){
       // BL-Touch
-      translate([-16.4,-8.4,-14-eps]) cylinder(h=4+2*eps,d=3);
+      translate([-16.4,-8.4,-14-eps]) cylinder(h=4+2*eps,d=m3_insert);
     }
   }
 }
