@@ -33,7 +33,7 @@ function HGX_holes_front() = [ [-15.65,-7.9,4.1], // left down (motor1)
                                [-8.45,-7.9,30], // reduction gear
                                [5.95,-7.9,37.6], // top screw
                                [15.6,7.9,35] ]; // rear motor2
-function HGX_motor_position() = [[0.15,12.5,19.60],[90,-45.5,0]]; // motor position and rotation
+function HGX_motor_position() = [[0.15,12.5,19.60],[90,-45.0,0]]; // motor position and rotation
 function HGX_tension_screw_position() = [28.4,3.1,31.75];
 function HGX_dimensions() = [ -19.45, // left from center
                               20.55, // right from center
