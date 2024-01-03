@@ -101,6 +101,7 @@ probe_y=(hotend_block==0) ? -19:-13; // relative to hot_y
 probe_z=hot_z-49.7+1.5; // triggers 3.75mm above surface, so 1.5mm above nozzle should be ok
 probe_p1=[-13,-34]; // x,z coordinates of probe mount pillars on shroud
 probe_p2=[-9.25,probe_z+10.25]; // x,z coordinates of probe mount on pcb
+bltouch_z=-17;
 cooling_fan_z=-7.5;
 
 // calculated
@@ -857,7 +858,7 @@ module blower_to_v6(blower_type=hotend_blower){
       }
       if (level_probe==1){
         // BL-Touch
-        translate([-16.4+0.5,-8.4,-14]) hull(){
+        translate([-16.4+0.5,-8.4,bltouch_z]) hull(){
           cylinder(h=4,d=8);
           translate([-4,20,0]) cube([8,1,4]);
         }
@@ -1219,7 +1220,7 @@ module extruder_with_nema14(){
   }
   if (level_probe==1){
     // bl-touch
-    translate([-8-5.8,hot_y+probe_y-4,probe_z-16+8]) rotate([0,0,-90+17]) bl_touch();
+    translate([-8-5.8,hot_y+probe_y-4,bltouch_z-46.5]) rotate([0,0,-90+17]) bl_touch();
   }
   // Sailfin extruder
   if (hotend_type==1) {
@@ -1285,7 +1286,7 @@ module extruder_with_nema14(){
   }
   if (level_probe==1){
     // BL-Touch
-    translate([-16.4,hot_y-8.4,hot_z-14-2]) rotate([180,0,0]) screw(M3_cap_screw,6);
+    translate([-16.4,hot_y-8.4,hot_z+bltouch_z-2]) rotate([180,0,0]) screw(M3_cap_screw,6);
   }
 }
 module carriage_to_nema14_mount(){
@@ -1894,6 +1895,8 @@ module motor_support_x(){
     translate([4.5*ext,base_d-ext/2,base_h+m5_screw5-5]) screw(M5_cap_screw,m5_screw5);
     // motor screws
     translate([xy_motor_pos.x,xy_motor_pos.y,base_h+x_motor_z+3]) NEMA_screw_positions(XY_MOTOR) screw(M3_cap_screw,8);
+    // belt tension screws
+    //#translate([0,base_d+2.5*ext-37,base_h+x_motor_z+3-8]) rotate([0,-90,0]) screw(M5_cap_screw,60);
   }
   translate([0,base_d-ext,base_h]) motor_support_x_down();
   translate([0,base_d-ext,base_h]) motor_support_x_up();
