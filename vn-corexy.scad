@@ -45,6 +45,9 @@ bridge_thickness=0.20;
 // use upper ball bearings for T8 rods
 t8_upper_bearings=true;
 
+// Z bed stabilization
+z_bed_stab = 0; // [0: v-slot wheels, 1: MGN7 linear rails]
+
 // correction for offset on overextrusion or slicer problems impacting on XY dimensions
 printer_off=0.10; // [0:0.01:0.2]
 
@@ -3072,35 +3075,38 @@ module z_bed_frame(){
   translate([base_w,4*ext,-ext]) rotate([0,0,180]) bed_to_t8(1.5*ext);
   translate([base_w/2,base_d,-ext]) rotate([0,0,-90]) bed_to_t8(2*ext);
 
-  // front v-wheels
-  v_offset=ext+VWHEEL[5]/2;
-  v_front_screw_len=30;
-  translate([v_offset,1.5*ext+VWHEEL[4]/2,-2.5*ext]) rotate([90,0,0]) {
-    vslot_wheel(VWHEEL);
-    translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
-  }
-  translate([base_w-v_offset,1.5*ext+VWHEEL[4]/2,-2.5*ext]) rotate([90,0,0]) {
-    vslot_wheel(VWHEEL);
-    translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
-  }
-  // left front wheel mount
-  translate([ext,3*ext,-ext]) z_wheel_mount(1);
-  // left front wheel mount
-  translate([base_w-ext,3*ext,-ext]) mirror([1,0,0]) z_wheel_mount(1);
+  if (z_bed_stab==0){
+    // wheels to stabilize Z bed
+    // front v-wheels
+    v_offset=ext+VWHEEL[5]/2;
+    v_front_screw_len=30;
+    translate([v_offset,1.5*ext+VWHEEL[4]/2,-2.5*ext]) rotate([90,0,0]) {
+      vslot_wheel(VWHEEL);
+      translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
+    }
+    translate([base_w-v_offset,1.5*ext+VWHEEL[4]/2,-2.5*ext]) rotate([90,0,0]) {
+      vslot_wheel(VWHEEL);
+      translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
+    }
+    // left front wheel mount
+    translate([ext,3*ext,-ext]) z_wheel_mount(1);
+    // left front wheel mount
+    translate([base_w-ext,3*ext,-ext]) mirror([1,0,0]) z_wheel_mount(1);
 
-  // back v-wheels
-  translate([v_offset,base_d-1.5*ext-VWHEEL[4]/2,-2.5*ext]) rotate([-90,0,0]) {
-    vslot_wheel(VWHEEL);
-    translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
+    // back v-wheels
+    translate([v_offset,base_d-1.5*ext-VWHEEL[4]/2,-2.5*ext]) rotate([-90,0,0]) {
+      vslot_wheel(VWHEEL);
+      translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
+    }
+    translate([base_w-v_offset,base_d-1.5*ext-VWHEEL[4]/2,-2.5*ext]) rotate([-90,0,0]) {
+      vslot_wheel(VWHEEL);
+      translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
+    }
+    // left back wheel mount
+    translate([ext,base_d-3*ext,-ext]) mirror([0,1,0]) z_wheel_mount(0);
+    // right back wheel mount
+    translate([base_w-ext,base_d-3*ext,-ext]) rotate([0,0,180]) z_wheel_mount(0);
   }
-  translate([base_w-v_offset,base_d-1.5*ext-VWHEEL[4]/2,-2.5*ext]) rotate([-90,0,0]) {
-    vslot_wheel(VWHEEL);
-    translate([0,0,VWHEEL[4]]) screw(M5_dome_screw,v_front_screw_len);
-  }
-  // left back wheel mount
-  translate([ext,base_d-3*ext,-ext]) mirror([0,1,0]) z_wheel_mount(0);
-  // right back wheel mount
-  translate([base_w-ext,base_d-3*ext,-ext]) rotate([0,0,180]) z_wheel_mount(0);
 
   // Z end-stop
   translate([base_w-elec_support-6.5,base_d-2*ext,-ext]) z_endstop_trigger();
@@ -3117,6 +3123,15 @@ module z_axis(){
   p3=[base_w/2, base_d-ext/2, ext];
   translate(p3) rotate([0,0,90]) z_rod(1);
 
+  if (z_bed_stab==1){
+    // linear rails
+    // front
+    rail_len=400;
+    rail_shift=-120;
+    translate([base_w-ext,1.5*ext,ext+rail_len/2]) rotate([0,-90,0]) rail_assembly(MGN7H_carriage, rail_len, -rail_shift-pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
+    // rear
+    translate([ext,base_d-1.5*ext,ext+rail_len/2]) rotate([0,90,0]) rail_assembly(MGN7H_carriage, rail_len, rail_shift+pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
+  }
   // Z motor
   p4=[ext+22, z_pulley_support-22-ext/2, z_belt_h-5.5];
   translate(p4) rotate([0,0,0]) union(){
@@ -3143,7 +3158,6 @@ module z_axis(){
 
   //moving part
   translate([0,0,bed_z]) z_bed_frame();
-  
 }
 module z_pulley_helper(){
   difference(){
