@@ -27,7 +27,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 /* [render printable parts] */
-render_parts=1; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount, 59: Step down mount, 60: MOS mount, 61: Relay mount, 62: Probe mount, 63: Part cooling 1, 64: Part cooling 2 ]
+render_parts=1; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount, 59: Step down mount, 60: MOS mount, 61: Relay mount, 62: Probe mount, 63: Part cooling 1, 64: Part cooling 2, 65: Side slot front, 66: Side slot middle, 67: Side slot rear, 68: Side slot rear PS ]
 
 /* [tweaks/hacks] */
 
@@ -59,6 +59,12 @@ hide_ffc=false;
 
 // show detailed electronic modules
 show_detailed_electronics=true;
+
+/* [enclosure] */
+// show enclosure
+show_enclosure=false;
+// double sided tape thicknes
+tape_thicknes=0.8;
 
 /* [build plate] */
 build_plate_w=310; // (X)
@@ -3680,11 +3686,48 @@ module electronics(){
     translate([base_w-elec_support,0,cb_h+145+23]) control_board_mount(1);
   }
 }
+module enclosure_side_slot(end=false,length=129){
+  color("#505050") difference(){
+    union(){
+      translate([-3,0,tape_thicknes]) cube([6,length+10,1.8-tape_thicknes]);
+      translate([-5,0,1.8]) cube([10,length+10,1.6]);
+    }
+    if (!end) translate([-0.2-printer_off,-eps,0]) cube([6,10+printer_off+eps,6]);
+    translate([-6,length-printer_off,0]) cube([6+0.2+printer_off,11,6]);
+  }
+}
+module enclosure_side(bt=false){
+  ost=bt?50:0;
+  enclosure_side_slot(end=true);
+  translate([0,130,0]) enclosure_side_slot();
+  translate([0,260,0]) enclosure_side_slot();
+  translate([0,390+130-ost,0]) rotate([0,0,180]) enclosure_side_slot(end=true,length=130-ost-10);
+}
+module enclosure(){
+  // side panels slot
+  // left bottom
+  translate([0,0,10]) rotate([0,90,0]) enclosure_side(true);
+  // left top
+  translate([0,0,base_h-10]) rotate([0,90,0]) enclosure_side(false);
+  // right top
+  translate([base_w,0,base_h-10]) rotate([0,-90,0]) enclosure_side(false);
+  // left top
+  translate([base_w,0,10]) rotate([0,-90,0]) enclosure_side(false);
+
+  // left foil
+  %translate([-0.5,0,0]) difference(){
+    cube([0.5,base_d+2.5*ext,base_h]);
+    translate([-eps,base_d,0]) cube([0.5+2*eps,2.5*ext+eps,6*ext]);
+  }
+  // right foil
+  %translate([base_w,0,0]) cube([0.5,base_d+2.5*ext,base_h]);
+}
 module draw_whole_printer(){
   frame();
   gantry();
   z_axis();
   electronics();
+  if (show_enclosure) enclosure();
 }
 module draw_printable_parts(){
   if (render_parts==1) translate([0,0,0]) tnut_m5();
@@ -3759,6 +3802,10 @@ module draw_printable_parts(){
   if (render_parts==62) probe_mount();
   if (render_parts==63) part_cooling1();
   if (render_parts==64) part_cooling2();
+  if (render_parts==65) enclosure_side_slot(end=true);
+  if (render_parts==66) enclosure_side_slot(end=false);
+  if (render_parts==67) enclosure_side_slot(end=true,length=120);
+  if (render_parts==68) enclosure_side_slot(end=true,length=120-50);
 }
 
 if ($preview) {
