@@ -13,8 +13,8 @@ pos_y=100;
 pos_z=290;
 
 /* [hotend] */
-hotend_type=6; // [0:with BMG extruder, 1: with Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder, 5: bowden, 6: HGX Lite 2.0 extruder]
-hotend_block=1; // [0: standard V6, 1: CHC ]
+extruder_type=6; // [0:BMG extruder, 1: Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder, 5: bowden, 6: HGX Lite 2.0 extruder]
+hotend_type=1; // [0: standard V6, 1: V6 heatink with CHC, 2: TZT V6 ]
 hotend_block_sock=true;
 level_probe=0; // [0: Ormerod, 1: BL-Touch ]
 bltouch_side=1; // [-1:rigt, 1:left ]
@@ -104,10 +104,10 @@ eps=0.01;
 hotend_w=50;
 hotend_d=70;
 hot_y_variants=[-52,-40,-40,-40,-40,-40,-40];
-hot_y=hot_y_variants[hotend_type]; // distance from gantry to nozzle
+hot_y=hot_y_variants[extruder_type]; // distance from gantry to nozzle
 hot_z=-4;
 hotend_carriage_w=36;
-probe_y=(hotend_block==0) ? -19:-13; // relative to hot_y
+probe_y=(hotend_type==0) ? -19:-13; // relative to hot_y
 probe_z=hot_z-49.7+1.5; // triggers 3.75mm above surface, so 1.5mm above nozzle should be ok
 probe_p1=[-13,-34]; // x,z coordinates of probe mount pillars on shroud
 probe_p2=[-9.25,probe_z+10.25]; // x,z coordinates of probe mount on pcb
@@ -930,7 +930,7 @@ module v6_clamp(){
       // bottom V6 mount
       translate([-25/2,hot_y-25/2+1.5,hot_z-6]) cube([25,25/2-1.5,2]);
       // TBG mounts
-      if (hotend_type==2) {
+      if (extruder_type==2) {
         for (i=[0,1]) {
           translate([TBG_holes_front()[i].x,hot_y-clamp_dy,hot_z+4]) hull(){
             th=clamp_dy+TBG_dimensions()[2]; // front dimension is negative
@@ -940,7 +940,7 @@ module v6_clamp(){
         }
       }
       // HGX mounts
-      if (hotend_type==6) {
+      if (extruder_type==6) {
         for (i=[0,1]) {
           translate([HGX_holes_front()[i].x,hot_y-clamp_dy,hot_z+4]) hull(){
             th=clamp_dy+HGX_dimensions()[2]; // front dimension is negative
@@ -950,7 +950,7 @@ module v6_clamp(){
         }
       }
       // Sailfin mounts
-      if (hotend_type==1) {
+      if (extruder_type==1) {
         intersection(){
           translate([19,-2.9+hot_y,hot_z-4]) cylinder(h=8,d=7);
           translate([-20,hot_y-11,hot_z-4]) cube([43,11,8]);
@@ -968,23 +968,23 @@ module v6_clamp(){
       //translate([i,hot_y-11,-7]) rotate([-90,0,0]) cylinder(h=3,d=6);
     }
     // cable to hotend hole (not with Sailfin - mount screw is in this place)
-    if (hotend_type!=1) {
+    if (extruder_type!=1) {
       translate([-18,hot_y-9,-8.01]) cube([5,10,7]);
     }
     // TBG holes
-    if (hotend_type==2) {
+    if (extruder_type==2) {
       for (i=[0,1]) {
         translate([TBG_holes_front()[i].x,hot_y-clamp_dy,hot_z+4+TBG_holes_front()[i].z+0.5]) rotate([-90,0,0]) cylinder(h=clamp_dy+TBG_dimensions()[2],d=3.2);
       }
     }
     // HGX holes
-    if (hotend_type==6) {
+    if (extruder_type==6) {
       for (i=[0,1]) {
         translate([HGX_holes_front()[i].x,hot_y-clamp_dy,hot_z+4+HGX_holes_front()[i].z+0.25]) rotate([-90,0,0]) cylinder(h=clamp_dy+HGX_dimensions()[2],d=3.2);
       }
     }
     // Sailfin holes
-    if (hotend_type==1) {
+    if (extruder_type==1) {
       translate([19,-2.9+hot_y,hot_z-4]) cylinder(h=8,d=m3_insert);
       translate([-14,-2.9+hot_y,hot_z-4]) cylinder(h=8,d=m3_insert);
     }
@@ -995,12 +995,12 @@ module v6_clamp(){
       translate([i,hot_y-11,-7]) rotate([90,0,0]) screw(M3_cap_screw,16);
     }
     // screws for TBG
-    if (hotend_type==2) {
+    if (extruder_type==2) {
       translate([TBG_holes_front()[0].x,hot_y-clamp_dy,hot_z+4+TBG_holes_front()[0].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,30);
       translate([TBG_holes_front()[1].x,hot_y-clamp_dy,hot_z+4+TBG_holes_front()[1].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,16);
     }
     // screws for HGX
-    if (hotend_type==6) {
+    if (extruder_type==6) {
       translate([HGX_holes_front()[0].x,hot_y-clamp_dy,hot_z+4+HGX_holes_front()[0].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,30);
       translate([HGX_holes_front()[1].x,hot_y-clamp_dy,hot_z+4+HGX_holes_front()[1].z+0.5]) rotate([90,0,0]) screw(M3_cap_screw,16);
     }
@@ -1042,14 +1042,14 @@ module hotend_mount_mgn9(){
         translate([-zg/2,0,0]) cube([zg,zg/2-1,2]);
       }
       // TBG back mount
-      if (hotend_type==2) {
+      if (extruder_type==2) {
         translate([TBG_holes_front()[0].x,hot_y+TBG_dimensions()[3]+1.5,hot_z+4]) hull(){
           translate([-3.25,0,-1]) cube([6.5,2.5,1]);
           translate([0,0,TBG_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6.5);
         }
       }
       // HGX back mount
-      if (hotend_type==6) {
+      if (extruder_type==6) {
         translate([HGX_holes_front()[0].x,hot_y+15.5,hot_z+HGX_holes_front()[0].z]) hull(){
           translate([-4.35,0,-1]) cube([6.9,2.5,1]);
           translate([0,0,HGX_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5,d=6.5);
@@ -1102,11 +1102,11 @@ module hotend_mount_mgn9(){
       translate([-p.x+20,hot_y+38,-p.y-8.5]) rotate([90,0,0]) cylinder(h=8,d=m3_insert);
     }
     // hole for rear TBG mount
-    if (hotend_type==2) {
+    if (extruder_type==2) {
       translate([TBG_holes_front()[0].x,hot_y+15.5-eps,hot_z+4+TBG_holes_front()[0].z+0.5]) rotate([-90,0,0]) cylinder(h=2.5+2*eps,d=3+2*printer_off);
     }
     // hole for rear HGX mount
-    if (hotend_type==6) {
+    if (extruder_type==6) {
       translate([HGX_holes_front()[0].x,hot_y+15.5-eps,hot_z+4+HGX_holes_front()[0].z+0.25]) rotate([-90,0,0]) cylinder(h=2.5+2*eps,d=3+2*printer_off);
     }
     // holes for lower fan mount
@@ -1125,12 +1125,22 @@ module hotend_mount_mgn9(){
     translate([14,-6,5]) rotate([90,0,0]) screw(M3_cap_screw,8);
   }
 }
-module vn_hot_end(){
-  if (hotend_block==0){
-     rotate([0,0,180]) hot_end(E3Dv6, 1.75, bowden = (hotend_type==5),resistor_wire_rotate = [0,0,0], naked = true);
-  } else {
-    // V6 heatsink
-    color("silver") translate([0,0,-39]) difference(){
+module v6_nozzle(){
+  // copy from NopSCADlib/vitamins/e3d.scad
+  color(brass) {
+    rotate_extrude()
+      polygon([
+            [0.2,  0],
+            [0.2,  2],
+            [1.5,  2],
+            [0.65, 0]
+        ]);
+    translate_z(2) cylinder(d = 8, h = 3, $fn=6);
+    translate_z(5) cylinder(d = 6, h = 7.5);
+  }
+}
+module v6_heatsink(){
+   color("silver") translate([0,0,-39]) difference(){
       union(){
         // core
         cylinder(d1=12.3,d2=8.5,h=30);
@@ -1155,11 +1165,20 @@ module vn_hot_end(){
       // upper hole
       translate([0,0,36.2]) cylinder(d=8,h=6.5+eps);
     }
+}
+module vn_hot_end(){
+  if (hotend_type==0){
+    // standard V6 hotend
+    rotate([0,0,180]) hot_end(E3Dv6, 1.75, bowden = (hotend_type==5),resistor_wire_rotate = [0,0,0], naked = true);
+  } else if (hotend_type==1){
+    // V6 heatsink with CHC heater
 
-    // heatbreak
+    // V6 heatsink
+    v6_heatsink();
+    // V6 heatbreak
     translate_z(-46.9) color("silver") cylinder(d=6,h=23);
 
-    // heat block
+    // CHC heating block
     translate_z(-39-19.5+5.1) {
       // ceramic ring
       color("white") cylinder(d=11, h=8.1);
@@ -1179,19 +1198,11 @@ module vn_hot_end(){
         translate_z(-2.5) cylinder(d=8,h=16);
       }
     }
-
-    // nozzle - copy from NopSCADlib/vitamins/e3d.scad
-    translate([0,0,-39-19.5]) color(brass) {
-      rotate_extrude()
-        polygon([
-                [0.2,  0],
-                [0.2,  2],
-                [1.5,  2],
-                [0.65, 0]
-            ]);
-     translate_z(2) cylinder(d = 8, h = 3, $fn=6);
-     translate_z(5) cylinder(d = 6, h = 7.5);
-    };
+    // nozzle
+    translate([0,0,-39-19.5]) v6_nozzle();
+  } else if (hotend_type==2){
+    // TZT V6 (short V6 heatink with Bambu-like heatblock
+    
   }
 }
 module probe_mount(){
@@ -1233,31 +1244,31 @@ module extruder_with_nema14(){
     translate([(-8-5.8)*bltouch_side,hot_y+probe_y-4,bltouch_z-46.5]) rotate([0,0,(-90+17)*bltouch_side]) bl_touch();
   }
   // Sailfin extruder
-  if (hotend_type==1) {
+  if (extruder_type==1) {
     translate([0,hot_y,0]) rotate([0,0,0]) sailfin_extruder(color1=pp_color2,color2=pp_color);
   }
   // MRF extruder
-  if (hotend_type==4) {
+  if (extruder_type==4) {
     translate([0,hot_y,0]) rotate([0,0,0]) mrf_extruder(color1=pp_color2,color2=pp_color);
   }
   // motor for Sailfin/MRF
-  if ((hotend_type==1) || (hotend_type==4)) {
+  if ((extruder_type==1) || (extruder_type==4)) {
     translate([5.5,hot_y+13+1,26.5]) rotate([90,50,0]) nema14_round();
   }
   // Moli extruder
-  if (hotend_type==3) {
+  if (extruder_type==3) {
     translate([0,hot_y,0]) rotate([0,0,0]) moli_extruder(color1=pp_color2,color2=pp_color);
     // motor for Moli
     translate([0,hot_y+13,30]) rotate([90,48,0]) nema14_round();
   }
   // TBG Lite
-  if (hotend_type==2) {
+  if (extruder_type==2) {
     translate([0,hot_y,0]) TBG_lite();
     // motor for TBG
     translate([TBG_motor_position()[0].x,hot_y+TBG_motor_position()[0].y,TBG_motor_position()[0].z]) rotate(TBG_motor_position()[1]) nema14_round(17.4);
   }
   // HGX Lite 2.0
-  if (hotend_type==6) {
+  if (extruder_type==6) {
     translate([0,hot_y,0]) HGX_lite2();
     // motor for TBG
     translate([HGX_motor_position()[0].x,hot_y+HGX_motor_position()[0].y,HGX_motor_position()[0].z]) rotate(HGX_motor_position()[1]) nema14_round(17.4);
@@ -1300,10 +1311,10 @@ module extruder_with_nema14(){
   }
 }
 module carriage_to_nema14_mount(){
-  if (hotend_type==2){
+  if (extruder_type==2){
     carriage_to_nema14_mount_TBG();
   }
-  if (hotend_type==6){
+  if (extruder_type==6){
     carriage_to_nema14_mount_HGX();
   }
 }
@@ -1650,10 +1661,10 @@ module part_cooling2(){
   }
 }
 module extruder(){
-  if (hotend_type==0) {
+  if (extruder_type==0) {
     translate([0,-18,10]) extruder_with_bmg();
   } else
-  if (hotend_type>=1) {
+  if (extruder_type>=1) {
     extruder_mount_base_mgn9();
     translate([-5,gantry_belt_pos,beltx_shift-16]) rotate([0,0,180]) belt_lock();
     hotend_mount_mgn9();
@@ -1762,7 +1773,7 @@ module pulley_support_front_up(side=0){
     // rounded corner
     translate([-eps,-eps,0]) round_corner(r=10,h=fh+eps);
     // TBG fix
-    if (hotend_type==2 && side==1){
+    if (extruder_type==2 && side==1){
       translate([ext-6-4,47,18]) rotate([90,0,90]) slot(16,6+eps,20);
     }
   }
