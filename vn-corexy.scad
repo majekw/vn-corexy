@@ -1,6 +1,6 @@
 /* Very Narrow CoreXY Printer (vn-corexy)
    Created with goal: use as small space in width dimension as possible.
-   (C) 2020-2023 Marek Wodzinski <majek@w7i.pl> https://majek.sh
+   (C) 2020-2024 Marek Wodzinski <majek@w7i.pl> https://majek.sh
 
    vn-corexy is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
    You should have received a copy of the license along with this work.
@@ -17,6 +17,7 @@ hotend_type=6; // [0:with BMG extruder, 1: with Sailfin extruder, 2: TBG-Lite ex
 hotend_block=1; // [0: standard V6, 1: CHC ]
 hotend_block_sock=true;
 level_probe=0; // [0: Ormerod, 1: BL-Touch ]
+bltouch_side=1; // [-1:rigt, 1:left ]
 
 /* [printed parts] */
 printed_corners=true; // [false:no, true:yes]
@@ -867,7 +868,7 @@ module blower_to_v6(blower_type=hotend_blower){
       }
       if (level_probe==1){
         // BL-Touch
-        translate([-16.4+0.5,-8.4,bltouch_z]) hull(){
+        translate([(-16.4+0.5)*bltouch_side,-8.4,bltouch_z]) hull(){
           cylinder(h=4,d=8);
           translate([-4,20,0]) cube([8,1,4]);
         }
@@ -908,7 +909,7 @@ module blower_to_v6(blower_type=hotend_blower){
     }
     if (level_probe==1){
       // BL-Touch
-      translate([-16.4,-8.4,-14-eps]) cylinder(h=4+2*eps,d=m3_insert);
+      translate([-16.4*bltouch_side,-8.4,-14-eps]) cylinder(h=4+2*eps,d=m3_insert);
     }
   }
 }
@@ -1229,7 +1230,7 @@ module extruder_with_nema14(){
   }
   if (level_probe==1){
     // bl-touch
-    translate([-8-5.8,hot_y+probe_y-4,bltouch_z-46.5]) rotate([0,0,-90+17]) bl_touch();
+    translate([(-8-5.8)*bltouch_side,hot_y+probe_y-4,bltouch_z-46.5]) rotate([0,0,(-90+17)*bltouch_side]) bl_touch();
   }
   // Sailfin extruder
   if (hotend_type==1) {
@@ -1295,7 +1296,7 @@ module extruder_with_nema14(){
   }
   if (level_probe==1){
     // BL-Touch
-    translate([-16.4,hot_y-8.4,hot_z+bltouch_z-2]) rotate([180,0,0]) screw(M3_cap_screw,6);
+    translate([-16.4*bltouch_side,hot_y-8.4,hot_z+bltouch_z-2]) rotate([180,0,0]) screw(M3_cap_screw,6);
   }
 }
 module carriage_to_nema14_mount(){
