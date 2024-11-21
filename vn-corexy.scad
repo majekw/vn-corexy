@@ -3144,11 +3144,11 @@ module z_axis(){
   if (z_bed_stab==1){
     // linear rails
     // front
-    rail_len=400;
+    rail_len=350;
     rail_shift=-120;
-    translate([base_w-ext,1.5*ext,ext+rail_len/2]) rotate([0,-90,0]) rail_assembly(MGN7H_carriage, rail_len, -rail_shift-pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
+    translate([base_w-ext/2,2*ext,2.5*ext+rail_len/2]) rotate([0,-90,-90]) rail_assembly(MGN7H_carriage, rail_len, -rail_shift-pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
     // rear
-    translate([ext,base_d-1.5*ext,ext+rail_len/2]) rotate([0,90,0]) rail_assembly(MGN7H_carriage, rail_len, rail_shift+pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
+    translate([elec_support,base_d-ext/2,2.5*ext+rail_len/2]) rotate([0,90,0]) rail_assembly(MGN7H_carriage, rail_len, rail_shift+pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
   }
   // Z motor
   p4=[ext+22, z_pulley_support-22-ext/2, z_belt_h-5.5];
