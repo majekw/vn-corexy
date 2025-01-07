@@ -8,15 +8,15 @@
 */
 
 /* [head position] */
-pos_x=0;
-pos_y=100;
-pos_z=290;
+pos_x=0; // [0:1:300]
+pos_y=100; // [0:1:300]
+pos_z=290; // [0:1:270]
 
 /* [hotend] */
 extruder_type=6; // [0:BMG extruder, 1: Sailfin extruder, 2: TBG-Lite extruder, 3: Moli extruder, 4: MRF extruder, 5: bowden, 6: HGX Lite 2.0 extruder]
 hotend_type=1; // [0: standard V6, 1: V6 heatink with CHC, 2: TZT V6 ]
 hotend_block_sock=true;
-level_probe=0; // [0: Ormerod, 1: BL-Touch ]
+level_probe=1; // [0: Ormerod, 1: BL-Touch ]
 bltouch_side=1; // [-1:rigt, 1:left ]
 
 /* [printed parts] */
@@ -3129,6 +3129,31 @@ module z_bed_frame(){
   // Z end-stop
   translate([base_w-elec_support-6.5,base_d-2*ext,-ext]) z_endstop_trigger();
 }
+module mgn7support(holes=7){
+  m7s_len=5+(holes-1)*15+5; // support length
+  m2_screw_l=8;
+
+  color(pp_color) difference(){
+    union(){
+      // main shape
+      linear_extrude(m7s_len) polygon([[0,0], [ext,0], [ext,2], [0,8]]);
+      // v-slot wedge
+      translate([ext/2,0,0]) rotate([0,0,180])vslot_groove(m7s_len);
+    }
+    // HOLES
+    // MGN7 holes
+    sc_len=m2_screw_l-4.5; // screw len=4.0+sc_len
+    for (zz=[5:15:m7s_len]){
+      translate([0,4,zz]) rotate([0,90,0]) {
+        cylinder(d=2.3,h=ext);
+        translate([0,0,sc_len]) cylinder(d=4.5+0.4,h=ext-sc_len,$fn=6);
+      }
+    }
+    // v-slot mount holes
+    translate([ext/2,2,5+15/2]) rotate([90,0,0]) joint_hole(screw_l=8);
+    translate([ext/2,2,m7s_len-5-15/2]) rotate([90,0,0]) joint_hole(screw_l=8);
+  }
+}
 module z_axis(){
   // rods and pulleys
   // left rod
@@ -3143,12 +3168,25 @@ module z_axis(){
 
   if (z_bed_stab==1){
     // linear rails
-    // front
     rail_len=350;
     rail_shift=-120;
-    translate([base_w-ext/2,2*ext,2.5*ext+rail_len/2]) rotate([0,-90,-90]) rail_assembly(MGN7H_carriage, rail_len, -rail_shift-pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
-    // rear
-    translate([elec_support,base_d-ext/2,2.5*ext+rail_len/2]) rotate([0,90,0]) rail_assembly(MGN7H_carriage, rail_len, rail_shift+pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
+
+    // front mgn7
+    translate([base_w-ext,2*ext+4,2.5*ext+rail_len/2]) rotate([0,-90,0]) rail_assembly(MGN7H_carriage, rail_len, -rail_shift-pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
+    // front mgn support
+    translate([base_w-ext,2*ext,2.5*ext+5]) {
+      mgn7support();
+      translate([0,0,8*15]) mgn7support();
+      translate([0,0,16*15]) mgn7support();
+    }
+    // rear mgn7
+    translate([elec_support+4,base_d-ext,2.5*ext+rail_len/2]) rotate([90,90,0]) rail_assembly(MGN7H_carriage, rail_len, rail_shift+pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
+    // rear mgn support
+    translate([elec_support,base_d-ext,2.5*ext+5]) rotate([0,0,90]) mirror([0,1,0]) {
+      mgn7support();
+      translate([0,0,8*15]) mgn7support();
+      translate([0,0,16*15]) mgn7support();
+    }
   }
   // Z motor
   p4=[ext+22, z_pulley_support-22-ext/2, z_belt_h-5.5];

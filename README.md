@@ -23,7 +23,7 @@ YouTube videos: https://youtube.com/playlist?list=PL_tFeFf-6be2vM2YfxNyLlgO5D3nh
 
 # Requirements
 - OpenScad https://www.openscad.org/
-- NopSCADlib library https://github.com/nophead/NopSCADlib (version 21.10.1)
+- NopSCADlib library https://github.com/nophead/NopSCADlib (version 21.32.0)
 - for Sailfin extruder checkout Sailfin-Extruder/ git submodule
 - for Moli extruder checkout Moli-Extruder/ git submodule
 - for MRF extruder, download stl files from https://www.thingiverse.com/thing:5149028
@@ -44,7 +44,8 @@ Bed stabilization:
 # Known issues
 - MGN12 carriage sticks 3.5mm out of frame
 - bed frame could be 10mm shorter to use 4 the same wheel supports
-- bed frame wheels supports are temporary, will be changed in future
+- bed frame wheels supports are temporary, will be changed in future (work
+  in progress on on MGN7 rails)
 - Sailfin, Moli and MRF extruders support is not finished, BMG extruder
   is abandoned.
 
