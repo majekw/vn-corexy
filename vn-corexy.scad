@@ -3169,20 +3169,20 @@ module z_axis(){
   if (z_bed_stab==1){
     // linear rails
     rail_len=350;
-    rail_shift=-120;
+    rail_shift=-125;
 
     // front mgn7
-    translate([base_w-ext,2*ext+4,2.5*ext+rail_len/2]) rotate([0,-90,0]) rail_assembly(MGN7H_carriage, rail_len, -rail_shift-pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
+    translate([base_w-ext,2*ext+4,2*ext+rail_len/2]) rotate([0,-90,0]) rail_assembly(MGN7H_carriage, rail_len, -rail_shift-pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
     // front mgn support
-    translate([base_w-ext,2*ext,2.5*ext+5]) {
+    translate([base_w-ext,2*ext,2*ext+5]) {
       mgn7support();
       translate([0,0,8*15]) mgn7support();
       translate([0,0,16*15]) mgn7support();
     }
     // rear mgn7
-    translate([elec_support+4,base_d-ext,2.5*ext+rail_len/2]) rotate([90,90,0]) rail_assembly(MGN7H_carriage, rail_len, rail_shift+pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
+    translate([elec_support+4,base_d-ext,2*ext+rail_len/2]) rotate([90,90,0]) rail_assembly(MGN7H_carriage, rail_len, rail_shift+pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
     // rear mgn support
-    translate([elec_support,base_d-ext,2.5*ext+5]) rotate([0,0,90]) mirror([0,1,0]) {
+    translate([elec_support,base_d-ext,2*ext+5]) rotate([0,0,90]) mirror([0,1,0]) {
       mgn7support();
       translate([0,0,8*15]) mgn7support();
       translate([0,0,16*15]) mgn7support();
