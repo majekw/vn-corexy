@@ -61,6 +61,9 @@ hide_ffc=false;
 // show detailed electronic modules
 show_detailed_electronics=true;
 
+// FFC cable loop mount
+ffc_loop_type=0; // [0: fin type for 80cm cable, 1: carbon rods for 60cm cable]
+
 /* [enclosure] */
 // show enclosure
 show_enclosure=false;
@@ -2098,7 +2101,7 @@ module ffc_stopper(){
 module fpc_mount(){
   hh=fpc_z+22;
   ww=7;
-  color(pp_color) union(){
+  color(pp_color2) union(){
     difference(){
       union(){
         // base
@@ -2548,15 +2551,20 @@ module gantry_joint_r_cf_top(){
             translate([px_x,px_y,py_z-1]) cylinder(d=15,h=box_h2);
             translate([py_x+3,5,py_z-1]) cylinder(d=12,h=box_h2);
           }
-          // FFC cable holder
-          translate([-20-ffc_fin_len,ffc_dy,fpc_z-31]) cube([min(ffc_fin_len,30),2.4,36]);
-          translate([py_x-7,py_y+3,fpc_z+3]) rotate([0,0,180]) round_corner(5,7.5);
-          hull(){
-            hh=7.5;
-            translate([-20-ffc_fin_len,ffc_dy+1.2,fpc_z+3]) cylinder(d=2.4,h=hh);
-            translate([-10,ffc_dy+1.2,fpc_z+3]) cylinder(d=2.4,h=hh);
-            translate([0,py_y+2+ffc_fin_len/50,fpc_z+3]) cylinder(d=2.4,h=hh);
-            translate([4,py_y+6.5,fpc_z+3]) cylinder(d=2.4,h=hh);
+          if (ffc_loop_type==0) {
+            // FFC cable holder
+            translate([-20-ffc_fin_len,ffc_dy,fpc_z-31]) cube([min(ffc_fin_len,30),2.4,36]);
+            translate([py_x-7,py_y+3,fpc_z+3]) rotate([0,0,180]) round_corner(5,7.5);
+            hull(){
+              hh=7.5;
+              translate([-20-ffc_fin_len,ffc_dy+1.2,fpc_z+3]) cylinder(d=2.4,h=hh);
+              translate([-10,ffc_dy+1.2,fpc_z+3]) cylinder(d=2.4,h=hh);
+              translate([0,py_y+2+ffc_fin_len/50,fpc_z+3]) cylinder(d=2.4,h=hh);
+              translate([4,py_y+6.5,fpc_z+3]) cylinder(d=2.4,h=hh);
+            }
+          } else if (ffc_loop_type==1) {
+            // FFC holder with carbon rods
+
           }
         }
         // hole for Y idler
@@ -2566,7 +2574,7 @@ module gantry_joint_r_cf_top(){
         // side belt path
         translate([ext-6,0,py_z-1]) cube([6,40,15]);
         // hole for FFC cable
-        translate([-20-ffc_fin_len-eps,ffc_dy+0.8,fpc_z-29]) cube([ffc_fin_len+2*eps,0.8,32]);
+        #translate([-20-ffc_fin_len-eps,ffc_dy+0.8,fpc_z-29]) cube([ffc_fin_len+2*eps,0.8,32]);
       }
       translate([px_x,px_y,px_z+13]) pulley_spacer();
       translate([py_x,py_y,py_z+13]) pulley_spacer();
@@ -2713,6 +2721,16 @@ module gantry(){
     }
     // Extruder and mount
     translate([base_w/2-build_x/2+pos_x,0,0]) extruder();
+    // FFC cable gantry mount
+    if (ffc_loop_type==1) {
+      // carbon rods
+      crl=330; // rods length
+      ffc_dy=49+3+2/2; //
+      translate([30,ffc_dy,fpc_z+5]) color("black") {
+        rotate([0,90,0]) cylinder(d=2,h=crl);
+        translate([0,0,-36]) rotate([0,90,0]) cylinder(d=2,h=crl);
+      }
+    }
   }
 
   // front pulley support
