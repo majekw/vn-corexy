@@ -366,22 +366,22 @@ translate([-t_len/2,-5,0]) rotate([90,0,90]) linear_extrude(t_len) polygon([ [0,
 module joint_hole(jl=6,screw_l=joint_screw_len,print_upside=false,cut_nut=true){
   union(){
     // hole for thread
-    rotate([0,0,0]) cylinder(h=screw_l,d=joint_screw_d+2*printer_off);
+    translate([0,0,-screw_l]) cylinder(h=screw_l,d=joint_screw_d+2*printer_off);
     // hole for head
     if (print_upside && bridge_support) {
-      translate([0,0,-bridge_thickness]) rotate([180,0,0]) cylinder(h=jl-bridge_thickness,d=joint_screw_washer);
+      translate([0,0,bridge_thickness]) cylinder(h=jl-bridge_thickness,d=joint_screw_washer);
     } else {
-      rotate([180,0,0]) cylinder(h=jl,d=joint_screw_washer);
+      cylinder(h=jl,d=joint_screw_washer);
     }
     // hole for hex tool
-    translate([0,0,-jl]) rotate([180,0,0]) cylinder(h=40,d=5);
+    translate([0,0,jl]) cylinder(h=40,d=5);
     if (cut_nut) {
       // cut tongue for rotating t-nut
       if (printed_corners_nut==1)
-        translate([0,0,screw_l-joint_extr_depth+1]) cylinder(d=9, h=2, center=true);
+        translate([0,0,-screw_l+joint_extr_depth-1]) cylinder(d=9, h=2, center=true);
       // cut tongue for long sliding t-nut
       if (printed_corners_nut==2)
-        translate([0,0,screw_l-joint_extr_depth+1]) cube([7,12,2], center=true); // 12 - slide length
+        translate([0,0,-screw_l+joint_extr_depth-1]) cube([7,12,2], center=true); // 12 - slide length
     }
   }
 }
@@ -396,8 +396,8 @@ module joint1x1(){
       translate([0,0,ext/2]) rotate([0,90,90]) vslot_groove(j1x1_len);
     }
     // screw holes
-    translate([joint_space,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole(j1x1_len);
-    translate([joint_in_material,joint_space,ext/2]) rotate([0,-90,0]) joint_hole(j1x1_len);
+    translate([joint_space,joint_in_material,ext/2]) rotate([-90,0,0]) joint_hole(j1x1_len);
+    translate([joint_in_material,joint_space,ext/2]) rotate([0,90,0]) joint_hole(j1x1_len);
   }
   
   echo("J1x1");
@@ -413,10 +413,10 @@ module joint2x2(){
       translate([0,0,ext/2]) rotate([0,90,90]) vslot_groove(j2x2_len);
     }
     // screw holes
-    translate([joint_space,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole(j2x2_len);
-    translate([joint_space+20,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole(j2x2_len);
-    translate([joint_in_material,joint_space,ext/2]) rotate([0,-90,0]) joint_hole(j2x2_len);
-    translate([joint_in_material,joint_space+20,ext/2]) rotate([0,-90,0]) joint_hole(j2x2_len);
+    translate([joint_space,joint_in_material,ext/2]) rotate([-90,0,0]) joint_hole(j2x2_len);
+    translate([joint_space+20,joint_in_material,ext/2]) rotate([-90,0,0]) joint_hole(j2x2_len);
+    translate([joint_in_material,joint_space,ext/2]) rotate([0,90,0]) joint_hole(j2x2_len);
+    translate([joint_in_material,joint_space+20,ext/2]) rotate([0,90,0]) joint_hole(j2x2_len);
 
   }
   
@@ -441,10 +441,10 @@ module joint_bed(){
       translate([0,0,ext/2]) rotate([0,90,90]) vslot_groove(jb_y);
     }
     // screw holes
-    translate([joint_space+4,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole(jb_y);
-    translate([jb_x-6.5,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole(jb_y);
-    translate([joint_in_material,joint_space,ext/2]) rotate([0,-90,0]) joint_hole(jb_x);
-    translate([joint_in_material,slot_l+slot_y,ext/2]) rotate([0,-90,0]) joint_hole(jb_x);
+    translate([joint_space+4,joint_in_material,ext/2]) rotate([-90,0,0]) joint_hole(jb_y);
+    translate([jb_x-6.5,joint_in_material,ext/2]) rotate([-90,0,0]) joint_hole(jb_y);
+    translate([joint_in_material,joint_space,ext/2]) rotate([0,90,0]) joint_hole(jb_x);
+    translate([joint_in_material,slot_l+slot_y,ext/2]) rotate([0,90,0]) joint_hole(jb_x);
 
     // slot
     translate([slot_x,slot_y,slot_z]) hull(){
@@ -480,8 +480,8 @@ module bed_support(){
       translate([0,0,ext/2]) rotate([0,90,90]) vslot_groove(jb_y);
     }
     // screw holes
-    translate([joint_in_material,13,ext/2]) rotate([0,-90,0]) joint_hole(jb_x);
-    translate([joint_in_material,jb_y-13,ext/2]) rotate([0,-90,0]) joint_hole(jb_x);
+    translate([joint_in_material,13,ext/2]) rotate([0,90,0]) joint_hole(jb_x);
+    translate([joint_in_material,jb_y-13,ext/2]) rotate([0,90,0]) joint_hole(jb_x);
 
     // slot
     translate([slot_x,slot_y,slot_z]) hull(){
@@ -506,9 +506,9 @@ module joint_front(){
       translate([0,0,ext/2]) rotate([0,90,90]) vslot_groove(ext/2);
     }
     // screw holes
-    translate([joint_space,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole(jf_l);
-    //translate([joint_space+20,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole(jf_l);
-    translate([joint_in_material,1*ext,ext/2]) rotate([0,-90,0]) joint_hole(jf_h);
+    translate([joint_space,joint_in_material,ext/2]) rotate([-90,0,0]) joint_hole(jf_l);
+    //translate([joint_space+20,joint_in_material,ext/2]) rotate([-90,0,0]) joint_hole(jf_l);
+    translate([joint_in_material,1*ext,ext/2]) rotate([0,90,0]) joint_hole(jf_h);
   }
   
   echo("JF");
@@ -1719,13 +1719,13 @@ module pulley_support_front_down(logo=0){
     // pulley screw hole
     translate([ext/2,ext/2,-3]) cylinder(h=belty_shift+3,d=m5_hole);
     // front right hole
-    translate([ext*4,ext/2,35-joint_extr_depth]) rotate([180,0,00]) joint_hole(15,35,true);
+    translate([ext*4,ext/2,35-joint_extr_depth]) joint_hole(15,35,true);
     // front left hole
-    translate([ext*1.5,ext/2,70-joint_extr_depth]) rotate([180,0,00]) joint_hole(15,70,true);
+    translate([ext*1.5,ext/2,70-joint_extr_depth]) joint_hole(15,70,true);
     // left front hole
-    translate([ext/2,ext,35-joint_extr_depth]) rotate([180,0,00]) joint_hole(15,35,true);
+    translate([ext/2,ext,35-joint_extr_depth]) joint_hole(15,35,true);
     // left back hole
-    translate([ext/2,ext*2,70-joint_extr_depth]) rotate([180,0,00]) joint_hole(15,70,true);
+    translate([ext/2,ext*2,70-joint_extr_depth]) joint_hole(15,70,true);
     // M3 hole
     translate([ext/2,ext*2.5+12.5,-5]) {
       cylinder(d=3,h=35);
@@ -1763,13 +1763,13 @@ module pulley_support_front_up(side=0){
     // screws
     translate([0,0,-beltx_shift+1]) {
       // front left hole
-      translate([ext*1.5,ext/2,70-joint_extr_depth]) rotate([180,0,00]) joint_hole(15,70,true);
+      translate([ext*1.5,ext/2,70-joint_extr_depth]) joint_hole(15,70,true);
       // left front hole
-      translate([ext/2,ext,35-joint_extr_depth]) rotate([180,0,00]) joint_hole(8,35,true);
+      translate([ext/2,ext,35-joint_extr_depth]) joint_hole(8,35,true);
       // left back hole
-      translate([ext/2,ext*2,70-joint_extr_depth]) rotate([180,0,00]) joint_hole(15,70,true);
+      translate([ext/2,ext*2,70-joint_extr_depth]) joint_hole(15,70,true);
       // pulley hole
-      translate([ext/2,ext/2,70]) rotate([180,0,00]) joint_hole(15,50,true);
+      translate([ext/2,ext/2,70]) joint_hole(15,50,true);
     }
     // hole for M3 allen key
     translate([ext/2,ext*2.5+12.5,0]) cylinder(h=fh,d=5);
@@ -1834,13 +1834,13 @@ module motor_support_x_down(){
       translate([xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,x_motor_z+3]) cylinder(h=beltx_shift-x_motor_z-3,d2=7,d1=9);
     }
     // corner screw hole
-    translate([ext/2,ext/2,35-joint_extr_depth]) rotate([180,0,00]) joint_hole(10,35);
+    translate([ext/2,ext/2,35-joint_extr_depth]) joint_hole(10,35);
     // right screw hole
-    translate([4.5*ext,ext/2,35-joint_extr_depth]) rotate([180,0,00]) joint_hole(10,35);
+    translate([4.5*ext,ext/2,35-joint_extr_depth]) joint_hole(10,35);
     // back screw hole
-    translate([ext/2,3*ext,60-joint_extr_depth]) rotate([180,0,00]) joint_hole(10,60);
+    translate([ext/2,3*ext,60-joint_extr_depth]) joint_hole(10,60);
     // middle front screw hole
-    translate([1.5*ext,ext/2,60-joint_extr_depth]) rotate([180,0,00]) joint_hole(10,60);
+    translate([1.5*ext,ext/2,60-joint_extr_depth]) joint_hole(10,60);
     // motor mount holes
     translate([xy_motor_pos.x,xy_motor_pos.y-base_d+ext,x_motor_z]){
       // slots for screws
@@ -1885,15 +1885,15 @@ module motor_support_x_up(){
     }
 
      // back screw hole
-    translate([ext/2,3*ext,60-joint_extr_depth]) rotate([180,0,00]) joint_hole(10,60,true);
+    translate([ext/2,3*ext,60-joint_extr_depth]) joint_hole(10,60,true);
      // middle front screw hole
-    translate([1.5*ext,ext/2,60-joint_extr_depth]) rotate([180,0,00]) joint_hole(10,60,true);
+    translate([1.5*ext,ext/2,60-joint_extr_depth]) joint_hole(10,60,true);
     // outer pulley hole
-    translate([xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,60-joint_extr_depth]) rotate([180,0,00]) joint_hole(10,60,true);
+    translate([xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,60-joint_extr_depth]) joint_hole(10,60,true);
     // inner pulley hole
-    translate([xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,60-joint_extr_depth]) rotate([180,0,00]) joint_hole(10,60,true);
+    translate([xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,60-joint_extr_depth]) joint_hole(10,60,true);
     // corner screw hole
-    translate([ext/2,ext/2,35-joint_extr_depth]) rotate([180,0,00]) joint_hole(22,35);
+    translate([ext/2,ext/2,35-joint_extr_depth]) joint_hole(22,35);
 
   }
 }
@@ -1951,15 +1951,15 @@ module motor_support_y_up(){
     }
 
      // back screw hole
-    translate([base_w-ext/2,3*ext,70-joint_extr_depth]) rotate([180,0,0]) joint_hole(15,70,true);
+    translate([base_w-ext/2,3*ext,70-joint_extr_depth]) joint_hole(15,70,true);
      // middle front screw hole
-    translate([base_w-1.5*ext,ext/2,70-joint_extr_depth]) rotate([180,0,0]) joint_hole(15,70,true);
+    translate([base_w-1.5*ext,ext/2,70-joint_extr_depth]) joint_hole(15,70,true);
     // outer pulley hole
-    translate([base_w-xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,75-joint_extr_depth]) rotate([180,0,0]) joint_hole(10,60,true);
+    translate([base_w-xy_o_pulley_pos.x,xy_o_pulley_pos.y-base_d+ext,75-joint_extr_depth]) joint_hole(10,60,true);
     // inner pulley hole
-    translate([base_w-xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,75-joint_extr_depth]) rotate([180,0,0]) joint_hole(10,60,true);
+    translate([base_w-xy_i_pulley_pos.x,xy_i_pulley_pos.y-base_d+ext,75-joint_extr_depth]) joint_hole(10,60,true);
     // corner screw hole
-    translate([base_w-ext/2,ext/2,35-joint_extr_depth]) rotate([180,0,00]) joint_hole(37,35);
+    translate([base_w-ext/2,ext/2,35-joint_extr_depth]) joint_hole(37,35);
     // hole for FPC board
     translate([fpc_x-4,0,fpc_z-17.5+34.8]) rotate([-90,0,0]) cylinder(d=m3_hole,h=ext);
 
@@ -1985,13 +1985,13 @@ module motor_support_y_down(){
       translate([base_w-ext,ext/2,0]) rotate([-90,0,90]) vslot_groove(4*ext);
     }
     // corner screw hole
-    translate([base_w-ext/2,ext/2,50-joint_extr_depth]) rotate([180,0,00]) joint_hole(15,50,print_upside=true);
+    translate([base_w-ext/2,ext/2,50-joint_extr_depth]) joint_hole(15,50,print_upside=true);
     // left screw hole
-    translate([base_w-4.5*ext,ext/2,45-joint_extr_depth]) rotate([180,0,00]) joint_hole(15,45,print_upside=true);
+    translate([base_w-4.5*ext,ext/2,45-joint_extr_depth]) joint_hole(15,45,print_upside=true);
     // back screw hole
-    translate([base_w-ext/2,3*ext,70-joint_extr_depth]) rotate([180,0,00]) joint_hole(10,70,print_upside=true);
+    translate([base_w-ext/2,3*ext,70-joint_extr_depth]) joint_hole(10,70,print_upside=true);
     // middle front screw hole
-    translate([base_w-1.5*ext,ext/2,70-joint_extr_depth]) rotate([180,0,00]) joint_hole(10,70);
+    translate([base_w-1.5*ext,ext/2,70-joint_extr_depth]) joint_hole(10,70);
     // motor mount holes
     translate([base_w-xy_motor_pos.x,xy_motor_pos.y-base_d+ext,y_motor_z]){
       // slots for screws
@@ -2092,7 +2092,7 @@ module ffc_stopper(){
         translate([ext/2,20,0]) cylinder(h=hh,d=40);
       }
     }
-    translate([ext/2,ext/2,joint_in_material]) rotate([180,0,0]) joint_hole(20);
+    translate([ext/2,ext/2,joint_in_material]) joint_hole(20);
   }
   if ($preview){
     translate([ext/2,ext/2,joint_in_material]) screw(M5_cap_screw,12);
@@ -2116,7 +2116,7 @@ module fpc_mount(){
       // HOLES
 
       // screw to frame
-      translate([ext/2,ext/2,joint_in_material]) rotate([180,0,0]) joint_hole(20);
+      translate([ext/2,ext/2,joint_in_material]) joint_hole(20);
       // fillets
       translate([-10,0,fpc_z-17]) fillet(r=20,h=34);
       translate([1.5*ext,0,fpc_z-16]) rotate([0,0,90])fillet(r=10,h=32);
@@ -2286,14 +2286,14 @@ module gantry_joint_l_cf(){
     // hole for Y pulley
     translate([py_x,py_y,0]) cylinder(h=py_z,d=m5_hole);
     // bottom screw
-    translate([under_screw_pos,cf_tube_size/2+cf_from_front,cf_above_carriage-1.5]) joint_hole(screw_l=m5_screw5,print_upside=true);
+    translate([under_screw_pos,cf_tube_size/2+cf_from_front,cf_above_carriage-1.5]) rotate([180,0,0]) joint_hole(screw_l=m5_screw5,print_upside=true);
     // front screw
     translate([ext/2,0,ext/2+cf_above_carriage]) rotate([-90,0,0]) {
       cylinder(h=cf_from_front,d=5);
       cylinder(h=1.2,d=10.5);
     }
     // back screw
-    translate([ext/2-3,cf_tube_size+cf_from_front-6+m5_screw3,ext/2+cf_above_carriage]) rotate([90,0,0]) joint_hole(10,screw_l=m5_screw3);
+    translate([ext/2-3,cf_tube_size+cf_from_front-6+m5_screw3,ext/2+cf_above_carriage]) rotate([-90,0,0]) joint_hole(10,screw_l=m5_screw3);
     // M3 mouning screw - outer back
     translate([m3_4.x,m3_4.y,0]) {
       cylinder(d=3,h=m3_screw2-3);
@@ -2350,10 +2350,10 @@ module gantry_joint_l_cf_top(){
       translate([py_x,py_y,py_z+13]) pulley_spacer();
     }
     // screw holes
-    translate([px_x,px_y,m5_screw2+7]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw2,print_upside=true);
-    translate([py_x,py_y,m5_screw1+22]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw1,print_upside=true);
+    translate([px_x,px_y,m5_screw2+7]) joint_hole(10,screw_l=m5_screw2,print_upside=true);
+    translate([py_x,py_y,m5_screw1+22]) joint_hole(10,screw_l=m5_screw1,print_upside=true);
     // top M5 screw
-    translate([py_x+3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw6+5,cut_nut=false,print_upside=true);
+    translate([py_x+3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) joint_hole(10,screw_l=m5_screw6+5,cut_nut=false,print_upside=true);
     // X endstop trigger mount
     translate([20,14.5,61-9]) {
       cube([2,14.6,11]);
@@ -2490,14 +2490,14 @@ module gantry_joint_r_cf(){
     // hole for Y pulley
     translate([py_x,py_y,0]) cylinder(h=py_z,d=m5_hole);
     // bottom screw
-    translate([under_screw_pos,cf_tube_size/2+cf_from_front,cf_above_carriage-1.5]) joint_hole(screw_l=m5_screw5,print_upside=true);
+    translate([under_screw_pos,cf_tube_size/2+cf_from_front,cf_above_carriage-1.5]) rotate([180,0,0]) joint_hole(screw_l=m5_screw5,print_upside=true);
     // front screw
     translate([ext/2,0,ext/2+cf_above_carriage]) rotate([-90,0,0]) {
       cylinder(h=cf_from_front,d=5);
       cylinder(h=1.2,d=10.5);
     }
     // back screw
-    translate([ext/2-5.5,cf_tube_size+cf_from_front-6+m5_screw3,ext/2+cf_above_carriage]) rotate([90,0,0]) joint_hole(10,screw_l=m5_screw3);
+    translate([ext/2-5.5,cf_tube_size+cf_from_front-6+m5_screw3,ext/2+cf_above_carriage]) rotate([-90,0,0]) joint_hole(10,screw_l=m5_screw3);
     // M3 mouning screw - inner back
     translate([m3_4.x,m3_4.y,0]) {
       cylinder(d=3,h=m3_screw2-3);
@@ -2580,10 +2580,10 @@ module gantry_joint_r_cf_top(){
       translate([py_x,py_y,py_z+13]) pulley_spacer();
     }
     // screw holes
-    translate([px_x,px_y,m5_screw2+7]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw2,print_upside=true);
-    translate([py_x,py_y,m5_screw1+22]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw1,print_upside=true);
+    translate([px_x,px_y,m5_screw2+7]) joint_hole(10,screw_l=m5_screw2,print_upside=true);
+    translate([py_x,py_y,m5_screw1+22]) joint_hole(10,screw_l=m5_screw1,print_upside=true);
     // top M5 screw
-    translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) rotate([180,0,0]) joint_hole(10,screw_l=m5_screw6+5,cut_nut=false,print_upside=true);
+    translate([px_x-3,5,cf_above_carriage+cf_tube_size+m5_screw6+3]) joint_hole(10,screw_l=m5_screw6+5,cut_nut=false,print_upside=true);
   }
 }
 module xy_endstop_trigger(){
@@ -2844,8 +2844,8 @@ module bb_support(rear){
     translate([0,0,0]) cylinder(h=t8_frame_dist+t8_bb_offset,d=T8_BB[2]-2);
     
     // holes for screws
-    translate([0,ext,joint_in_material]) rotate([180,0,0]) joint_hole(0);
-    translate([0,-ext,joint_in_material]) rotate([180,0,0]) joint_hole(0);
+    translate([0,ext,joint_in_material]) joint_hole(0);
+    translate([0,-ext,joint_in_material]) joint_hole(0);
     
     // hole for joint
     if (rear==0) {
@@ -2911,8 +2911,8 @@ module z_pulley_support(){
     // hole for longer screw
     translate([0,0,0]) cylinder(h=block_h+1,d=m5_hole);
     // hole for normal screw
-    translate([ext,0,joint_in_material])rotate([180,0,0]) joint_hole(20);
-    translate([-ext,0,joint_in_material])rotate([180,0,0]) joint_hole(20);
+    translate([ext,0,joint_in_material]) joint_hole(20);
+    translate([-ext,0,joint_in_material]) joint_hole(20);
   }
 }
 module z_wheel_mount(back=0){
@@ -2960,8 +2960,8 @@ module z_wheel_mount(back=0){
       }
     }
     // holes for screws
-    translate([3*ext,-joint_in_material,ext/2+back*ext/2]) rotate([-90,0,0]) joint_hole(1.5*ext);
-    translate([1.2*ext,-joint_in_material,ext/2+back*ext/2]) rotate([-90,0,0]) joint_hole(1.5*ext);  }
+    translate([3*ext,-joint_in_material,ext/2+back*ext/2]) rotate([90,0,0]) joint_hole(1.5*ext);
+    translate([1.2*ext,-joint_in_material,ext/2+back*ext/2]) rotate([90,0,0]) joint_hole(1.5*ext);  }
 }
 module oldham_wedge(off=0){
   oh=oldham_w_h+off; // height
@@ -3028,8 +3028,8 @@ module oldham_hi(dist){
       translate([dist,-2*ext,ext/2]) rotate([-90,-90,0]) vslot_groove(max(ow,ow2));
     }
     // mount holes
-    translate([dist-joint_in_material,ow/2-7,ext/2]) rotate([0,90,0]) joint_hole(dist);
-    translate([dist-joint_in_material,-2*ext+7,ext/2]) rotate([0,90,0]) joint_hole(dist);
+    translate([dist-joint_in_material,ow/2-7,ext/2]) rotate([0,-90,0]) joint_hole(dist);
+    translate([dist-joint_in_material,-2*ext+7,ext/2]) rotate([0,-90,0]) joint_hole(dist);
     // hole for leadnut
     translate([ext/2,0,oldham_lh+3]) cylinder(d=8+oldham_margin*2,h=oldham_mh);
   }
@@ -3052,8 +3052,8 @@ module bed_to_t8(dist){
         translate([0,-ln_d/2,0]) cube([ln_d/2,ln_d,ext]);
       }
       // holes for frame mount screws
-      translate([dist-joint_in_material,6,ext/2]) rotate([0,90,0]) joint_hole(bw);
-      translate([dist-joint_in_material,bw-6,ext/2]) rotate([0,90,0]) joint_hole(bw);
+      translate([dist-joint_in_material,6,ext/2]) rotate([0,-90,0]) joint_hole(bw);
+      translate([dist-joint_in_material,bw-6,ext/2]) rotate([0,-90,0]) joint_hole(bw);
 
       // holes for leadnut mount screws
       translate([ext/2,bw/2-8,0]) cylinder(h=ext,d=m3_hole);
@@ -3079,7 +3079,7 @@ module z_endstop_trigger(){
       translate([ext-1.6,0,-0.5*ext]) cube([1.6,fd,1.5*ext]);
     }
     // hole for screw
-    translate([0.25*ext,4,ext/2]) rotate([90,0,0]) joint_hole(5,10);
+    translate([0.25*ext,4,ext/2]) rotate([-90,0,0]) joint_hole(5,10);
   }
 }
 module z_bed_frame(){
@@ -3168,8 +3168,8 @@ module mgn7support(holes=7){
       }
     }
     // v-slot mount holes
-    translate([ext/2,2,5+15/2]) rotate([90,0,0]) joint_hole(screw_l=8);
-    translate([ext/2,2,m7s_len-5-15/2]) rotate([90,0,0]) joint_hole(screw_l=8);
+    translate([ext/2,2,5+15/2]) rotate([-90,0,0]) joint_hole(screw_l=8);
+    translate([ext/2,2,m7s_len-5-15/2]) rotate([-90,0,0]) joint_hole(screw_l=8);
   }
 }
 module z_axis(){
@@ -3300,7 +3300,7 @@ module psu_mount(h_len, h_h, mirr){
       translate([ext/4+mirr*ext/4,ext/2,0]) rotate([90,0,90]) linear_extrude(ext/4) polygon([[0,0],[h_len+m_h/2+ext,0],[h_len+m_h/2+ext,m_h],[ext,m_h]]);
     }
     // frame screw hole
-    translate([ext/2,ext/2,joint_in_material])rotate([0,180,0]) joint_hole(joint_in_material);
+    translate([ext/2,ext/2,joint_in_material]) joint_hole(joint_in_material);
     // psu screw hole
     translate([ext/4+mirr*ext/2,1.5*ext+h_len,h_h]) rotate([0,90,0]) mirror([0,0,mirr]) m4_hole(ext/4);
     // zip-tie hole
@@ -3328,9 +3328,9 @@ module power_socket_mount(){
       translate([ext/4,0,0]) cube([ext/4,50,7*ext]);
     }
     // bottom mount hole
-    translate([2.2*ext,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole(25);
+    translate([2.2*ext,joint_in_material,ext/2]) rotate([-90,0,0]) joint_hole(25);
     // top mount hole
-    translate([ext/2+0.1,joint_in_material,3.5*ext]) rotate([90,0,0]) joint_hole(20);
+    translate([ext/2+0.1,joint_in_material,3.5*ext]) rotate([-90,0,0]) joint_hole(20);
     // PSU mount holes
     translate([ext/4,12.5,4*ext+45]) rotate([0,90,0]) m4_hole(ext/4);
     translate([ext/4,12.5+25,4*ext+45]) rotate([0,90,0]) m4_hole(ext/4);
@@ -3364,7 +3364,7 @@ module control_board_mount(orient=0){
       translate([ext/2,0,0]) rotate([0,0,180]) vslot_groove(ext);
     }
     // hole for mount screw
-    translate([ext/2,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole(0);
+    translate([ext/2,joint_in_material,ext/2]) rotate([-90,0,0]) joint_hole(0);
     // pcb mount hole
     if (orient==0) {
       // 2 horizontal
@@ -3441,7 +3441,7 @@ module z_endstop_mount(){
     for (i=[0:1])
       translate([optical_endstop_holes[i].x,optical_endstop_holes[i].y,0]) cylinder(h=5,d=m3_hole);
     // hole for mounting screw
-    translate([ext/2,0.75*ext,h]) rotate([180,0,0]) joint_hole(10,10);
+    translate([ext/2,0.75*ext,h]) joint_hole(10,10);
   }
 }
 module y_endstop_mount(){
@@ -3534,7 +3534,7 @@ module th35_mount(th_type,rotation=false){
     // TH slot
     translate([-eps,joint_in_material+th_type[1]-th_type[0],ext]) cube([ext+2*eps,th_type[0]+2*printer_off,4.5]);
     // screw hole
-    translate([ext/2,joint_in_material,ext/2]) rotate([90,0,0]) joint_hole();
+    translate([ext/2,joint_in_material,ext/2]) rotate([-90,0,0]) joint_hole();
     // zip tie holes
     translate([2,joint_in_material,-eps]) cube([4,2,3+2*eps]);
     translate([ext-2-4,joint_in_material,-eps]) cube([4,2,3+2*eps]);
