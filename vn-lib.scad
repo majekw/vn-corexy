@@ -27,6 +27,15 @@ module triangle(a,h){
   translate([0,0,-h/2]) linear_extrude(h) polygon([[0,0], [a,0], [0,a]]);
 }
 
+/*
+  extruded square triangle
+  a,b - sides
+  h - height/lenght of element
+*/
+module triangle2(a,b,h){
+  translate([0,0,-h/2]) linear_extrude(h) polygon([[0,0], [a,0], [0,b]]);
+}
+
 /* cube minus quarter of cylinder
   r - size of rectangle
   h - height/lenght of element

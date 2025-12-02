@@ -28,7 +28,7 @@ printed_t8_clamps=true; // [false:no, true:yes]
 bed_coupler=1; // [0:permanent mount, 1:Oldham couplings]
 
 /* [render printable parts] */
-render_parts=1; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount, 59: Step down mount, 60: MOS mount, 61: Relay mount, 62: Probe mount, 63: Part cooling 1, 64: Part cooling 2, 65: Side slot front, 66: Side slot middle, 67: Side slot rear, 68: Side slot rear PS ]
+render_parts=1; // [1:T-nut M5, 2: Joint 1x1, 3: Joint 2x2, 4: PSU mounts, 5: Power socket mount, 6: Control board mounts, 7: T8 clamp, 8: T8 spacer, 9: T8 side mount, 10: T8 rear mount, 11: Front joint, 12: Z pulley support, 13: Z motor mount, 14: Cable tie mount, 15: Z pulley helper for adjusting, 16: Front Z wheel mount, 17: Rear Z wheel mount, 18: Front bed frame joint and bed support, 19: Back bed support, 20: Side bed frame to T8 mount, 21: Back bed frame to T8 mount, 22: Z endstop mount, 23: Z endstop trigger, 24: MGN12 positioning tool, 25: X motor mount base, 26: X motor mount top, 27: Y motor mount base, 28: Y motor mount top, 29: Front pulley support left down, 30: Front pulley support right down, 31: Pulley spacer 1mm, 32: Pulley spacer 2mm, 33: Front pulley support left up, 34: Front pulley support right up, 35: Oldham T8, 36: Oldham middle, 37: Oldham top sides, 38: Oldham top back, 39: Left gantry joint for CF tube, 40: Left top of gantry joint for CF tube, 41: Right gantry joint for CF tube, 42: Right top of gantry joint for CF tube, 43: MGN9 on CF positioning tool, 44: X/Y endstop trigger, 45: Y motor pulley spacer, 46: Y endstop mount, 47: CF tube M3 nut jig, 48: Extruder carriage for MGN9, 49: V6 hotend shroud, 50: Hotend blower spacer, 51: Belt lock, 52: FFC cable stopper, 53: V6 clamp, 54: Hotend mount, 55: Nema14 mount to carriage, 56: Rear carriage cable clamp, 57: FPC mount to frame, 58: TH35 mount, 59: Step down mount, 60: MOS mount, 61: Relay mount, 62: Probe mount, 63: Part cooling 1, 64: Part cooling 2, 65: Side slot front, 66: Side slot middle, 67: Side slot rear, 68: Side slot rear PS, 69: MGN7 support, 70: front MGN7 to bed connector, 71: back MGN7 to bed connector ]
 
 /* [tweaks/hacks] */
 
@@ -187,6 +187,7 @@ optical_endstop_holes=[[2.75,5.1],[2.75+19,5.1]];
 
 // handy rails vars
 MGN9_holes=[[-8,-7.5],[-8,7.5],[8,-7.5],[8,7.5]];
+MGN7_holes=[[-6.5,-6],[-6.5,6],[6.5,6],[6.5,-6]];
 
 // Extra stuff not in NopSCADlib
 // 688RS ball bearings (8x16x5)
@@ -1283,6 +1284,8 @@ module extruder_with_nema14(){
     translate([0,hot_y+probe_y-1.5,hot_z]) probe_mount();
     translate([0,hot_y+probe_y-1.5,hot_z]) mirror([1,0,0]) probe_mount();
   }
+  // filament cutter
+  #translate([-3,hot_y,-0.6]) cube([6,39.1,0.55]);
 
   // screws
   // MGN9 screws
@@ -3168,8 +3171,74 @@ module mgn7support(holes=7){
       }
     }
     // v-slot mount holes
-    translate([ext/2,2,5+15/2]) rotate([-90,0,0]) joint_hole(screw_l=8);
-    translate([ext/2,2,m7s_len-5-15/2]) rotate([-90,0,0]) joint_hole(screw_l=8);
+    translate([ext/2,2.5,5+15/2]) rotate([-90,0,0]) joint_hole(screw_l=8);
+    translate([ext/2,2.5,m7s_len-5-15/2]) rotate([-90,0,0]) joint_hole(screw_l=8);
+  }
+  if ($preview){
+    // frame screws
+    translate([ext/2,2.5,5+15/2]) rotate([-90,0,0]) screw(M5_cap_screw,8);
+    translate([ext/2,2.5,m7s_len-5-15/2]) rotate([-90,0,0]) screw(M5_cap_screw,8);
+  }
+}
+module mgn7connection_front(){
+  // front connector from MGN7 to bed
+  sh=4.5; // shift between rail and bed
+  color(pp_color2) difference(){
+    union(){
+       // mng side
+      translate([-17/2,0,0]) cube([17,4,22]);
+      // joiner
+      translate([0,0,22]) rotate([0,90,0]) triangle2(22,50,5);
+      // bed side
+      translate([-17/2+sh-ext/2,ext,23-4]){
+        cube([ext,2*ext,4]);
+        translate([ext/2,0,4]) rotate([90,0,180]) vslot_groove(2*ext);
+      }
+    }
+    // mgn7 screws
+    for (mh=MGN7_holes){
+      translate([mh.y,10,22/2+mh.x]) rotate([90,0,0]) cylinder(d=2,h=10);
+    // v-slot screw hole
+    translate([-sh,50,23-3.5]) rotate([180,0,0]) joint_hole(screw_l=9);
+    }
+  }
+  if ($preview){
+    // bed frame crew
+    translate([-sh,50,23-3.5]) rotate([180,0,0]) screw(M5_cap_screw,8);
+    // MGN7 screws
+    for (mh=MGN7_holes){
+      translate([mh.y,4,22/2+mh.x]) rotate([-90,0,0]) screw(M2_cap_screw,8);
+    }
+  }
+}
+module mgn7connection_back(){
+  // front connector from MGN7 to bed
+  color(pp_color2) difference(){
+    union(){
+       // mng side
+      translate([-17/2,0,0]) cube([17,4,22]);
+      // joiner
+      translate([0,0,22]) rotate([0,90,0]) triangle2(22,2*ext-8,5);
+      // bed side
+      translate([-17/2,ext-8,23-4]){
+        cube([1.5*ext,ext,4]);
+        translate([0,ext/2,4]) rotate([90,0,90]) vslot_groove(1.5*ext);
+      }
+    }
+    // mgn7 screws
+    for (mh=MGN7_holes){
+      translate([mh.y,10,22/2+mh.x]) rotate([90,0,0]) cylinder(d=2,h=10);
+    // v-slot screw hole
+    translate([ext/2,1.5*ext-8,23-3.5]) rotate([180,0,0]) joint_hole(screw_l=9);
+    }
+  }
+  if ($preview){
+    // bed frame crew
+    translate([ext/2,1.5*ext-8,23-3.5]) rotate([180,0,0]) screw(M5_cap_screw,8);
+    // MGN7 screws
+    for (mh=MGN7_holes){
+      translate([mh.y,4,22/2+mh.x]) rotate([-90,0,0]) screw(M2_cap_screw,8);
+    }
   }
 }
 module z_axis(){
@@ -3188,23 +3257,28 @@ module z_axis(){
     // linear rails
     rail_len=350;
     rail_shift=-125;
+    rail_carriage_shift=5;
 
     // front mgn7
-    translate([base_w-ext,2*ext+4,2*ext+rail_len/2]) rotate([0,-90,0]) rail_assembly(MGN7H_carriage, rail_len, -rail_shift-pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
+    translate([base_w-ext,2*ext+4,2*ext+rail_len/2]) rotate([0,-90,0]) rail_assembly(MGN7H_carriage, rail_len, -rail_shift-pos_z+rail_carriage_shift, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
     // front mgn support
     translate([base_w-ext,2*ext,2*ext+5]) {
       mgn7support();
       translate([0,0,8*15]) mgn7support();
       translate([0,0,16*15]) mgn7support();
     }
+    // front mgn7 connection to bed
+    translate([base_w-ext-8,2*ext+4,2*ext+16]) rotate([0,0,90]) mgn7connection_front();
     // rear mgn7
-    translate([elec_support+4,base_d-ext,2*ext+rail_len/2]) rotate([90,90,0]) rail_assembly(MGN7H_carriage, rail_len, rail_shift+pos_z, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
+    translate([elec_support+4,base_d-ext,2*ext+rail_len/2]) rotate([90,-90,0]) rail_assembly(MGN7H_carriage, rail_len, -rail_shift-pos_z+rail_carriage_shift, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
     // rear mgn support
     translate([elec_support,base_d-ext,2*ext+5]) rotate([0,0,90]) mirror([0,1,0]) {
       mgn7support();
       translate([0,0,8*15]) mgn7support();
       translate([0,0,16*15]) mgn7support();
     }
+    // rear mgn7 connector to bed
+    translate([elec_support+4,base_d-ext-8,2*ext+5+22/2]) rotate([0,0,180]) mgn7connection_back();
   }
   // Z motor
   p4=[ext+22, z_pulley_support-22-ext/2, z_belt_h-5.5];
@@ -3874,6 +3948,9 @@ module draw_printable_parts(){
   if (render_parts==66) enclosure_side_slot(end=false);
   if (render_parts==67) enclosure_side_slot(end=true,length=120);
   if (render_parts==68) enclosure_side_slot(end=true,length=120-50);
+  if (render_parts==69) mgn7support();
+  if (render_parts==70) mgn7connection_front();
+  if (render_parts==71) mgn7connection_back();
 }
 
 if ($preview) {
