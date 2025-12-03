@@ -47,7 +47,7 @@ bridge_thickness=0.20;
 t8_upper_bearings=true;
 
 // Z bed stabilization
-z_bed_stab = 0; // [0: v-slot wheels, 1: MGN7 linear rails]
+z_bed_stab = 1; // [0: v-slot wheels, 1: MGN7 linear rails]
 
 // correction for offset on overextrusion or slicer problems impacting on XY dimensions
 printer_off=0.10; // [0:0.01:0.2]
@@ -3166,8 +3166,10 @@ module mgn7support(holes=7){
     sc_len=m2_screw_l-4.5; // screw len=4.0+sc_len
     for (zz=[5:15:m7s_len]){
       translate([0,4,zz]) rotate([0,90,0]) {
-        cylinder(d=2.3,h=ext);
-        translate([0,0,sc_len]) cylinder(d=4.5+0.4,h=ext-sc_len,$fn=6);
+        // screw
+        cylinder(d=2.3+printer_off*4,h=ext);
+        // nut
+        translate([0,0,sc_len]) cylinder(d=4.5+0.4+printer_off*4,h=ext-sc_len,$fn=6);
       }
     }
     // v-slot mount holes
@@ -3268,7 +3270,7 @@ module z_axis(){
       translate([0,0,16*15]) mgn7support();
     }
     // front mgn7 connection to bed
-    translate([base_w-ext-8,2*ext+4,2*ext+16]) rotate([0,0,90]) mgn7connection_front();
+    translate([base_w-ext-8,2*ext+4,-16+rail_len-pos_z]) rotate([0,0,90]) mgn7connection_front();
     // rear mgn7
     translate([elec_support+4,base_d-ext,2*ext+rail_len/2]) rotate([90,-90,0]) rail_assembly(MGN7H_carriage, rail_len, -rail_shift-pos_z+rail_carriage_shift, carriage_end_colour = grey(20), carriage_wiper_colour = grey(20));
     // rear mgn support
@@ -3278,7 +3280,7 @@ module z_axis(){
       translate([0,0,16*15]) mgn7support();
     }
     // rear mgn7 connector to bed
-    translate([elec_support+4,base_d-ext-8,2*ext+5+22/2]) rotate([0,0,180]) mgn7connection_back();
+    translate([elec_support+4,base_d-ext-8,-16+rail_len-pos_z]) rotate([0,0,180]) mgn7connection_back();
   }
   // Z motor
   p4=[ext+22, z_pulley_support-22-ext/2, z_belt_h-5.5];
